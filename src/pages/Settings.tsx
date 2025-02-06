@@ -23,54 +23,47 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 ease-in-out ml-0 md:ml-20 lg:ml-64">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold mb-8">Paramètres</h1>
-          <Card className="p-4 sm:p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="companyName">Nom de l'entreprise</Label>
-                <Input
-                  id="companyName"
-                  value={formData.companyName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, companyName: e.target.value })
-                  }
-                  className="w-full"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email de contact</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="w-full"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Téléphone de contact</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  className="w-full"
-                />
-              </div>
-              <Button type="submit" className="w-full sm:w-auto">
-                Enregistrer les modifications
-              </Button>
-            </form>
-          </Card>
-        </div>
+      <main className="ml-64 p-8">
+        <h1 className="text-2xl font-bold mb-8">Paramètres</h1>
+        <Card className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="companyName">Nom de l'entreprise</Label>
+              <Input
+                id="companyName"
+                value={formData.companyName}
+                onChange={(e) =>
+                  setFormData({ ...formData, companyName: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email de contact</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Téléphone de contact</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+              />
+            </div>
+            <Button type="submit">Enregistrer les modifications</Button>
+          </form>
+        </Card>
       </main>
     </div>
   );
