@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -8,6 +8,10 @@ import {
   User,
   Settings,
   Clock,
+  Car,
+  FileText,
+  BarChart2,
+  LogOut,
   Menu,
   X,
 } from "lucide-react";
@@ -18,11 +22,20 @@ const menuItems = [
   { title: "Chauffeurs", icon: User, href: "/drivers" },
   { title: "Planning", icon: Calendar, href: "/planning" },
   { title: "Paramètres", icon: Settings, href: "/settings" },
+  { title: "Véhicules (v2)", icon: Car, href: "#", disabled: true },
+  {
+    title: "Feuilles de route (v2)",
+    icon: FileText,
+    href: "#",
+    disabled: true,
+  },
+  { title: "Bilan (v2)", icon: BarChart2, href: "#", disabled: true },
 ];
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const location = useLocation();
 
   // Vérifie si l'écran est en mode mobile
   useEffect(() => {
@@ -94,22 +107,47 @@ export const Sidebar = () => {
         {/* Navigation */}
         <nav className="flex-1 p-4 bg-background">
           <ul className="space-y-2">
-            {menuItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  to={item.href}
-                  className={cn(
-                    "flex p-2 hover:bg-secondary/50 rounded-lg transition-colors",
-                    collapsed ? "justify-center" : "items-center space-x-2"
-                  )}
-                >
-                  <item.icon size={20} />
-                  {!collapsed && <span>{item.title}</span>}
-                </Link>
-              </li>
-            ))}
+            {menuItems.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <li key={item.title}>
+                  <Link
+                    to={item.href}
+                    onClick={(e) => item.disabled && e.preventDefault()}
+                    className={cn(
+                      "flex p-2 hover:bg-secondary/50 rounded-lg transition-colors",
+                      collapsed ? "justify-center" : "items-center space-x-2",
+                      item.disabled && "opacity-50 cursor-not-allowed",
+                      isActive && "bg-primary/20 text-primary"
+                    )}
+                  >
+                    <item.icon
+                      size={20}
+                      className={isActive ? "text-primary" : ""}
+                    />
+                    {!collapsed && <span>{item.title}</span>}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
+
+        {/* Bouton de déconnexion */}
+        <div className="p-4 bg-background">
+          <Button
+            variant="destructive"
+            size="icon"
+            className={cn(
+              "w-full flex items-center justify-center space-x-2",
+              collapsed ? "justify-center" : ""
+            )}
+            onClick={() => console.log("Déconnexion")}
+          >
+            <LogOut size={20} />
+            {!collapsed && <span>Se déconnecter</span>}
+          </Button>
+        </div>
       </div>
     </>
   );

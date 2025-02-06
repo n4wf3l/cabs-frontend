@@ -85,10 +85,9 @@ const formatTime = (seconds) => {
 
 // Génération des heures de début de shift aléatoires entre 00:00:00 et 12:00:00
 const generateRandomShiftStart = () => {
-  const randomSeconds = Math.floor(Math.random() * 43200);
+  const randomSeconds = Math.floor(Math.random() * 43200); // 43200 secondes = 12 heures
   const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  return new Date(now.getTime() + randomSeconds * 1000);
+  return new Date(now.getTime() - randomSeconds * 1000); // Génère un shift dans les 12 dernières heures
 };
 
 // Liste des chauffeurs actifs avec leurs heures de début de shift
