@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -43,4 +43,27 @@
   .glass-card {
     @apply bg-secondary/30 backdrop-blur-lg border border-white/10;
   }
+}
+
+@keyframes light-move {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.hr-light-effect {
+  position: relative;
+  height: 1px; /* Épaisseur de la barre */
+  border: none;
+  background: linear-gradient(
+    90deg,
+    rgba(202, 161, 28, 0.1) 0%,
+    rgba(49, 77, 233, 0.5) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: light-move 2s linear infinite;
 }

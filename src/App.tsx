@@ -9,6 +9,9 @@ import Shifts from "./pages/Shifts";
 import Drivers from "./pages/Drivers";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Planning from "./pages/Planning";
+import AddDriver from "./pages/AddDriver";
+import ForgetPassword from "./pages/ForgetPassword";
 
 const queryClient = new QueryClient();
 
@@ -24,7 +27,10 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/shifts" element={<Shifts />} />
           <Route path="/drivers" element={<Drivers />} />
+          <Route path="/drivers/add" element={<AddDriver />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/planning" element={<Planning />} />
+          <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
