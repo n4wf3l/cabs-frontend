@@ -1,6 +1,5 @@
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,78 +21,51 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { Sidebar } from "@/components/dashboard/Sidebar";
+import { Checkbox } from "@/components/ui/checkbox";
 
-type DriverFormData = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  role: string;
-  employer: string;
-  birthPlace: string;
-  birthDate: string;
-  address: string;
-  country: string;
-  nationalId: string;
-  nationality: string;
-  idCardPhoto: File | null;
-  licensePhoto: File | null;
-  bankCardPhoto: File | null;
-  contractPhoto: File | null;
-  startDate: string;
-  description: string;
-  workDays: string[];
-  shift: string;
-  formula: string;
-  carPlate: string;
-  paymentMethods: {
-    [key: string]: boolean;
-  };
-};
 
-const paymentRates = {
-  "Carte bancaire": 2.5,
-  "Cheque Papier": 2.5,
-  Espèce: 0,
-  "Bolt App": 20,
-  "Bolt Cash": 20,
-  "Bolt carte bancaire": 22.5,
-  "Heetch App": 18,
-  "Heetch Cash": 18,
-  "Heetch Carte bancaire": 20.5,
-  "Uber App": 27.5,
-  "Uber Cash": 25,
-  "Uber Carte bancaire": 18,
-  "Taxi vert Cash": 0,
-  "Taxi vert APP": 2.5,
-  "Taxi vert Carte bancaire": 2.5,
-};
+const AddChauffeurForm = () => {
+  const form = useForm();
 
-const daysOfWeek = [
-  { label: "Lundi", value: "lundi" },
-  { label: "Mardi", value: "mardi" },
-  { label: "Mercredi", value: "mercredi" },
-  { label: "Jeudi", value: "jeudi" },
-  { label: "Vendredi", value: "vendredi" },
-  { label: "Samedi", value: "samedi" },
-  { label: "Dimanche", value: "dimanche" },
-];
-const AddDriverForm = () => {
-  const form = useForm<DriverFormData>();
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const onSubmit = async (data: any) => {
+    const formData = new FormData();
 
-  const onSubmit = (data: DriverFormData) => {
-    console.log(data);
-    toast.success("Driver added successfully!");
-  };
+    // Append text fields
+    Object.entries(data).forEach(([key, value]) => {
+      if (typeof value === "boolean") {
+        formData.append(key, value ? "true" : "false"); // ✅ Keeps it boolean-like
+      } else if (typeof value === "string") {
+        formData.append(key, value);
+      }
+    });
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: keyof DriverFormData
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      form.setValue(field as any, file);
+    // Append files
+    const fileFields = ["id_card", "driver_license_photo", "bank_card_photo", "contract_photo"];
+    fileFields.forEach((field) => {
+      if (data[field] instanceof FileList && data[field].length > 0) {
+        formData.append(field, data[field][0]);
+      }
+    });
+
+    try {
+      const response = await fetch("http://localhost:3000/chauffeurs", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}. Response: ${errorText}`);
+      }
+
+      const result = await response.json();
+      toast.success("Chauffeur ajouté avec succès!");
+      form.reset();
+    } catch (error) {
+      console.error("Failed to submit form:", error);
+      toast.error("Erreur lors de l'ajout du chauffeur.");
     }
   };
 
@@ -101,20 +73,29 @@ const AddDriverForm = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
       <main className="ml-64 p-8 w-full">
-        <h1 className="text-2xl font-bold mb-8">Ajouter un Chauffeur</h1>
-        <hr className="mb-10"></hr>
+        <motion.h1
+          className="text-2xl font-bold mb-8 text-center md:text-left"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Ajouter un Chauffeur
+        </motion.h1>
+        <hr className="mb-10" />
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Personal Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
-                  Informations personnelles
-                </h3>
-
+              <motion.div
+                className="space-y-4"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <h3 className="text-lg font-semibold">Informations personnelles</h3>
                 <FormField
                   control={form.control}
-                  name="firstName"
+                  name="first_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Prénom</FormLabel>
@@ -125,10 +106,9 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
-                  name="lastName"
+                  name="last_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nom</FormLabel>
@@ -139,7 +119,6 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="email"
@@ -147,17 +126,12 @@ const AddDriverForm = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Enter email"
-                          {...field}
-                        />
+                        <Input type="email" placeholder="Enter email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="phone"
@@ -171,43 +145,18 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-              </div>
+              </motion.div>
 
               {/* Role and Employment */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Role & Employment</h3>
-
+              <motion.div
+                className="space-y-4"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
                 <FormField
                   control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Rôle</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select role" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="driver">
-                            Chauffeur de Taxi
-                          </SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="manager">Gestionnaire</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="employer"
+                  name="company_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Employeur</FormLabel>
@@ -218,10 +167,9 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
-                  name="startDate"
+                  name="start_date"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date d'entrée</FormLabel>
@@ -232,15 +180,19 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-              </div>
+              </motion.div>
 
               {/* Birth and Nationality */}
-              <div className="space-y-4 mt-20">
+              <motion.div
+                className="space-y-4 mt-20"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
                 <h3 className="text-lg font-semibold">Birth & Nationality</h3>
-
                 <FormField
                   control={form.control}
-                  name="birthPlace"
+                  name="birth_place"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Lieu de naissance</FormLabel>
@@ -251,10 +203,9 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
-                  name="birthDate"
+                  name="birth_date"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date de naissance</FormLabel>
@@ -265,7 +216,6 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="nationality"
@@ -279,10 +229,9 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
-                  name="nationalId"
+                  name="national_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>N° identification national</FormLabel>
@@ -293,12 +242,16 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-              </div>
+              </motion.div>
 
               {/* Address */}
-              <div className="space-y-4 mt-20">
+              <motion.div
+                className="space-y-4 mt-20"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
                 <h3 className="text-lg font-semibold">Address</h3>
-
                 <FormField
                   control={form.control}
                   name="address"
@@ -312,7 +265,6 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="country"
@@ -326,105 +278,166 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-                <div className="space-y-4">
-                  {" "}
-                  {/* Existing Shift and Formula fields */}
-                  {/* Days of the Week Checkboxes */}
-                  <div className="space-y-2 mb-20">
-                    <h4 className="font-semibold">Jours de travail</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      {daysOfWeek.map((day) => (
-                        <div
-                          key={day.value}
-                          className="flex items-center space-x-2"
-                        >
-                          <input
-                            type="checkbox"
-                            id={day.value}
-                            className="rounded border-gray-300"
-                            onChange={(e) => {
-                              const isChecked = e.target.checked;
-                              if (isChecked) {
-                                // Add the day to the selectedDays array
-                                setSelectedDays((prev) => [...prev, day.value]);
-                                form.setValue("workDays", [
-                                  ...selectedDays,
-                                  day.value,
-                                ]);
-                              } else {
-                                // Remove the day from the selectedDays array
-                                setSelectedDays((prev) =>
-                                  prev.filter((d) => d !== day.value)
-                                );
-                                form.setValue(
-                                  "workDays",
-                                  selectedDays.filter((d) => d !== day.value)
-                                );
-                              }
-                            }}
-                          />
-                          <Label htmlFor={day.value}>{day.label}</Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              </motion.div>
+
+              {/* Days of the Week Checkboxes */}
+              <motion.div
+  className="space-y-4"
+  initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, delay: 0.8 }} // Adjusted delay for proper sequencing
+>
+<h3 className="text-lg font-semibold">Journee de travail</h3>
+<FormField
+  control={form.control}
+  name="works_monday"
+  render={({ field }) => (
+    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox
+          checked={field.value === true} // Ensure it's explicitly a boolean
+          onCheckedChange={(checked) => field.onChange(!!checked)} // Convert to boolean explicitly
+        />
+      </FormControl>
+      <FormLabel className="font-normal">Lundi</FormLabel>
+    </FormItem>
+  )}
+/>
+
+<FormField
+  control={form.control}
+  name="works_tuesday"
+  render={({ field }) => (
+    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox
+          checked={field.value === true} // Ensure it's explicitly a boolean
+          onCheckedChange={(checked) => field.onChange(!!checked)} // Convert to boolean explicitly
+        />
+      </FormControl>
+      <FormLabel className="font-normal">Mardi</FormLabel>
+    </FormItem>
+  )}
+/>
+
+<FormField
+  control={form.control}
+  name="works_wednesday"
+  render={({ field }) => (
+    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox
+          checked={field.value === true} // Ensure it's explicitly a boolean
+          onCheckedChange={(checked) => field.onChange(!!checked)} // Convert to boolean explicitly
+        />
+      </FormControl>
+      <FormLabel className="font-normal">Mercredi</FormLabel>
+    </FormItem>
+  )}
+/>
+
+<FormField
+  control={form.control}
+  name="works_thursday"
+  render={({ field }) => (
+    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox
+          checked={field.value === true} // Ensure it's explicitly a boolean
+          onCheckedChange={(checked) => field.onChange(!!checked)} // Convert to boolean explicitly
+        />
+      </FormControl>
+      <FormLabel className="font-normal">Jeudi</FormLabel>
+    </FormItem>
+  )}
+/>
+
+<FormField
+  control={form.control}
+  name="works_friday"
+  render={({ field }) => (
+    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox
+          checked={field.value === true} // Ensure it's explicitly a boolean
+          onCheckedChange={(checked) => field.onChange(!!checked)} // Convert to boolean explicitly
+        />
+      </FormControl>
+      <FormLabel className="font-normal">Vendredi</FormLabel>
+    </FormItem>
+  )}
+/>
+
+<FormField
+  control={form.control}
+  name="works_saturday"
+  render={({ field }) => (
+    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox
+          checked={field.value === true} // Ensure it's explicitly a boolean
+          onCheckedChange={(checked) => field.onChange(!!checked)} // Convert to boolean explicitly
+        />
+      </FormControl>
+      <FormLabel className="font-normal">Samedi</FormLabel>
+    </FormItem>
+  )}
+/>
+
+<FormField
+  control={form.control}
+  name="works_sunday"
+  render={({ field }) => (
+    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox
+          checked={field.value === true} // Ensure it's explicitly a boolean
+          onCheckedChange={(checked) => field.onChange(!!checked)} // Convert to boolean explicitly
+        />
+      </FormControl>
+      <FormLabel className="font-normal">Dimanche</FormLabel>
+    </FormItem>
+  )}
+/>
+
+
+</motion.div>
+  <h3 className="text-lg font-semibold">Payment Preferences</h3>
 
               {/* Documents Upload */}
-              <div className="space-y-4">
+              <motion.div
+                className="space-y-4"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+              >
                 <h3 className="text-lg font-semibold">Documents</h3>
-
                 <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="idCardPhoto">Carte d'identité</Label>
-                    <Input
-                      id="idCardPhoto"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "idCardPhoto")}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="licensePhoto">Permis de conduire</Label>
-                    <Input
-                      id="licensePhoto"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "licensePhoto")}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="bankCardPhoto">Carte bancaire</Label>
-                    <Input
-                      id="bankCardPhoto"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "bankCardPhoto")}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="contractPhoto">Contrat</Label>
-                    <Input
-                      id="contractPhoto"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "contractPhoto")}
-                    />
-                  </div>
+                  {["id_card", "driver_license_photo", "bank_card_photo", "contract_photo"].map((field) => (
+                    <div key={field}>
+                      <Label htmlFor={field}>{field.replace(/_/g, " ")}</Label>
+                      <Input
+                        id={field}
+                        type="file"
+                        accept="image/*"
+                        {...form.register(field)}
+                      />
+                    </div>
+                  ))}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Work Schedule */}
-              <div className="space-y-4">
+              <motion.div
+                className="space-y-4"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+              >
                 <h3 className="text-lg font-semibold">Work Schedule</h3>
-
                 <FormField
                   control={form.control}
-                  name="shift"
+                  name="shift_type"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Shift</FormLabel>
@@ -435,15 +448,15 @@ const AddDriverForm = () => {
                           className="flex flex-col space-y-1"
                         >
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="day" id="day" />
+                            <RadioGroupItem value="Day" id="day" />
                             <Label htmlFor="day">JOUR</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="night" id="night" />
+                            <RadioGroupItem value="Night" id="night" />
                             <Label htmlFor="night">NUIT</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="long" id="long" />
+                            <RadioGroupItem value="Long" id="long" />
                             <Label htmlFor="long">LONGUE</Label>
                           </div>
                         </RadioGroup>
@@ -452,17 +465,13 @@ const AddDriverForm = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
-                  name="formula"
+                  name="work_formula"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Formule</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select formula" />
@@ -470,77 +479,281 @@ const AddDriverForm = () => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="50/50">50/50</SelectItem>
-                          <SelectItem value="forfait">Forfait</SelectItem>
+                          <SelectItem value="Forfait">Forfait</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="carPlate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Voiture (Plaque)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter car plate number"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+               
+              </motion.div>
 
               {/* Payment Methods */}
-              <div className="space-y-4 col-span-full mt-20">
-                <h3 className="text-lg font-semibold">Payment Methods</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Object.entries(paymentRates).map(([method, rate]) => (
-                    <div key={method} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id={method}
-                        className="rounded border-gray-300"
-                        onChange={(e) =>
-                          form.setValue(
-                            `paymentMethods.${method}`,
-                            e.target.checked
-                          )
-                        }
-                      />
-                      <Label htmlFor={method}>
-                        {method} ({rate}%)
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <motion.div
+  className="space-y-4"
+  initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, delay: 0.8 }} // Adjusted delay for proper sequencing
+>
+  <h3 className="text-lg font-semibold">Payment Preferences</h3>
+
+  {/* General Payment Methods */}
+  <FormField
+  control={form.control}
+  name="accepts_card_payment"
+  render={({ field }) => (
+    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox
+          checked={field.value === true} // Ensure it's explicitly a boolean
+          onCheckedChange={(checked) => field.onChange(!!checked)} // Convert to boolean explicitly
+        />
+      </FormControl>
+      <FormLabel className="font-normal">Accepts Card Payment</FormLabel>
+    </FormItem>
+  )}
+/>
+  <FormField
+    control={form.control}
+    name="accepts_check_payment"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Check Payment</FormLabel>
+      </FormItem>
+    )}
+  />
+  <FormField
+    control={form.control}
+    name="accepts_cash_payment"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Cash Payment</FormLabel>
+      </FormItem>
+    )}
+  />
+
+  {/* Bolt Payment Methods */}
+  <h4 className="text-md font-medium mt-4">Bolt</h4>
+  <FormField
+    control={form.control}
+    name="accepts_bolt_app"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Bolt App</FormLabel>
+      </FormItem>
+    )}
+  />
+  <FormField
+    control={form.control}
+    name="accepts_bolt_cash"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Bolt Cash</FormLabel>
+      </FormItem>
+    )}
+  />
+  <FormField
+    control={form.control}
+    name="accepts_bolt_card"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Bolt Card</FormLabel>
+      </FormItem>
+    )}
+  />
+
+  {/* Heetch Payment Methods */}
+  <h4 className="text-md font-medium mt-4">Heetch</h4>
+  <FormField
+    control={form.control}
+    name="accepts_heetch_app"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Heetch App</FormLabel>
+      </FormItem>
+    )}
+  />
+  <FormField
+    control={form.control}
+    name="accepts_heetch_cash"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Heetch Cash</FormLabel>
+      </FormItem>
+    )}
+  />
+  <FormField
+    control={form.control}
+    name="accepts_heetch_card"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Heetch Card</FormLabel>
+      </FormItem>
+    )}
+  />
+
+  {/* Uber Payment Methods */}
+  <h4 className="text-md font-medium mt-4">Uber</h4>
+  <FormField
+    control={form.control}
+    name="accepts_uber_app"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Uber App</FormLabel>
+      </FormItem>
+    )}
+  />
+  <FormField
+    control={form.control}
+    name="accepts_uber_cash"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Uber Cash</FormLabel>
+      </FormItem>
+    )}
+  />
+  <FormField
+    control={form.control}
+    name="accepts_uber_card"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Uber Card</FormLabel>
+      </FormItem>
+    )}
+  />
+
+  {/* Taxi Vert Payment Methods */}
+  <h4 className="text-md font-medium mt-4">Taxi Vert</h4>
+  <FormField
+    control={form.control}
+    name="accepts_taxi_vert_cash"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Taxi Vert Cash</FormLabel>
+      </FormItem>
+    )}
+  />
+  <FormField
+    control={form.control}
+    name="accepts_taxi_vert_app"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Taxi Vert App</FormLabel>
+      </FormItem>
+    )}
+  />
+  <FormField
+    control={form.control}
+    name="accepts_taxi_vert_card"
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        </FormControl>
+        <FormLabel className="font-normal">Accepts Taxi Vert Card</FormLabel>
+      </FormItem>
+    )}
+  />
+</motion.div>
+
 
               {/* Description */}
-              <div className="col-span-full">
-                <FormField
+              <FormField
                   control={form.control}
-                  name="description"
+                  name="extra_info"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>Information Supplementaire</FormLabel>
                       <FormControl>
-                        <Textarea
-                          placeholder="Enter important information"
-                          className="min-h-[100px]"
-                          {...field}
-                        />
+                        <Textarea placeholder="" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
+           
             </div>
 
             <div className="flex justify-end">
@@ -555,4 +768,5 @@ const AddDriverForm = () => {
   );
 };
 
-export default AddDriverForm;
+export default AddChauffeurForm;
+
