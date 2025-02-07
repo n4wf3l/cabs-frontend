@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import { format, addWeeks, startOfWeek, endOfWeek, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
-import { motion } from "framer-motion"; // Importer Framer Motion
+import { motion } from "framer-motion";
+import Essence from "@/components/dashboard/Essence";
 
 const daysOfWeek = [
   "Lundi",
@@ -256,14 +257,17 @@ function App() {
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      <main className="ml-64 p-8">
+      <main className="flex-1 p-4 md:p-8 md:ml-64">
         <motion.div
+          className="flex flex-col md:flex-row items-center justify-between mb-8 mt-10"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-between mb-8"
+          transition={{ duration: 0.6 }}
         >
-          <h1 className="text-2xl font-bold">Planning</h1>
+          <h1 className="text-2xl font-bold text-center md:text-left">
+            Planning
+          </h1>
+          <Essence />
         </motion.div>
         <hr className="hr-light-effect mt-10 mb-10" />
         {/* Week Navigation */}
