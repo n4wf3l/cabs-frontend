@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
+import Essence from "@/components/dashboard/Essence";
 import { Card } from "@/components/ui/card";
 import { Users, Car, TrendingUp, Menu } from "lucide-react";
 import {
@@ -12,43 +13,7 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import { motion } from "framer-motion"; // 👉 Import de Framer Motion
-
-// Données des 15 chauffeurs jusqu'à jeudi
-const driverWorkHours = [
-  {
-    day: "Lundi",
-    Ahmed: 28800,
-    Youssef: 27000,
-    Fatima: 21600,
-    Khadija: 25200,
-    Mohamed: 23400,
-  },
-  {
-    day: "Mardi",
-    Ahmed: 32400,
-    Youssef: 28800,
-    Fatima: 25200,
-    Khadija: 27000,
-    Mohamed: 25200,
-  },
-  {
-    day: "Mercredi",
-    Ahmed: 27000,
-    Youssef: 25200,
-    Fatima: 28800,
-    Khadija: 24300,
-    Mohamed: 22500,
-  },
-  {
-    day: "Jeudi",
-    Ahmed: 28800,
-    Youssef: 32400,
-    Fatima: 27000,
-    Khadija: 25200,
-    Mohamed: 27000,
-  },
-];
+import { motion } from "framer-motion";
 
 const stats = [
   {
@@ -71,7 +36,6 @@ const stats = [
   },
 ];
 
-// Fonction pour formater les secondes en HH:MM:SS
 const formatTime = (seconds) => {
   const hrs = Math.floor(seconds / 3600)
     .toString()
@@ -83,14 +47,16 @@ const formatTime = (seconds) => {
   return `${hrs}:${mins}:${secs}`;
 };
 
-// Génération des heures de début de shift aléatoires entre 00:00:00 et 12:00:00
-const generateRandomShiftStart = () => {
-  const randomSeconds = Math.floor(Math.random() * 43200); // 43200 secondes = 12 heures
+const generateShiftStartBetween5And8 = () => {
+  const minSeconds = 18000; // 05:00:00
+  const maxSeconds = 28800; // 08:00:00
+  const randomSeconds =
+    Math.floor(Math.random() * (maxSeconds - minSeconds)) + minSeconds;
   const now = new Date();
-  return new Date(now.getTime() - randomSeconds * 1000); // Génère un shift dans les 12 dernières heures
+  now.setHours(0, 0, 0, 0);
+  return new Date(now.getTime() + randomSeconds * 1000);
 };
 
-// Liste des chauffeurs actifs avec leurs heures de début de shift
 const activeDrivers = [
   "Ahmed",
   "Youssef",
@@ -109,14 +75,13 @@ const activeDrivers = [
   "Rachid",
 ].map((name) => ({
   name,
-  shiftStart: generateRandomShiftStart(),
+  shiftStart: generateShiftStartBetween5And8(),
 }));
 
 const Dashboard = () => {
   const [currentTimes, setCurrentTimes] = useState({});
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Mettre à jour le compteur chaque seconde
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -135,9 +100,18 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const chartData = activeDrivers.map((driver) => {
+    const shiftHour = driver.shiftStart.getHours();
+    const shiftMinute = driver.shiftStart.getMinutes();
+    const shiftTime = shiftHour * 3600 + shiftMinute * 60;
+    return {
+      name: driver.name,
+      shiftStart: shiftTime,
+    };
+  });
+
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar responsive */}
       <div
         className={`fixed z-50 md:relative md:translate-x-0 transition-transform duration-300 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -146,21 +120,21 @@ const Dashboard = () => {
         <Sidebar />
       </div>
 
-      {/* Contenu principal */}
       <main className="flex-1 p-4 md:p-8 md:ml-64">
-        {/* Titre centré en mobile */}
-        <motion.h1
-          className="text-2xl font-bold mb-8 text-center md:text-left mt-10"
+        <motion.div
+          className="flex flex-col md:flex-row items-center justify-between mb-8 mt-10"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          Tableau de Bord
-        </motion.h1>
+          <h1 className="text-2xl font-bold text-center md:text-left">
+            Tableau de Bord
+          </h1>
+          <Essence />
+        </motion.div>
 
         <hr className="hr-light-effect mb-10" />
 
-        {/* Statistiques Globales avec animations */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {stats.map((stat, index) => (
             <motion.div
@@ -184,7 +158,6 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Chauffeurs Actuellement en Cours de Shift avec animations */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {activeDrivers.map((driver, index) => (
             <motion.div
@@ -209,6 +182,49 @@ const Dashboard = () => {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Graphique des horaires de shift */}
+        <div className="mt-12">
+          <h2 className="text-xl font-bold mb-4">Horaires de début de shift</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart
+              data={chartData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis
+                type="number"
+                domain={[18000, 28800]}
+                tickFormatter={(tick) => {
+                  const hours = Math.floor(tick / 3600)
+                    .toString()
+                    .padStart(2, "0");
+                  const minutes = Math.floor((tick % 3600) / 60)
+                    .toString()
+                    .padStart(2, "0");
+                  return `${hours}:${minutes}`;
+                }}
+              />
+              <Tooltip
+                formatter={(value) => {
+                  if (typeof value === "number") {
+                    const hours = Math.floor(value / 3600)
+                      .toString()
+                      .padStart(2, "0");
+                    const minutes = Math.floor((value % 3600) / 60)
+                      .toString()
+                      .padStart(2, "0");
+                    return `${hours}:${minutes}`;
+                  }
+                  return "Pas commencé";
+                }}
+              />
+              <Legend />
+              <Line type="monotone" dataKey="shiftStart" stroke="#8884d8" />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </main>
     </div>

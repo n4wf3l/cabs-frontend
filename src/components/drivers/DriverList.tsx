@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -7,14 +8,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EditDriverDialog } from "./EditDriverDialog";
-import { DeleteDriverDialog } from "./DeleteDriverDialog";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { fetchChauffeurs, deleteChauffeur } from "@/api/chauffeurs";
+import { deleteChauffeur, fetchChauffeurs } from "@/api/chauffeurs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/components/ui/use-toast";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 export const DriverList = () => {
   const [drivers, setDrivers] = useState<any[]>([]);
@@ -64,79 +64,90 @@ export const DriverList = () => {
   };
 
   return (
-    <>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nom</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Téléphone</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+    <motion.div
+      className="rounded-md border shadow-lg p-4 bg-gray-900"
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nom</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Téléphone</TableHead>
+            <TableHead>Statut</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loading
+            ? Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index} className="border-b border-gray-200">
+                  <TableCell>
+                    <Skeleton className="h-6 w-20" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-32" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-24" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-16" />
+                  </TableCell>
                   <TableCell className="text-right space-x-2">
                     <Skeleton className="h-6 w-16" />
                   </TableCell>
                 </TableRow>
               ))
-            ) : (
-              drivers.map((driver) => (
-                <TableRow key={driver.id}>
-                  <TableCell>{driver.first_name} {driver.last_name}</TableCell>
+            : drivers.map((driver) => (
+                <TableRow
+                  key={driver.id}
+                  className="border-b border-gray-200 hover:bg-gray-50"
+                >
+                  <TableCell>
+                    {driver.first_name} {driver.last_name}
+                  </TableCell>
                   <TableCell>{driver.email}</TableCell>
                   <TableCell>{driver.phone}</TableCell>
                   <TableCell>
                     <Badge
-                      variant={driver.employment_status === "Active" ? "default" : "secondary"}
+                      variant={
+                        driver.employment_status === "Active"
+                          ? "default"
+                          : "secondary"
+                      }
                     >
-                      {driver.employment_status === "Active" ? "Actif" : "Inactif"}
+                      {driver.employment_status === "Active"
+                        ? "Actif"
+                        : "Inactif"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="bg-primary/10 hover:bg-primary/20 rounded-full"
                       onClick={() => setEditingDriver(driver)}
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Pencil className="h-4 w-4 text-primary" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="bg-red-500/10 hover:bg-red-500/20 rounded-full"
                       onClick={() => setDeletingDriver(driver)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      <EditDriverDialog
-        driver={editingDriver}
-        open={!!editingDriver}
-        onOpenChange={(open) => !open && setEditingDriver(null)}
-        onEdit={handleEditDriver} // ✅ Pass edit function
-      />
-      <DeleteDriverDialog
-        driver={deletingDriver}
-        open={!!deletingDriver}
-        onOpenChange={(open) => !open && setDeletingDriver(null)}
-        onDelete={handleDeleteDriver} // ✅ Pass delete function
-      />
-    </>
+              ))}
+        </TableBody>
+      </Table>
+    </motion.div>
   );
 };
+
+export default DriverList;
