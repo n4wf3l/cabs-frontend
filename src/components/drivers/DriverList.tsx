@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -21,6 +20,9 @@ export const DriverList = () => {
   const [loading, setLoading] = useState(true);
   const [editingDriver, setEditingDriver] = useState<any>(null);
   const [deletingDriver, setDeletingDriver] = useState<any>(null);
+  const [highlightedDriverId, setHighlightedDriverId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const loadDrivers = async () => {

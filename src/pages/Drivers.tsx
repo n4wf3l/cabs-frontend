@@ -238,11 +238,23 @@ export const Drivers = () => {
           driver={editingDriver}
           open={!!editingDriver}
           onOpenChange={(open) => !open && setEditingDriver(null)}
+          onEdit={(updatedDriver) => {
+            setDrivers((prevDrivers) =>
+              prevDrivers.map((driver) =>
+                driver.id === updatedDriver.id ? updatedDriver : driver
+              )
+            );
+          }}
         />
         <DeleteDriverDialog
           driver={deletingDriver}
           open={!!deletingDriver}
           onOpenChange={(open) => !open && setDeletingDriver(null)}
+          onDelete={(driverId) => {
+            setDrivers((prevDrivers) =>
+              prevDrivers.filter((driver) => driver.id !== driverId)
+            );
+          }}
         />
       </main>
     </div>

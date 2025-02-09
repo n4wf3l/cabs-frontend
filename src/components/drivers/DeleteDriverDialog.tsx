@@ -12,7 +12,7 @@ interface DeleteDriverDialogProps {
   driver: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onDelete: (driverId: string) => void; // ✅ Added onDelete prop
+  onDelete: (driverId: string) => void;
 }
 
 export const DeleteDriverDialog = ({
@@ -23,14 +23,22 @@ export const DeleteDriverDialog = ({
 }: DeleteDriverDialogProps) => {
   if (!driver) return null;
 
+  const handleDelete = () => {
+    onDelete(driver.id);
+    onOpenChange(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Supprimer le chauffeur</DialogTitle>
           <DialogDescription>
-            Êtes-vous sûr de vouloir supprimer <b>{driver.first_name} {driver.last_name}</b> ?
-            Cette action est irréversible.
+            Êtes-vous sûr de vouloir supprimer{" "}
+            <b>
+              {driver.first_name} {driver.last_name}
+            </b>{" "}
+            ? Cette action est irréversible.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -41,14 +49,7 @@ export const DeleteDriverDialog = ({
           >
             Annuler
           </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={() => {
-              onDelete(driver.id); // ✅ Call delete function
-              onOpenChange(false); // ✅ Close modal
-            }}
-          >
+          <Button type="button" variant="destructive" onClick={handleDelete}>
             Supprimer
           </Button>
         </DialogFooter>
@@ -56,3 +57,5 @@ export const DeleteDriverDialog = ({
     </Dialog>
   );
 };
+
+export default DeleteDriverDialog;
