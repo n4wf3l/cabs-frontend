@@ -34,3 +34,28 @@ export const fetchChauffeurById = async (id: string) => {
     throw error;
   }
 };
+
+// ✅ Delete a chauffeur by ID
+export const deleteChauffeur = async (id: string) => {
+  try {
+    await api.delete(`/chauffeurs/${id}`);
+  } catch (error) {
+    console.error("Error deleting chauffeur:", error);
+    throw error;
+  }
+};
+
+// ✅ Update a chauffeur
+export const updateChauffeur = async (id: string, formData: FormData) => {
+  try {
+    const response = await api.put(`/chauffeurs/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating chauffeur:", error);
+    throw error;
+  }
+};
+
+

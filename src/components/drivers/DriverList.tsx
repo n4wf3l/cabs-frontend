@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -10,21 +11,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { fetchChauffeurs } from "@/api/chauffeurs";
+import { deleteChauffeur, fetchChauffeurs } from "@/api/chauffeurs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export const DriverList = () => {
   const [drivers, setDrivers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingDriver, setEditingDriver] = useState<any>(null);
   const [deletingDriver, setDeletingDriver] = useState<any>(null);
-  const [highlightedDriverId, setHighlightedDriverId] = useState<number | null>(
-    null
-  );
-
-  const location = useLocation();
 
   useEffect(() => {
     const loadDrivers = async () => {
@@ -37,25 +33,13 @@ export const DriverList = () => {
         );
         setDrivers(sortedData);
       } catch (error) {
-        console.error("Erreur lors du chargement des chauffeurs:", error);
+        console.error("❌ Erreur lors du chargement des chauffeurs:", error);
       } finally {
         setLoading(false);
       }
     };
     loadDrivers();
   }, []);
-
-  // Ajout dynamique du chauffeur si la navigation a passé un nouvel ajout
-  useEffect(() => {
-    if (location.state?.newDriver) {
-      const newDriver = location.state.newDriver;
-      setDrivers((prevDrivers) => [newDriver, ...prevDrivers]);
-      setHighlightedDriverId(newDriver.id);
-
-      // Supprimer la surbrillance après 2 secondes
-      setTimeout(() => setHighlightedDriverId(null), 2000);
-    }
-  }, [location.state]);
 
   return (
     <motion.div

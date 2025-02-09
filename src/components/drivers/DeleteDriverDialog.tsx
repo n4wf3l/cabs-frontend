@@ -7,30 +7,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 
 interface DeleteDriverDialogProps {
   driver: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onDelete: (driverId: string) => void; // ✅ Added onDelete prop
 }
 
 export const DeleteDriverDialog = ({
   driver,
   open,
   onOpenChange,
+  onDelete,
 }: DeleteDriverDialogProps) => {
-  const { toast } = useToast();
-
-  const handleDelete = () => {
-    // Delete driver logic here
-    toast({
-      title: "Chauffeur supprimé",
-      description: "Le chauffeur a été supprimé avec succès.",
-    });
-    onOpenChange(false);
-  };
-
   if (!driver) return null;
 
   return (
@@ -39,8 +29,8 @@ export const DeleteDriverDialog = ({
         <DialogHeader>
           <DialogTitle>Supprimer le chauffeur</DialogTitle>
           <DialogDescription>
-            Êtes-vous sûr de vouloir supprimer le chauffeur {driver.name} ? Cette
-            action est irréversible.
+            Êtes-vous sûr de vouloir supprimer <b>{driver.first_name} {driver.last_name}</b> ?
+            Cette action est irréversible.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -54,7 +44,10 @@ export const DeleteDriverDialog = ({
           <Button
             type="button"
             variant="destructive"
-            onClick={handleDelete}
+            onClick={() => {
+              onDelete(driver.id); // ✅ Call delete function
+              onOpenChange(false); // ✅ Close modal
+            }}
           >
             Supprimer
           </Button>
