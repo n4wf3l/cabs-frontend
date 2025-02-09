@@ -108,7 +108,7 @@ const AddChauffeurForm = () => {
                 className="w-full md:w-auto"
                 disabled={isLoading}
               >
-                {isLoading ? "Ajout en cours..." : "Add Driver"}
+                {isLoading ? "Ajout en cours..." : "Ajouter le chauffeur"}
               </Button>
             </div>
           </form>

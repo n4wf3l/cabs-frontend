@@ -175,7 +175,6 @@ const PersonalData = ({ form }) => {
         )}
       />
 
-      <h3 className="text-lg font-semibold">Rôle et Emploi</h3>
       <FormField
         control={form.control}
         name="company_id"
