@@ -73,8 +73,36 @@ const PersonalData = ({ form }) => {
           </FormItem>
         )}
       />
+
+      <FormField
+        control={form.control}
+        name="company_id"
+        rules={{ required: "L'employeur est obligatoire" }} // Validation
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-white">Employeur</FormLabel>
+            <FormControl>
+              <Input placeholder="Entrez le nom de l'employeur" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="start_date"
+        rules={{ required: "La date d'entrée est obligatoire" }} // Validation
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-white">Date d'entrée</FormLabel>
+            <FormControl>
+              <Input type="date" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       {/* Birth and Nationality */}
-      <h3 className="text-lg font-semibold">Naissance & Nationalité</h3>
       <FormField
         control={form.control}
         name="birth_place"
@@ -143,7 +171,6 @@ const PersonalData = ({ form }) => {
         )}
       />
       {/* Address */}
-      <h3 className="text-lg font-semibold">Adresse</h3>
       <FormField
         control={form.control}
         name="address"
@@ -171,35 +198,6 @@ const PersonalData = ({ form }) => {
             </FormControl>
             <FormMessage className="text-red-500" />{" "}
             {/* Message d'erreur en rouge */}
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="company_id"
-        rules={{ required: "L'employeur est obligatoire" }} // Validation
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-white">Employeur</FormLabel>
-            <FormControl>
-              <Input placeholder="Entrez le nom de l'employeur" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="start_date"
-        rules={{ required: "La date d'entrée est obligatoire" }} // Validation
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-white">Date d'entrée</FormLabel>
-            <FormControl>
-              <Input type="date" {...field} />
-            </FormControl>
-            <FormMessage />
           </FormItem>
         )}
       />
