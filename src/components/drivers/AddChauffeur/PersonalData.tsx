@@ -19,7 +19,7 @@ const PersonalData = ({ form }) => {
         rules={{ required: "Le prénom est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Prénom</FormLabel>
+            <FormLabel className="text-white">Prénom</FormLabel>
             <FormControl>
               <Input placeholder="Entrez le prénom" {...field} />
             </FormControl>
@@ -34,7 +34,7 @@ const PersonalData = ({ form }) => {
         rules={{ required: "Le nom est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nom</FormLabel>
+            <FormLabel className="text-white">Nom</FormLabel>
             <FormControl>
               <Input placeholder="Entrez le nom" {...field} />
             </FormControl>
@@ -49,7 +49,7 @@ const PersonalData = ({ form }) => {
         rules={{ required: "L'email est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Email</FormLabel>
+            <FormLabel className="text-white">Email</FormLabel>
             <FormControl>
               <Input type="email" placeholder="Entrez l'email" {...field} />
             </FormControl>
@@ -64,7 +64,7 @@ const PersonalData = ({ form }) => {
         rules={{ required: "Le numéro de téléphone est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Téléphone</FormLabel>
+            <FormLabel className="text-white">Téléphone</FormLabel>
             <FormControl>
               <Input placeholder="Entrez le numéro de téléphone" {...field} />
             </FormControl>
@@ -81,7 +81,7 @@ const PersonalData = ({ form }) => {
         rules={{ required: "Le lieu de naissance est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Lieu de naissance</FormLabel>
+            <FormLabel className="text-white">Lieu de naissance</FormLabel>
             <FormControl>
               <Input placeholder="Entrez le lieu de naissance" {...field} />
             </FormControl>
@@ -96,7 +96,7 @@ const PersonalData = ({ form }) => {
         rules={{ required: "La date de naissance est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Date de naissance</FormLabel>
+            <FormLabel className="text-white">Date de naissance</FormLabel>
             <FormControl>
               <Input type="date" {...field} />
             </FormControl>
@@ -111,7 +111,7 @@ const PersonalData = ({ form }) => {
         rules={{ required: "La nationalité est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nationalité</FormLabel>
+            <FormLabel className="text-white">Nationalité</FormLabel>
             <FormControl>
               <Input placeholder="Entrez la nationalité" {...field} />
             </FormControl>
@@ -128,7 +128,9 @@ const PersonalData = ({ form }) => {
         }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>N° identification national</FormLabel>
+            <FormLabel className="text-white">
+              N° identification national
+            </FormLabel>
             <FormControl>
               <Input
                 placeholder="Entrez le numéro d'identification national"
@@ -148,7 +150,7 @@ const PersonalData = ({ form }) => {
         rules={{ required: "L'adresse est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Adresse</FormLabel>
+            <FormLabel className="text-white">Adresse</FormLabel>
             <FormControl>
               <Textarea placeholder="Entrez l'adresse" {...field} />
             </FormControl>
@@ -163,12 +165,42 @@ const PersonalData = ({ form }) => {
         rules={{ required: "Le pays est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Pays</FormLabel>
+            <FormLabel className="text-white">Pays</FormLabel>
             <FormControl>
               <Input placeholder="Entrez le pays" {...field} />
             </FormControl>
             <FormMessage className="text-red-500" />{" "}
             {/* Message d'erreur en rouge */}
+          </FormItem>
+        )}
+      />
+
+      <h3 className="text-lg font-semibold">Rôle et Emploi</h3>
+      <FormField
+        control={form.control}
+        name="company_id"
+        rules={{ required: "L'employeur est obligatoire" }} // Validation
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-white">Employeur</FormLabel>
+            <FormControl>
+              <Input placeholder="Entrez le nom de l'employeur" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="start_date"
+        rules={{ required: "La date d'entrée est obligatoire" }} // Validation
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-white">Date d'entrée</FormLabel>
+            <FormControl>
+              <Input type="date" {...field} />
+            </FormControl>
+            <FormMessage />
           </FormItem>
         )}
       />

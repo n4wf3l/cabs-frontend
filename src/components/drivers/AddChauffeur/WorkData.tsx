@@ -20,35 +20,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 const WorkData = ({ form }) => {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Rôle et Emploi</h3>
-      <FormField
-        control={form.control}
-        name="company_id"
-        rules={{ required: "L'employeur est obligatoire" }} // Validation
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Employeur</FormLabel>
-            <FormControl>
-              <Input placeholder="Entrez le nom de l'employeur" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="start_date"
-        rules={{ required: "La date d'entrée est obligatoire" }} // Validation
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Date d'entrée</FormLabel>
-            <FormControl>
-              <Input type="date" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
       {/* Work Schedule */}
       <h3 className="text-lg font-semibold">Horaires de travail</h3>
       <FormField
@@ -57,7 +28,7 @@ const WorkData = ({ form }) => {
         rules={{ required: "Le type de shift est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Type de shift</FormLabel>
+            <FormLabel className="text-white">Type de shift</FormLabel>
             <FormControl>
               <RadioGroup
                 onValueChange={field.onChange}
@@ -66,15 +37,21 @@ const WorkData = ({ form }) => {
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Day" id="day" />
-                  <FormLabel htmlFor="day">JOUR</FormLabel>
+                  <FormLabel className="text-white" htmlFor="day">
+                    JOUR
+                  </FormLabel>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Night" id="night" />
-                  <FormLabel htmlFor="night">NUIT</FormLabel>
+                  <FormLabel className="text-white" htmlFor="night">
+                    NUIT
+                  </FormLabel>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Long" id="long" />
-                  <FormLabel htmlFor="long">LONGUE</FormLabel>
+                  <FormLabel className="text-white" htmlFor="long">
+                    LONGUE
+                  </FormLabel>
                 </div>
               </RadioGroup>
             </FormControl>
@@ -88,7 +65,7 @@ const WorkData = ({ form }) => {
         rules={{ required: "La formule de travail est obligatoire" }} // Validation
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Formule</FormLabel>
+            <FormLabel className="text-white">Formule</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger>
@@ -269,26 +246,6 @@ const WorkData = ({ form }) => {
           )}
         />
       ))}
-      {/* Documents Upload */}
-      <h3 className="text-lg font-semibold">Documents</h3>
-      <div className="space-y-4">
-        {[
-          "id_card",
-          "driver_license_photo",
-          "bank_card_photo",
-          "contract_photo",
-        ].map((field) => (
-          <div key={field}>
-            <FormLabel htmlFor={field}>{field.replace(/_/g, " ")}</FormLabel>
-            <Input
-              id={field}
-              type="file"
-              accept="image/*"
-              {...form.register(field)}
-            />
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

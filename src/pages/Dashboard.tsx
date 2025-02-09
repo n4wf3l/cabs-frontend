@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
+  ReferenceLine,
 } from "recharts";
 import { motion } from "framer-motion";
 
@@ -185,7 +186,12 @@ const Dashboard = () => {
         </div>
 
         {/* Graphique des horaires de shift */}
-        <div className="mt-12">
+        <motion.div
+          className="mt-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h2 className="text-xl font-bold mb-4">Horaires de début de shift</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart
@@ -223,9 +229,18 @@ const Dashboard = () => {
               />
               <Legend />
               <Line type="monotone" dataKey="shiftStart" stroke="#8884d8" />
+
+              {/* Ligne bleue à 6h (21600 secondes) */}
+              <ReferenceLine
+                y={21600}
+                stroke="blue"
+                strokeWidth={2}
+                strokeDasharray="0"
+                label={{ value: "6:00", position: "right", fill: "blue" }}
+              />
             </LineChart>
           </ResponsiveContainer>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

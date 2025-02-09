@@ -13,18 +13,29 @@ import { Badge } from "@/components/ui/badge";
 import { fetchChauffeurs } from "@/api/chauffeurs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 
 export const DriverList = () => {
   const [drivers, setDrivers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingDriver, setEditingDriver] = useState<any>(null);
   const [deletingDriver, setDeletingDriver] = useState<any>(null);
+  const [highlightedDriverId, setHighlightedDriverId] = useState<number | null>(
+    null
+  );
+
+  const location = useLocation();
 
   useEffect(() => {
     const loadDrivers = async () => {
       try {
         const data = await fetchChauffeurs();
-        setDrivers(data);
+        // Trier les chauffeurs par date de création décroissante (plus récent en premier)
+        const sortedData = data.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        setDrivers(sortedData);
       } catch (error) {
         console.error("Erreur lors du chargement des chauffeurs:", error);
       } finally {
@@ -33,6 +44,18 @@ export const DriverList = () => {
     };
     loadDrivers();
   }, []);
+
+  // Ajout dynamique du chauffeur si la navigation a passé un nouvel ajout
+  useEffect(() => {
+    if (location.state?.newDriver) {
+      const newDriver = location.state.newDriver;
+      setDrivers((prevDrivers) => [newDriver, ...prevDrivers]);
+      setHighlightedDriverId(newDriver.id);
+
+      // Supprimer la surbrillance après 2 secondes
+      setTimeout(() => setHighlightedDriverId(null), 2000);
+    }
+  }, [location.state]);
 
   return (
     <motion.div
@@ -72,49 +95,66 @@ export const DriverList = () => {
                   </TableCell>
                 </TableRow>
               ))
-            : drivers.map((driver) => (
-                <TableRow
-                  key={driver.id}
-                  className="border-b border-gray-200 hover:bg-gray-50"
-                >
-                  <TableCell>
-                    {driver.first_name} {driver.last_name}
-                  </TableCell>
-                  <TableCell>{driver.email}</TableCell>
-                  <TableCell>{driver.phone}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        driver.employment_status === "Active"
-                          ? "default"
-                          : "secondary"
-                      }
-                    >
-                      {driver.employment_status === "Active"
-                        ? "Actif"
-                        : "Inactif"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="bg-primary/10 hover:bg-primary/20 rounded-full"
-                      onClick={() => setEditingDriver(driver)}
-                    >
-                      <Pencil className="h-4 w-4 text-primary" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="bg-red-500/10 hover:bg-red-500/20 rounded-full"
-                      onClick={() => setDeletingDriver(driver)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+            : drivers
+                .sort(
+                  (a, b) =>
+                    new Date(b.created_at).getTime() -
+                    new Date(a.created_at).getTime()
+                )
+                .map((driver) => (
+                  <motion.tr
+                    key={driver.id}
+                    initial={
+                      highlightedDriverId === driver.id
+                        ? { backgroundColor: "#D1FAE5", scale: 1.02 }
+                        : {}
+                    }
+                    animate={{
+                      backgroundColor:
+                        highlightedDriverId === driver.id ? "#D1FAE5" : "#FFF",
+                      scale: 1,
+                    }}
+                    transition={{ duration: 0.5 }}
+                    className="border-b border-gray-200 hover:bg-gray-50"
+                  >
+                    <TableCell>
+                      {driver.first_name} {driver.last_name}
+                    </TableCell>
+                    <TableCell>{driver.email}</TableCell>
+                    <TableCell>{driver.phone}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          driver.employment_status === "Active"
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
+                        {driver.employment_status === "Active"
+                          ? "Actif"
+                          : "Inactif"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-primary/10 hover:bg-primary/20 rounded-full"
+                        onClick={() => setEditingDriver(driver)}
+                      >
+                        <Pencil className="h-4 w-4 text-primary" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-red-500/10 hover:bg-red-500/20 rounded-full"
+                        onClick={() => setDeletingDriver(driver)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </TableCell>
+                  </motion.tr>
+                ))}
         </TableBody>
       </Table>
     </motion.div>

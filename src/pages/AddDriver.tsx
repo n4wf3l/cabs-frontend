@@ -1,30 +1,33 @@
-// components/drivers/AddChauffeur/AddChauffeurForm.tsx
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import PersonalData from "@/components/drivers/AddChauffeur/PersonalData"; // Assurez-vous que le chemin est correct
-import WorkData from "@/components/drivers/AddChauffeur/WorkData"; // Assurez-vous que le chemin est correct
+import PersonalData from "@/components/drivers/AddChauffeur/PersonalData";
+import WorkData from "@/components/drivers/AddChauffeur/WorkData";
+import UploadingData from "@/components/drivers/AddChauffeur/UploadingData";
 
 const AddChauffeurForm = () => {
   const form = useForm();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+
   const onSubmit = async (data: any) => {
+    setIsLoading(true); // Active le chargement
+
     const formData = new FormData();
 
-    // Append text fields
     Object.entries(data).forEach(([key, value]) => {
       if (typeof value === "boolean") {
-        formData.append(key, value ? "true" : "false"); // ✅ Keeps it boolean-like
+        formData.append(key, value ? "true" : "false");
       } else if (typeof value === "string") {
         formData.append(key, value);
       }
     });
 
-    // Append files
     const fileFields = [
       "id_card",
       "driver_license_photo",
@@ -53,9 +56,14 @@ const AddChauffeurForm = () => {
       const result = await response.json();
       toast.success("Chauffeur ajouté avec succès!");
       form.reset();
+
+      // Redirige vers la page des chauffeurs après succès
+      navigate("/drivers", { state: { newDriver: result } });
     } catch (error) {
       console.error("Failed to submit form:", error);
       toast.error("Erreur lors de l'ajout du chauffeur.");
+    } finally {
+      setIsLoading(false); // Désactive le chargement après la soumission
     }
   };
 
@@ -91,9 +99,16 @@ const AddChauffeurForm = () => {
               <PersonalData form={form} />
               <WorkData form={form} />
             </div>
-            <div className="flex justify-end">
-              <Button type="submit" className="w-full md:w-auto">
-                Add Driver
+            <div className="mt-6">
+              <UploadingData form={form} />
+            </div>
+            <div className="flex justify-end mt-6">
+              <Button
+                type="submit"
+                className="w-full md:w-auto"
+                disabled={isLoading}
+              >
+                {isLoading ? "Ajout en cours..." : "Add Driver"}
               </Button>
             </div>
           </form>

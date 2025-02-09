@@ -27,19 +27,29 @@ export const Drivers = () => {
   const [editingDriver, setEditingDriver] = useState<any>(null);
   const [deletingDriver, setDeletingDriver] = useState<any>(null);
   const [filter, setFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const driversPerPage = 10;
   const navigate = useNavigate();
 
   useEffect(() => {
     const loadDrivers = async () => {
       try {
         const data = await fetchChauffeurs();
-        setDrivers(data);
+
+        // Trier les chauffeurs par date de création décroissante (plus récents en premier)
+        const sortedData = data.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
+        setDrivers(sortedData);
       } catch (error) {
         console.error("Erreur lors du chargement des chauffeurs:", error);
       } finally {
         setLoading(false);
       }
     };
+
     loadDrivers();
   }, []);
 
@@ -58,12 +68,27 @@ export const Drivers = () => {
     doc.save("chauffeurs.pdf");
   };
 
-  const filteredDrivers = drivers.filter(
-    (driver) =>
-      driver.first_name.toLowerCase().includes(filter.toLowerCase()) ||
-      driver.last_name.toLowerCase().includes(filter.toLowerCase()) ||
-      driver.phone.includes(filter)
+  const filteredDrivers = drivers
+    .filter(
+      (driver) =>
+        driver.first_name.toLowerCase().includes(filter.toLowerCase()) ||
+        driver.last_name.toLowerCase().includes(filter.toLowerCase()) ||
+        driver.phone.includes(filter)
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    ); // Trier après filtrage
+
+  // Pagination
+  const indexOfLastDriver = currentPage * driversPerPage;
+  const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
+  const currentDrivers = filteredDrivers.slice(
+    indexOfFirstDriver,
+    indexOfLastDriver
   );
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -143,7 +168,7 @@ export const Drivers = () => {
                       </TableCell>
                     </TableRow>
                   ))
-                : filteredDrivers.map((driver) => (
+                : currentDrivers.map((driver) => (
                     <TableRow
                       key={driver.id}
                       className="border-b border-gray-200 hover:bg-gray-900"
@@ -189,6 +214,25 @@ export const Drivers = () => {
             </TableBody>
           </Table>
         </motion.div>
+
+        {/* Pagination */}
+        <div className="flex justify-center mt-6">
+          {[...Array(Math.ceil(filteredDrivers.length / driversPerPage))].map(
+            (_, index) => (
+              <Button
+                key={index + 1}
+                onClick={() => paginate(index + 1)}
+                className={`mx-1 px-3 py-1 text-sm rounded-lg shadow-md ${
+                  currentPage === index + 1
+                    ? "bg-primary text-white"
+                    : "bg-gray-300 text-black"
+                }`}
+              >
+                {index + 1}
+              </Button>
+            )
+          )}
+        </div>
 
         <EditDriverDialog
           driver={editingDriver}
