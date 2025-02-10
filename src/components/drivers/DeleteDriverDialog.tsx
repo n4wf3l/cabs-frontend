@@ -21,9 +21,14 @@ export const DeleteDriverDialog = ({
   onOpenChange,
   onDelete,
 }: DeleteDriverDialogProps) => {
-  if (!driver) return null;
+  if (!driver) {
+    console.error("Driver is undefined or null"); // Debug log
+    return null;
+  }
 
   const handleDelete = () => {
+    console.log("Delete button clicked, calling onDelete..."); // Debug log
+    console.log("Driver ID to delete:", driver.id); // Debug log
     onDelete(driver.id);
     onOpenChange(false);
   };

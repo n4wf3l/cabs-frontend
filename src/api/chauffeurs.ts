@@ -38,9 +38,11 @@ export const fetchChauffeurById = async (id: string) => {
 // ✅ Delete a chauffeur by ID
 export const deleteChauffeur = async (id: string) => {
   try {
+    console.log("Deleting chauffeur with ID:", id); // Debug log
     await api.delete(`/chauffeurs/${id}`);
+    console.log("Chauffeur deleted successfully"); // Debug log
   } catch (error) {
-    console.error("Error deleting chauffeur:", error);
+    console.error("Error deleting chauffeur:", error); // Debug log
     throw error;
   }
 };

@@ -12,7 +12,7 @@ import { DeleteDriverDialog } from "@/components/drivers/DeleteDriverDialog";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, Plus, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { fetchChauffeurs } from "@/api/chauffeurs"; // Import API function
+import { deleteChauffeur, fetchChauffeurs } from "@/api/chauffeurs"; // Import API function
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { toast } from "@/hooks/use-toast";
 
 export const Drivers = () => {
   const [drivers, setDrivers] = useState<any[]>([]);
@@ -87,6 +88,36 @@ export const Drivers = () => {
     indexOfFirstDriver,
     indexOfLastDriver
   );
+
+  const handleDeleteDriver = async (driverId: string) => {
+    console.log("🚀 handleDeleteDriver called with driverId:", driverId);
+  
+    try {
+      console.log("🗑 Calling deleteChauffeur API...");
+      await deleteChauffeur(driverId); // Ensure this API function is imported
+  
+      console.log("✅ Driver deleted successfully, updating state...");
+      setDrivers((prevDrivers) => {
+        const updatedDrivers = prevDrivers.filter((driver) => driver.id !== driverId);
+        console.log("🔄 Updated drivers list:", updatedDrivers);
+        return [...updatedDrivers]; // Ensure React re-renders the list
+      });
+  
+      toast({
+        title: "Succès",
+        description: "Le chauffeur a été supprimé avec succès.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("❌ Error deleting driver:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de la suppression du chauffeur.",
+        variant: "destructive",
+      });
+    }
+  };
+  
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -204,7 +235,11 @@ export const Drivers = () => {
                           variant="ghost"
                           size="icon"
                           className="bg-red-500/10 hover:bg-red-500/20 rounded-full"
-                          onClick={() => setDeletingDriver(driver)}
+                          onClick={() => {
+                            console.log("Trash button clicked, setting deletingDriver..."); // Debug log
+                            console.log("Driver to delete:", driver); // Debug log
+                            setDeletingDriver(driver);
+                          }}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
@@ -246,16 +281,20 @@ export const Drivers = () => {
             );
           }}
         />
-        <DeleteDriverDialog
-          driver={deletingDriver}
-          open={!!deletingDriver}
-          onOpenChange={(open) => !open && setDeletingDriver(null)}
-          onDelete={(driverId) => {
-            setDrivers((prevDrivers) =>
-              prevDrivers.filter((driver) => driver.id !== driverId)
-            );
-          }}
-        />
+       {deletingDriver !== null && deletingDriver !== undefined && (
+  <DeleteDriverDialog
+    driver={deletingDriver}
+    open={!!deletingDriver}
+    onOpenChange={(open) => {
+      if (!open) {
+        console.log("🚪 Closing delete dialog...");
+        setTimeout(() => setDeletingDriver(null), 300); // Delay clearing state
+      }
+    }}
+    onDelete={handleDeleteDriver}
+  />
+)}
+
       </main>
     </div>
   );
