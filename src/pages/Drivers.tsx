@@ -10,7 +10,7 @@ import {
 import { EditDriverDialog } from "@/components/drivers/EditDriverDialog";
 import { DeleteDriverDialog } from "@/components/drivers/DeleteDriverDialog";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Plus, Download } from "lucide-react";
+import { Pencil, Trash2, Plus, Download, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { deleteChauffeur, fetchChauffeurs } from "@/api/chauffeurs"; // Import API function
 import { Skeleton } from "@/components/ui/skeleton";
@@ -91,18 +91,20 @@ export const Drivers = () => {
 
   const handleDeleteDriver = async (driverId: string) => {
     console.log("🚀 handleDeleteDriver called with driverId:", driverId);
-  
+
     try {
       console.log("🗑 Calling deleteChauffeur API...");
       await deleteChauffeur(driverId); // Ensure this API function is imported
-  
+
       console.log("✅ Driver deleted successfully, updating state...");
       setDrivers((prevDrivers) => {
-        const updatedDrivers = prevDrivers.filter((driver) => driver.id !== driverId);
+        const updatedDrivers = prevDrivers.filter(
+          (driver) => driver.id !== driverId
+        );
         console.log("🔄 Updated drivers list:", updatedDrivers);
         return [...updatedDrivers]; // Ensure React re-renders the list
       });
-  
+
       toast({
         title: "Succès",
         description: "Le chauffeur a été supprimé avec succès.",
@@ -112,12 +114,12 @@ export const Drivers = () => {
       console.error("❌ Error deleting driver:", error);
       toast({
         title: "Erreur",
-        description: "Une erreur s'est produite lors de la suppression du chauffeur.",
+        description:
+          "Une erreur s'est produite lors de la suppression du chauffeur.",
         variant: "destructive",
       });
     }
   };
-  
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -171,6 +173,7 @@ export const Drivers = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Profil</TableHead>
                 <TableHead>Nom</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Téléphone</TableHead>
@@ -182,6 +185,9 @@ export const Drivers = () => {
               {loading
                 ? Array.from({ length: 5 }).map((_, index) => (
                     <TableRow key={index} className="border-b border-gray-200">
+                      <TableCell>
+                        <Skeleton className="h-6 w-6" />
+                      </TableCell>
                       <TableCell>
                         <Skeleton className="h-6 w-20" />
                       </TableCell>
@@ -204,6 +210,16 @@ export const Drivers = () => {
                       key={driver.id}
                       className="border-b border-gray-200 hover:bg-gray-900"
                     >
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => navigate(`/drivers/${driver.id}`)}
+                          className="bg-primary/10 hover:bg-primary/20 rounded-full"
+                        >
+                          <User className="h-4 w-4 text-primary" />
+                        </Button>
+                      </TableCell>
                       <TableCell>
                         {driver.first_name} {driver.last_name}
                       </TableCell>
@@ -235,11 +251,7 @@ export const Drivers = () => {
                           variant="ghost"
                           size="icon"
                           className="bg-red-500/10 hover:bg-red-500/20 rounded-full"
-                          onClick={() => {
-                            console.log("Trash button clicked, setting deletingDriver..."); // Debug log
-                            console.log("Driver to delete:", driver); // Debug log
-                            setDeletingDriver(driver);
-                          }}
+                          onClick={() => setDeletingDriver(driver)}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
@@ -281,20 +293,18 @@ export const Drivers = () => {
             );
           }}
         />
-       {deletingDriver !== null && deletingDriver !== undefined && (
-  <DeleteDriverDialog
-    driver={deletingDriver}
-    open={!!deletingDriver}
-    onOpenChange={(open) => {
-      if (!open) {
-        console.log("🚪 Closing delete dialog...");
-        setTimeout(() => setDeletingDriver(null), 300); // Delay clearing state
-      }
-    }}
-    onDelete={handleDeleteDriver}
-  />
-)}
-
+        {deletingDriver !== null && deletingDriver !== undefined && (
+          <DeleteDriverDialog
+            driver={deletingDriver}
+            open={!!deletingDriver}
+            onOpenChange={(open) => {
+              if (!open) {
+                setTimeout(() => setDeletingDriver(null), 300);
+              }
+            }}
+            onDelete={handleDeleteDriver}
+          />
+        )}
       </main>
     </div>
   );
