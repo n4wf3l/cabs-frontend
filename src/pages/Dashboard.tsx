@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import Essence from "@/components/dashboard/Essence";
 import { Card } from "@/components/ui/card";
-import { Users, Car, TrendingUp, Menu } from "lucide-react";
+import { Users, Car, TrendingUp } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -37,7 +37,7 @@ const stats = [
   },
 ];
 
-const formatTime = (seconds) => {
+const formatTime = (seconds: number) => {
   const hrs = Math.floor(seconds / 3600)
     .toString()
     .padStart(2, "0");
@@ -48,14 +48,10 @@ const formatTime = (seconds) => {
   return `${hrs}:${mins}:${secs}`;
 };
 
-const generateShiftStartBetween5And8 = () => {
-  const minSeconds = 18000; // 05:00:00
-  const maxSeconds = 28800; // 08:00:00
-  const randomSeconds =
-    Math.floor(Math.random() * (maxSeconds - minSeconds)) + minSeconds;
+const generateShiftStartInPast = () => {
   const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  return new Date(now.getTime() + randomSeconds * 1000);
+  const pastOffset = Math.floor(Math.random() * 3 + 1) * 60 * 60 * 1000; // 1 à 3 heures en arrière
+  return new Date(now.getTime() - pastOffset);
 };
 
 const activeDrivers = [
@@ -76,17 +72,18 @@ const activeDrivers = [
   "Rachid",
 ].map((name) => ({
   name,
-  shiftStart: generateShiftStartBetween5And8(),
+  shiftStart: generateShiftStartInPast(),
 }));
 
 const Dashboard = () => {
-  const [currentTimes, setCurrentTimes] = useState({});
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentTimes, setCurrentTimes] = useState<{ [key: string]: number }>(
+    {}
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
-      const updatedTimes = {};
+      const updatedTimes: { [key: string]: number } = {};
 
       activeDrivers.forEach((driver) => {
         const elapsedSeconds = Math.floor(
@@ -113,11 +110,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <div
-        className={`fixed z-50 md:relative md:translate-x-0 transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
+      <div className="fixed z-50 md:relative md:translate-x-0 transition-transform duration-300">
         <Sidebar />
       </div>
 
@@ -140,7 +133,7 @@ const Dashboard = () => {
           {stats.map((stat, index) => (
             <motion.div
               key={stat.title}
-              className="p-4 glass-card"
+              className="p-4 glass-card border border-transparent hover:border-white hover:scale-105 transition-all duration-500"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.2, duration: 0.5 }}
@@ -163,7 +156,7 @@ const Dashboard = () => {
           {activeDrivers.map((driver, index) => (
             <motion.div
               key={driver.name}
-              className="p-4 glass-card"
+              className="p-4 glass-card border border-transparent hover:border-white hover:scale-105 transition-all duration-500"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1, duration: 0.4 }}
@@ -185,7 +178,6 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Graphique des horaires de shift */}
         <motion.div
           className="mt-12"
           initial={{ opacity: 0, y: -20 }}
@@ -202,7 +194,7 @@ const Dashboard = () => {
               <XAxis dataKey="name" />
               <YAxis
                 type="number"
-                domain={[18000, 28800]}
+                domain={[0, 86400]}
                 tickFormatter={(tick) => {
                   const hours = Math.floor(tick / 3600)
                     .toString()
@@ -229,8 +221,6 @@ const Dashboard = () => {
               />
               <Legend />
               <Line type="monotone" dataKey="shiftStart" stroke="#8884d8" />
-
-              {/* Ligne bleue à 6h (21600 secondes) */}
               <ReferenceLine
                 y={21600}
                 stroke="blue"

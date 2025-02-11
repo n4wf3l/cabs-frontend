@@ -1,17 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil } from "lucide-react";
 import Essence from "@/components/dashboard/Essence";
+import { fetchChauffeurs } from "@/api/chauffeurs";
 
 const Settings = () => {
   const [showDrivers, setShowDrivers] = useState(false);
   const [showAdmins, setShowAdmins] = useState(false);
+  const [drivers, setDrivers] = useState([]);
+  const [loadingDrivers, setLoadingDrivers] = useState(true);
   const [editingUser, setEditingUser] = useState(null);
+  const navigate = useNavigate();
 
-  const drivers = ["Driver 1", "Driver 2", "Driver 3"];
+  useEffect(() => {
+    const loadChauffeurs = async () => {
+      try {
+        const chauffeurs = await fetchChauffeurs();
+        setDrivers(chauffeurs);
+      } catch (error) {
+        console.error("Erreur lors du chargement des chauffeurs:", error);
+      } finally {
+        setLoadingDrivers(false);
+      }
+    };
+
+    loadChauffeurs();
+  }, []);
+
   const admins = ["Admin 1", "Admin 2"];
 
   return (
@@ -48,7 +66,7 @@ const Settings = () => {
             >
               <h3 className="text-xl font-bold">Chauffeurs</h3>
               <p className="text-7xl font-bold text-primary">
-                {drivers.length}
+                {loadingDrivers ? "..." : drivers.length}
               </p>
             </Card>
             <AnimatePresence>
@@ -60,19 +78,24 @@ const Settings = () => {
                   transition={{ duration: 0.3 }}
                   className="p-4 bg-secondary rounded-md mt-2"
                 >
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 text-center">
                     {drivers.map((driver, index) => (
                       <li
                         key={index}
                         className="flex justify-between items-center"
                       >
-                        {driver}
+                        <span>
+                          {driver.first_name.charAt(0).toUpperCase() +
+                            driver.first_name.slice(1)}{" "}
+                          {driver.last_name.charAt(0).toUpperCase() +
+                            driver.last_name.slice(1)}
+                        </span>
                         <Button
                           size="sm"
                           variant="secondary"
-                          onClick={() => setEditingUser(driver)}
+                          onClick={() => navigate(`/drivers/${driver.id}`)}
                         >
-                          <Pencil className="h-4 w-4" />
+                          Voir Profil
                         </Button>
                       </li>
                     ))}
@@ -99,20 +122,13 @@ const Settings = () => {
                   transition={{ duration: 0.3 }}
                   className="p-4 bg-secondary rounded-md mt-2"
                 >
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 text-center">
                     {admins.map((admin, index) => (
                       <li
                         key={index}
                         className="flex justify-between items-center"
                       >
                         {admin}
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => setEditingUser(admin)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
                       </li>
                     ))}
                   </ul>
@@ -199,31 +215,6 @@ const Settings = () => {
             </form>
           </Card>
         </motion.div>
-
-        {/* Modale d'édition */}
-        <AnimatePresence>
-          {editingUser && (
-            <motion.div
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card className="p-6 bg-background w-96">
-                <h2 className="text-xl font-bold mb-4">
-                  Modifier {editingUser}
-                </h2>
-                <Button
-                  onClick={() => setEditingUser(null)}
-                  className="mt-4 w-full"
-                >
-                  Fermer
-                </Button>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </main>
     </div>
   );
