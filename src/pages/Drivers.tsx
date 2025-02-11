@@ -154,7 +154,12 @@ export const Drivers = () => {
 
         <hr className="hr-light-effect mt-10 mb-10" />
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <motion.div
+          className="flex flex-col md:flex-row gap-4 mb-6"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
           <Input
             type="text"
             placeholder="Rechercher par nom ou téléphone"
@@ -162,7 +167,7 @@ export const Drivers = () => {
             onChange={(e) => setFilter(e.target.value)}
             className="flex-1 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent"
           />
-        </div>
+        </motion.div>
 
         <motion.div
           className="rounded-md border shadow-lg"
