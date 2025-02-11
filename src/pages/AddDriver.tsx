@@ -68,10 +68,8 @@ const AddChauffeurForm = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <div className="fixed z-50 md:relative md:translate-x-0 transition-transform duration-300">
-        <Sidebar />
-      </div>
+    <div className="min-h-screen bg-background flex">
+      <Sidebar />
 
       <main className="flex-1 p-4 md:p-8 md:ml-64">
         <motion.div
@@ -93,26 +91,32 @@ const AddChauffeurForm = () => {
 
         <hr className="hr-light-effect mb-10" />
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <PersonalData form={form} />
-              <WorkData form={form} />
-            </div>
-            <div className="mt-6">
-              <UploadingData form={form} />
-            </div>
-            <div className="flex justify-end mt-6">
-              <Button
-                type="submit"
-                className="w-full md:w-auto"
-                disabled={isLoading}
-              >
-                {isLoading ? "Ajout en cours..." : "Ajouter le chauffeur"}
-              </Button>
-            </div>
-          </form>
-        </Form>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <PersonalData form={form} />
+                <WorkData form={form} />
+              </div>
+              <div className="mt-6">
+                <UploadingData form={form} />
+              </div>
+              <div className="flex justify-end mt-6">
+                <Button
+                  type="submit"
+                  className="w-full md:w-auto"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Ajout en cours..." : "Ajouter le chauffeur"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </motion.div>
       </main>
     </div>
   );
