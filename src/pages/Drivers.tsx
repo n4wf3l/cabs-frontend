@@ -1,4 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from "@/hooks/use-toast";
+import { fetchChauffeurs, deleteChauffeur } from "@/api/chauffeurs";
 import {
   Table,
   TableBody,
@@ -7,20 +13,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EditDriverDialog } from "@/components/drivers/EditDriverDialog";
-import { DeleteDriverDialog } from "@/components/drivers/DeleteDriverDialog";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Plus, Download, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { deleteChauffeur, fetchChauffeurs } from "@/api/chauffeurs"; // Import API function
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sidebar } from "@/components/dashboard/Sidebar";
-import { Input } from "@/components/ui/input";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import { toast } from "@/hooks/use-toast";
+import { EditDriverDialog } from "@/components/drivers/EditDriverDialog";
+import { DeleteDriverDialog } from "@/components/drivers/DeleteDriverDialog";
+import { ShiftPagination } from "@/components/shifts/ShiftPagination";
+import { Pencil, Trash2, Plus, Download, User } from "lucide-react";
 
 export const Drivers = () => {
   const [drivers, setDrivers] = useState<any[]>([]);
@@ -37,7 +38,6 @@ export const Drivers = () => {
       try {
         const data = await fetchChauffeurs();
 
-        // Trier les chauffeurs par date de création décroissante (plus récents en premier)
         const sortedData = data.sort(
           (a, b) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -53,6 +53,8 @@ export const Drivers = () => {
 
     loadDrivers();
   }, []);
+
+  const totalPages = Math.ceil(drivers.length / driversPerPage);
 
   const handleExportPDF = () => {
     const doc = new jsPDF();
@@ -79,9 +81,8 @@ export const Drivers = () => {
     .sort(
       (a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    ); // Trier après filtrage
+    );
 
-  // Pagination
   const indexOfLastDriver = currentPage * driversPerPage;
   const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
   const currentDrivers = filteredDrivers.slice(
@@ -90,20 +91,11 @@ export const Drivers = () => {
   );
 
   const handleDeleteDriver = async (driverId: string) => {
-    console.log("🚀 handleDeleteDriver called with driverId:", driverId);
-
     try {
-      console.log("🗑 Calling deleteChauffeur API...");
-      await deleteChauffeur(driverId); // Ensure this API function is imported
-
-      console.log("✅ Driver deleted successfully, updating state...");
-      setDrivers((prevDrivers) => {
-        const updatedDrivers = prevDrivers.filter(
-          (driver) => driver.id !== driverId
-        );
-        console.log("🔄 Updated drivers list:", updatedDrivers);
-        return [...updatedDrivers]; // Ensure React re-renders the list
-      });
+      await deleteChauffeur(driverId);
+      setDrivers((prevDrivers) =>
+        prevDrivers.filter((driver) => driver.id !== driverId)
+      );
 
       toast({
         title: "Succès",
@@ -111,11 +103,10 @@ export const Drivers = () => {
         variant: "default",
       });
     } catch (error) {
-      console.error("❌ Error deleting driver:", error);
+      console.error("Erreur lors de la suppression du chauffeur:", error);
       toast({
         title: "Erreur",
-        description:
-          "Une erreur s'est produite lors de la suppression du chauffeur.",
+        description: "Une erreur s'est produite lors de la suppression.",
         variant: "destructive",
       });
     }
@@ -170,6 +161,7 @@ export const Drivers = () => {
         </motion.div>
 
         <motion.div
+          key={currentPage}
           className="rounded-md border shadow-lg"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -267,24 +259,18 @@ export const Drivers = () => {
           </Table>
         </motion.div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-6">
-          {[...Array(Math.ceil(filteredDrivers.length / driversPerPage))].map(
-            (_, index) => (
-              <Button
-                key={index + 1}
-                onClick={() => paginate(index + 1)}
-                className={`mx-1 px-3 py-1 text-sm rounded-lg shadow-md ${
-                  currentPage === index + 1
-                    ? "bg-primary text-white"
-                    : "bg-gray-300 text-black"
-                }`}
-              >
-                {index + 1}
-              </Button>
-            )
-          )}
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="mt-8"
+        >
+          <ShiftPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </motion.div>
 
         <EditDriverDialog
           driver={editingDriver}
