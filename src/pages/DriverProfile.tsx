@@ -22,6 +22,7 @@ import {
   Clock,
   Briefcase,
   Plus,
+  Eye,
   CreditCard as PaymentIcon,
 } from "lucide-react";
 import { updateChauffeur } from "@/api/chauffeurs";
@@ -161,7 +162,17 @@ const DriverProfile = () => {
                     </div>
                     <div className="flex items-center space-x-3 text-gray-300">
                       <Calendar className="w-5 h-5" />
-                      <span>Né le: {driver.birth_date}</span>
+                      <span>
+                        Né le{" "}
+                        {new Date(driver.birth_date).toLocaleDateString(
+                          "fr-FR",
+                          {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          }
+                        )}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-3 text-gray-300">
                       <MapPin className="w-5 h-5" />
@@ -188,30 +199,30 @@ const DriverProfile = () => {
                       Carte d'Identité
                     </label>
                     {driver?.id_card ? (
-                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
-                        <span>Carte_ID.jpg</span>
+                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-center">
                         <button
-                          className="text-blue-400 hover:text-blue-300"
+                          className="text-blue-400 hover:text-blue-300 flex items-center space-x-2"
                           onClick={() =>
                             openModal(driver.id_card, "Carte d'identité")
                           }
                         >
-                          Voir
+                          <Eye className="w-5 h-5" />
+                          <span>Voir</span>
                         </button>
                       </div>
                     ) : (
                       <p className="text-gray-400">Aucun document disponible</p>
                     )}
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-2">
                       Permis de Conduire
                     </label>
                     {driver?.driver_license_photo ? (
-                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
-                        <span>Permis.jpg</span>
+                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-center">
                         <button
-                          className="text-blue-400 hover:text-blue-300"
+                          className="text-blue-400 hover:text-blue-300 flex items-center space-x-2"
                           onClick={() =>
                             openModal(
                               driver.driver_license_photo,
@@ -219,47 +230,50 @@ const DriverProfile = () => {
                             )
                           }
                         >
-                          Voir
+                          <Eye className="w-5 h-5" />
+                          <span>Voir</span>
                         </button>
                       </div>
                     ) : (
                       <p className="text-gray-400">Aucun document disponible</p>
                     )}
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-2">
                       Carte Bancaire
                     </label>
                     {driver?.bank_card_photo ? (
-                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
-                        <CreditCard className="w-5 h-5 text-gray-500" />
+                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-center">
                         <button
-                          className="text-blue-400 hover:text-blue-300"
+                          className="text-blue-400 hover:text-blue-300 flex items-center space-x-2"
                           onClick={() =>
                             openModal(driver.bank_card_photo, "Carte bancaire")
                           }
                         >
-                          Voir
+                          <Eye className="w-5 h-5" />
+                          <span>Voir</span>
                         </button>
                       </div>
                     ) : (
                       <p className="text-gray-400">Aucun document disponible</p>
                     )}
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-2">
                       Contrat
                     </label>
                     {driver?.contract_photo ? (
-                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
-                        <span>Contrat.pdf</span>
+                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-center">
                         <button
-                          className="text-blue-400 hover:text-blue-300"
+                          className="text-blue-400 hover:text-blue-300 flex items-center space-x-2"
                           onClick={() =>
                             openModal(driver.contract_photo, "Contrat")
                           }
                         >
-                          Voir
+                          <Eye className="w-5 h-5" />
+                          <span>Voir</span>
                         </button>
                       </div>
                     ) : (
@@ -399,24 +413,32 @@ const DriverProfile = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-2">
-                      Type de Service
+                      Type de Shift
                     </label>
                     <div className="flex flex-wrap gap-2">
-                      {["Day", "Night", "Long"].map((shift) => (
-                        <label
-                          key={shift}
-                          className="flex items-center space-x-2 bg-gray-700 px-3 py-2 rounded-lg"
-                        >
-                          <input
-                            type="radio"
-                            name="shift"
-                            checked={driver.shift_type === shift}
-                            readOnly
-                            className="form-radio text-blue-500"
-                          />
-                          <span>{shift}</span>
-                        </label>
-                      ))}
+                      {["Day", "Night", "Long"].map((shift) => {
+                        const shiftTranslation = {
+                          Day: "Jour",
+                          Night: "Nuit",
+                          Long: "Long",
+                        };
+
+                        return (
+                          <label
+                            key={shift}
+                            className="flex items-center space-x-2 bg-gray-700 px-3 py-2 rounded-lg"
+                          >
+                            <input
+                              type="radio"
+                              name="shift"
+                              checked={driver.shift_type === shift}
+                              readOnly
+                              className="form-radio text-blue-500"
+                            />
+                            <span>{shiftTranslation[shift]}</span>
+                          </label>
+                        );
+                      })}
                     </div>
                   </div>
 

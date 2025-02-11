@@ -10,7 +10,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { deleteChauffeur, fetchChauffeurs, updateChauffeur } from "@/api/chauffeurs";
+import {
+  deleteChauffeur,
+  fetchChauffeurs,
+  updateChauffeur,
+} from "@/api/chauffeurs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -61,13 +65,13 @@ export const DriverList = () => {
     try {
       // Call API to update driver details
       await updateChauffeur(updatedDriver.id, updatedDriver);
-      
+
       toast({
         title: "Succès",
         description: "Chauffeur mis à jour avec succès!",
         variant: "default",
       });
-  
+
       // Update state to reflect changes
       setDrivers((prev) =>
         prev.map((driver) =>
@@ -82,14 +86,13 @@ export const DriverList = () => {
       });
     }
   };
-  
+
   <EditDriverDialog
     driver={editingDriver}
     open={!!editingDriver}
     onOpenChange={(open) => !open && setEditingDriver(null)}
     onEdit={handleEditDriver} // ✅ Pass onEdit function
-  />
-  
+  />;
 
   return (
     <motion.div
@@ -104,10 +107,12 @@ export const DriverList = () => {
             <TableHead>Nom</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Téléphone</TableHead>
-            <TableHead>Statut</TableHead>
+            <TableHead>Date de début</TableHead> {/* Nouvelle colonne */}
+            <TableHead>Type de shift</TableHead> {/* Nouvelle colonne */}
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
           {loading
             ? Array.from({ length: 5 }).map((_, index) => (
@@ -122,8 +127,13 @@ export const DriverList = () => {
                     <Skeleton className="h-6 w-24" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-6 w-16" />
-                  </TableCell>
+                    <Skeleton className="h-6 w-24" />
+                  </TableCell>{" "}
+                  {/* Skeleton pour la date de début */}
+                  <TableCell>
+                    <Skeleton className="h-6 w-20" />
+                  </TableCell>{" "}
+                  {/* Skeleton pour le type de shift */}
                   <TableCell className="text-right space-x-2">
                     <Skeleton className="h-6 w-16" />
                   </TableCell>
@@ -140,16 +150,24 @@ export const DriverList = () => {
                   <TableCell>{driver.email}</TableCell>
                   <TableCell>{driver.phone}</TableCell>
                   <TableCell>
+                    {new Date(driver.start_date).toLocaleDateString()}{" "}
+                    {/* Affiche la date de début */}
+                  </TableCell>
+                  <TableCell>
                     <Badge
                       variant={
-                        driver.employment_status === "Active"
+                        driver.shift_type === "Day"
                           ? "default"
-                          : "secondary"
+                          : driver.shift_type === "Night"
+                          ? "secondary"
+                          : "outline"
                       }
                     >
-                      {driver.employment_status === "Active"
-                        ? "Actif"
-                        : "Inactif"}
+                      {driver.shift_type === "Day"
+                        ? "Jour"
+                        : driver.shift_type === "Night"
+                        ? "Nuit"
+                        : "Long"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right space-x-2">
@@ -175,8 +193,8 @@ export const DriverList = () => {
         </TableBody>
       </Table>
 
-        {/* ✅ Edit Driver Dialog */}
-        <EditDriverDialog
+      {/* ✅ Edit Driver Dialog */}
+      <EditDriverDialog
         driver={editingDriver}
         open={!!editingDriver}
         onOpenChange={(open) => !open && setEditingDriver(null)}

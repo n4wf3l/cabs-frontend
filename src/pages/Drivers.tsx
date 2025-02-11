@@ -21,7 +21,18 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { EditDriverDialog } from "@/components/drivers/EditDriverDialog";
 import { DeleteDriverDialog } from "@/components/drivers/DeleteDriverDialog";
 import { ShiftPagination } from "@/components/shifts/ShiftPagination";
-import { Pencil, Trash2, Plus, Download, User } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Eye,
+  Plus,
+  Download,
+  User,
+  Phone,
+  Mail,
+  Clock,
+  Calendar,
+} from "lucide-react";
 
 export const Drivers = () => {
   const [drivers, setDrivers] = useState<any[]>([]);
@@ -55,6 +66,13 @@ export const Drivers = () => {
   }, []);
 
   const totalPages = Math.ceil(drivers.length / driversPerPage);
+
+  const capitalizeWords = (str: string) => {
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
 
   const handleExportPDF = () => {
     const doc = new jsPDF();
@@ -167,75 +185,118 @@ export const Drivers = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Table>
+          <Table className="w-full text-center">
             <TableHeader>
               <TableRow>
-                <TableHead>Profil</TableHead>
-                <TableHead>Nom</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Téléphone</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <User className="h-4 w-4 text-gray-500" />
+                    <span>Nom</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Mail className="h-4 w-4 text-gray-500" />
+                    <span>Email</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Phone className="h-4 w-4 text-gray-500" />
+                    <span>Téléphone</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Calendar className="h-4 w-4 text-gray-500" />
+                    <span>Date de début</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Clock className="h-4 w-4 text-gray-500" />
+                    <span>Type de shift</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="text-center">Actions</div>
+                </TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {loading
                 ? Array.from({ length: 5 }).map((_, index) => (
                     <TableRow key={index} className="border-b border-gray-200">
                       <TableCell>
-                        <Skeleton className="h-6 w-6" />
+                        <Skeleton className="h-6 w-20 mx-auto" />
                       </TableCell>
                       <TableCell>
-                        <Skeleton className="h-6 w-20" />
+                        <Skeleton className="h-6 w-32 mx-auto" />
                       </TableCell>
                       <TableCell>
-                        <Skeleton className="h-6 w-32" />
+                        <Skeleton className="h-6 w-24 mx-auto" />
                       </TableCell>
                       <TableCell>
-                        <Skeleton className="h-6 w-24" />
+                        <Skeleton className="h-6 w-24 mx-auto" />
                       </TableCell>
                       <TableCell>
-                        <Skeleton className="h-6 w-16" />
+                        <Skeleton className="h-6 w-20 mx-auto" />
                       </TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Skeleton className="h-6 w-16" />
+                      <TableCell className="text-center space-x-2">
+                        <Skeleton className="h-6 w-16 mx-auto" />
                       </TableCell>
                     </TableRow>
                   ))
-                : currentDrivers.map((driver) => (
+                : drivers.map((driver) => (
                     <TableRow
                       key={driver.id}
-                      className="border-b border-gray-200 hover:bg-gray-900"
+                      className="border-b border-gray-200 hover:bg-gray-900 transition duration-300"
                     >
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                      {/* Icône Eye avant le nom */}
+                      <TableCell className="text-center flex items-center justify-center space-x-2">
+                        <button
                           onClick={() => navigate(`/drivers/${driver.id}`)}
-                          className="bg-primary/10 hover:bg-primary/20 rounded-full"
+                          className="text-blue-500 hover:text-blue-300"
                         >
-                          <User className="h-4 w-4 text-primary" />
-                        </Button>
+                          <Eye className="bg-primary/10 hover:bg-primary/20 rounded-full" />
+                        </button>
+                        <span>
+                          {capitalizeWords(
+                            `${driver.first_name} ${driver.last_name}`
+                          )}
+                        </span>
                       </TableCell>
-                      <TableCell>
-                        {driver.first_name} {driver.last_name}
+
+                      <TableCell className="text-center">
+                        {driver.email}
                       </TableCell>
-                      <TableCell>{driver.email}</TableCell>
-                      <TableCell>{driver.phone}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
+                        {driver.phone}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {new Date(driver.start_date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-center">
                         <Badge
                           variant={
-                            driver.employment_status === "Active"
+                            driver.shift_type === "Day"
                               ? "default"
-                              : "secondary"
+                              : driver.shift_type === "Night"
+                              ? "secondary"
+                              : "outline"
                           }
                         >
-                          {driver.employment_status === "Active"
-                            ? "Actif"
-                            : "Inactif"}
+                          {driver.shift_type === "Day"
+                            ? "Jour"
+                            : driver.shift_type === "Night"
+                            ? "Nuit"
+                            : "Long"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right space-x-2">
+
+                      {/* Boutons d'actions */}
+                      <TableCell className="text-center space-x-2">
                         <Button
                           variant="ghost"
                           size="icon"
