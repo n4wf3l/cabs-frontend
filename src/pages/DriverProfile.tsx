@@ -4,7 +4,7 @@ import { fetchChauffeurById } from "@/api/chauffeurs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sidebar } from "@/components/dashboard/Sidebar";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -25,21 +25,19 @@ import {
   CreditCard as PaymentIcon,
 } from "lucide-react";
 import { updateChauffeur } from "@/api/chauffeurs";
-
 const DriverProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [driver, setDriver] = useState<any>(null);
+  const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<any>({});
+  const [modalImage, setModalImage] = useState(null);
+  const [modalTitle, setModalTitle] = useState("");
 
   useEffect(() => {
     const loadDriver = async () => {
       try {
         const data = await fetchChauffeurById(id);
         setDriver(data);
-        setFormData(data);
       } catch (error) {
         console.error("Erreur lors du chargement du chauffeur:", error);
       } finally {
@@ -49,6 +47,16 @@ const DriverProfile = () => {
     loadDriver();
   }, [id]);
 
+  const openModal = (imageUrl, title) => {
+    setModalImage(imageUrl);
+    setModalTitle(title);
+  };
+
+  const closeModal = () => {
+    setModalImage(null);
+    setModalTitle("");
+  };
+
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.text(`Profil de ${driver.first_name} ${driver.last_name}`, 14, 20);
@@ -57,21 +65,6 @@ const DriverProfile = () => {
       body: Object.entries(driver).map(([key, value]) => [key, value]),
     });
     doc.save(`Profil_${driver.first_name}_${driver.last_name}.pdf`);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSave = async () => {
-    try {
-      const updatedDriver = await updateChauffeur(id!, formData);
-      setDriver(updatedDriver);
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour du chauffeur:", error);
-    }
   };
 
   if (loading) {
@@ -136,49 +129,165 @@ const DriverProfile = () => {
         <hr className="hr-light-effect mt-10 mb-10" />
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Profile Section */}
-            <motion.div
-              className="lg:col-span-1"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="bg-gray-800 rounded-xl p-6 shadow-lg">
-                <div className="flex flex-col items-center">
-                  <div className="w-32 h-32 rounded-full overflow-hidden mb-4">
-                    <img
-                      src="/taxidriver.png"
-                      alt="Photo du chauffeur"
-                      className="w-full h-full object-cover"
-                    />
+            <div className="flex flex-col">
+              {/* Profile Section */}
+              <motion.div
+                className="lg:col-span-1"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="bg-gray-800 rounded-xl p-6 shadow-lg mb-6">
+                  <div className="flex flex-col items-center">
+                    <div className="w-32 h-32 rounded-full overflow-hidden mb-4">
+                      <img
+                        src="/taxidriver.png"
+                        alt="Photo du chauffeur"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <h2 className="text-xl font-semibold text-white">
+                      {driver.first_name} {driver.last_name}
+                    </h2>
+                    <p className="text-blue-400">Chauffeur Professionnel</p>
                   </div>
-                  <h2 className="text-xl font-semibold text-white">
-                    {driver.first_name} {driver.last_name}
-                  </h2>
-                  <p className="text-blue-400">Chauffeur Professionnel</p>
-                </div>
 
-                <div className="mt-6 space-y-4">
-                  <div className="flex items-center space-x-3 text-gray-300">
-                    <Mail className="w-5 h-5" />
-                    <span>{driver.email}</span>
+                  <div className="mt-6 space-y-4">
+                    <div className="flex items-center space-x-3 text-gray-300">
+                      <Mail className="w-5 h-5" />
+                      <span>{driver.email}</span>
+                    </div>
+                    <div className="flex items-center space-x-3 text-gray-300">
+                      <Phone className="w-5 h-5" />
+                      <span>{driver.phone}</span>
+                    </div>
+                    <div className="flex items-center space-x-3 text-gray-300">
+                      <Calendar className="w-5 h-5" />
+                      <span>Né le: {driver.birth_date}</span>
+                    </div>
+                    <div className="flex items-center space-x-3 text-gray-300">
+                      <MapPin className="w-5 h-5" />
+                      <span>Lieu de naissance: {driver.birth_place}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-3 text-gray-300">
-                    <Phone className="w-5 h-5" />
-                    <span>{driver.phone}</span>
+                </div>
+              </motion.div>
+
+              {/* Documents */}
+              <div className="bg-gray-800 rounded-xl p-6 shadow-lg">
+                <h3 className="text-xl font-semibold mb-4 text-white flex items-center">
+                  <Car className="w-5 h-5 mr-2" />
+                  Documents & Licences
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Carte d'Identité
+                    </label>
+                    {driver?.id_card ? (
+                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
+                        <span>Carte_ID.jpg</span>
+                        <button
+                          className="text-blue-400 hover:text-blue-300"
+                          onClick={() =>
+                            openModal(driver.id_card, "Carte d'identité")
+                          }
+                        >
+                          Voir
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-gray-400">Aucun document disponible</p>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-3 text-gray-300">
-                    <Calendar className="w-5 h-5" />
-                    <span>Né le: {driver.birth_date}</span>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Permis de Conduire
+                    </label>
+                    {driver?.driver_license_photo ? (
+                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
+                        <span>Permis.jpg</span>
+                        <button
+                          className="text-blue-400 hover:text-blue-300"
+                          onClick={() =>
+                            openModal(
+                              driver.driver_license_photo,
+                              "Permis de conduire"
+                            )
+                          }
+                        >
+                          Voir
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-gray-400">Aucun document disponible</p>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-3 text-gray-300">
-                    <MapPin className="w-5 h-5" />
-                    <span>Lieu de naissance: {driver.birth_place}</span>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Carte Bancaire
+                    </label>
+                    {driver?.bank_card_photo ? (
+                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
+                        <CreditCard className="w-5 h-5 text-gray-500" />
+                        <button
+                          className="text-blue-400 hover:text-blue-300"
+                          onClick={() =>
+                            openModal(driver.bank_card_photo, "Carte bancaire")
+                          }
+                        >
+                          Voir
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-gray-400">Aucun document disponible</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Contrat
+                    </label>
+                    {driver?.contract_photo ? (
+                      <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
+                        <span>Contrat.pdf</span>
+                        <button
+                          className="text-blue-400 hover:text-blue-300"
+                          onClick={() =>
+                            openModal(driver.contract_photo, "Contrat")
+                          }
+                        >
+                          Voir
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-gray-400">Aucun document disponible</p>
+                    )}
                   </div>
                 </div>
               </div>
-            </motion.div>
+              {/* Created at */}
+              <div className="bg-gray-800 rounded-xl p-6 shadow-lg mt-6">
+                <h3 className="text-xl font-semibold mb-4 text-white flex items-center">
+                  <Clock className="w-5 h-5 mr-2" />
+                  Date de création
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Profil crée le{" "}
+                      {new Date(driver.created_at).toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Main Information */}
             <motion.div
@@ -327,6 +436,44 @@ const DriverProfile = () => {
                   </div>
                 </div>
               </motion.div>
+
+              {/* Modal */}
+              <AnimatePresence>
+                {modalImage && (
+                  <motion.div
+                    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    onClick={closeModal}
+                  >
+                    <motion.div
+                      className="bg-white rounded-lg overflow-hidden shadow-lg max-w-4xl w-full relative"
+                      initial={{ scale: 0.8 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0.8 }}
+                      transition={{ duration: 0.3 }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex justify-between items-center p-4 border-b">
+                        <h3 className="text-lg font-semibold">{modalTitle}</h3>
+                        <button
+                          onClick={closeModal}
+                          className="text-gray-600 hover:text-gray-900"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                      <img
+                        src={modalImage}
+                        alt={modalTitle}
+                        className="w-full h-auto object-contain p-4"
+                      />
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Payment Preferences */}
               <motion.div
