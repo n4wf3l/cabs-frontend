@@ -87,9 +87,6 @@ const DriverProfile = () => {
         <Sidebar />
         <main className="ml-64 p-8 w-full">
           <h1 className="text-2xl font-bold">Chauffeur introuvable</h1>
-          <Button onClick={() => navigate("/drivers")} className="mt-4">
-            Retour
-          </Button>
         </main>
       </div>
     );
@@ -175,7 +172,12 @@ const DriverProfile = () => {
               </motion.div>
 
               {/* Documents */}
-              <div className="bg-gray-800 rounded-xl p-6 shadow-lg">
+              <motion.div
+                className="bg-gray-800 rounded-xl p-6 shadow-lg"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
                 <h3 className="text-xl font-semibold mb-4 text-white flex items-center">
                   <Car className="w-5 h-5 mr-2" />
                   Documents & Licences
@@ -265,9 +267,15 @@ const DriverProfile = () => {
                     )}
                   </div>
                 </div>
-              </div>
+              </motion.div>
+
               {/* Created at */}
-              <div className="bg-gray-800 rounded-xl p-6 shadow-lg mt-6">
+              <motion.div
+                className="bg-gray-800 rounded-xl p-6 shadow-lg mt-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
                 <h3 className="text-xl font-semibold mb-4 text-white flex items-center">
                   <Clock className="w-5 h-5 mr-2" />
                   Date de création
@@ -286,7 +294,7 @@ const DriverProfile = () => {
                     </label>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Main Information */}
