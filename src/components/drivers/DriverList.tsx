@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Table,
   TableBody,
@@ -7,153 +8,179 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import {
-  deleteChauffeur,
-  fetchChauffeurs,
-  updateChauffeur,
-} from "@/api/chauffeurs";
+  Pencil,
+  Trash2,
+  Eye,
+  User,
+  Phone,
+  Mail,
+  Clock,
+  Calendar,
+  ArrowUpDown,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
-import { EditDriverDialog } from "./EditDriverDialog";
-import { DeleteDriverDialog } from "./DeleteDriverDialog";
+import { useNavigate } from "react-router-dom";
 
-export const DriverList = () => {
-  const [drivers, setDrivers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingDriver, setEditingDriver] = useState<any>(null);
-  const [deletingDriver, setDeletingDriver] = useState<any>(null);
-  const { toast } = useToast();
+interface DriverListProps {
+  drivers: any[];
+  loading: boolean;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  driversPerPage: number;
+}
 
-  useEffect(() => {
-    const loadDrivers = async () => {
-      try {
-        const data = await fetchChauffeurs();
-        setDrivers(data);
-      } catch (error) {
-        console.error("❌ Erreur lors du chargement des chauffeurs:", error);
-      } finally {
-        setLoading(false);
+const DriverList: React.FC<DriverListProps> = ({
+  drivers,
+  loading,
+  currentPage,
+  setCurrentPage,
+  driversPerPage,
+}) => {
+  const navigate = useNavigate();
+  const [sortBy, setSortBy] = useState<"date" | "shift" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  const totalPages = Math.ceil(drivers.length / driversPerPage);
+  const indexOfLastDriver = currentPage * driversPerPage;
+  const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
+
+  const sortDrivers = (driversList: any[]) => {
+    if (!sortBy) return driversList;
+    return [...driversList].sort((a, b) => {
+      let comparison = 0;
+      if (sortBy === "date") {
+        comparison =
+          new Date(a.start_date).getTime() - new Date(b.start_date).getTime();
+      } else if (sortBy === "shift") {
+        const order = ["Jour", "Nuit", "Long"];
+        comparison = order.indexOf(a.shift_type) - order.indexOf(b.shift_type);
       }
-    };
-    loadDrivers();
-  }, []);
-
-  // ✅ Handle delete driver
-  const handleDeleteDriver = async (driverId: string) => {
-    try {
-      await deleteChauffeur(driverId);
-      toast({
-        title: "Succès",
-        description: "Chauffeur supprimé avec succès!",
-        variant: "default",
-      });
-      setDrivers((prev) => prev.filter((driver) => driver.id !== driverId)); // ✅ Remove deleted driver from state
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Erreur lors de la suppression du chauffeur.",
-        variant: "destructive",
-      });
-    }
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
   };
 
-  const handleEditDriver = async (updatedDriver: any) => {
-    try {
-      // Call API to update driver details
-      await updateChauffeur(updatedDriver.id, updatedDriver);
+  const currentDrivers = sortDrivers(drivers).slice(
+    indexOfFirstDriver,
+    indexOfLastDriver
+  );
 
-      toast({
-        title: "Succès",
-        description: "Chauffeur mis à jour avec succès!",
-        variant: "default",
-      });
-
-      // Update state to reflect changes
-      setDrivers((prev) =>
-        prev.map((driver) =>
-          driver.id === updatedDriver.id ? updatedDriver : driver
-        )
-      );
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Erreur lors de la mise à jour du chauffeur.",
-        variant: "destructive",
-      });
+  const handleSort = (type: "date" | "shift") => {
+    if (sortBy === type) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(type);
+      setSortOrder("asc");
     }
   };
-
-  <EditDriverDialog
-    driver={editingDriver}
-    open={!!editingDriver}
-    onOpenChange={(open) => !open && setEditingDriver(null)}
-    onEdit={handleEditDriver} // ✅ Pass onEdit function
-  />;
 
   return (
     <motion.div
-      className="rounded-md border shadow-lg p-4 bg-gray-900"
+      className="rounded-md border shadow-lg"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Table>
+      <Table className="w-full text-center">
         <TableHeader>
           <TableRow>
-            <TableHead>Nom</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Téléphone</TableHead>
-            <TableHead>Date de début</TableHead> {/* Nouvelle colonne */}
-            <TableHead>Type de shift</TableHead> {/* Nouvelle colonne */}
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>
+              <div className="flex items-center justify-center space-x-2">
+                <User className="h-4 w-4 text-gray-500" />
+                <span>Nom</span>
+              </div>
+            </TableHead>
+            <TableHead>
+              <div className="flex items-center justify-center space-x-2">
+                <Mail className="h-4 w-4 text-gray-500" />
+                <span>Email</span>
+              </div>
+            </TableHead>
+            <TableHead>
+              <div className="flex items-center justify-center space-x-2">
+                <Phone className="h-4 w-4 text-gray-500" />
+                <span>Téléphone</span>
+              </div>
+            </TableHead>
+            <TableHead
+              onClick={() => handleSort("date")}
+              className="cursor-pointer"
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <Calendar className="h-4 w-4 text-gray-500" />
+                <span>Date de début</span>
+                <ArrowUpDown className="h-4 w-4 text-gray-500" />
+              </div>
+            </TableHead>
+            <TableHead
+              onClick={() => handleSort("shift")}
+              className="cursor-pointer"
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <Clock className="h-4 w-4 text-gray-500" />
+                <span>Type de shift</span>
+                <ArrowUpDown className="h-4 w-4 text-gray-500" />
+              </div>
+            </TableHead>
+            <TableHead>
+              <div className="text-center">Actions</div>
+            </TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {loading
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={index} className="border-b border-gray-200">
+            ? Array.from({ length: driversPerPage }).map((_, index) => (
+                <TableRow key={index}>
                   <TableCell>
-                    <Skeleton className="h-6 w-20" />
+                    <Skeleton className="h-6 w-20 mx-auto" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-6 w-32" />
+                    <Skeleton className="h-6 w-32 mx-auto" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-6 w-24" />
+                    <Skeleton className="h-6 w-24 mx-auto" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-6 w-24" />
-                  </TableCell>{" "}
-                  {/* Skeleton pour la date de début */}
+                    <Skeleton className="h-6 w-24 mx-auto" />
+                  </TableCell>
                   <TableCell>
-                    <Skeleton className="h-6 w-20" />
-                  </TableCell>{" "}
-                  {/* Skeleton pour le type de shift */}
-                  <TableCell className="text-right space-x-2">
-                    <Skeleton className="h-6 w-16" />
+                    <Skeleton className="h-6 w-20 mx-auto" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-16 mx-auto" />
                   </TableCell>
                 </TableRow>
               ))
-            : drivers.map((driver) => (
+            : currentDrivers.map((driver) => (
                 <TableRow
                   key={driver.id}
-                  className="border-b border-gray-200 hover:bg-gray-50"
+                  className="hover:bg-gray-900 text-white transition duration-300"
                 >
-                  <TableCell>
-                    {driver.first_name} {driver.last_name}
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center space-x-2">
+                      <button
+                        onClick={() => navigate(`/drivers/${driver.id}`)}
+                        className="text-blue-500 hover:text-blue-300"
+                      >
+                        <Eye className="h-8 w-8 bg-primary/10 hover:bg-primary/20 rounded-full p-1" />
+                      </button>
+                      <span>
+                        {driver.first_name.charAt(0).toUpperCase() +
+                          driver.first_name.slice(1).toLowerCase()}{" "}
+                        {driver.last_name.charAt(0).toUpperCase() +
+                          driver.last_name.slice(1).toLowerCase()}
+                      </span>
+                    </div>
                   </TableCell>
-                  <TableCell>{driver.email}</TableCell>
-                  <TableCell>{driver.phone}</TableCell>
-                  <TableCell>
-                    {new Date(driver.start_date).toLocaleDateString()}{" "}
-                    {/* Affiche la date de début */}
+                  <TableCell className="text-center">{driver.email}</TableCell>
+                  <TableCell className="text-center">{driver.phone}</TableCell>
+                  <TableCell className="text-center">
+                    {new Date(driver.start_date).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">
                     <Badge
                       variant={
                         driver.shift_type === "Day"
@@ -170,12 +197,11 @@ export const DriverList = () => {
                         : "Long"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right space-x-2">
+                  <TableCell className="text-center space-x-2">
                     <Button
                       variant="ghost"
                       size="icon"
                       className="bg-primary/10 hover:bg-primary/20 rounded-full"
-                      onClick={() => setEditingDriver(driver)}
                     >
                       <Pencil className="h-4 w-4 text-primary" />
                     </Button>
@@ -183,7 +209,6 @@ export const DriverList = () => {
                       variant="ghost"
                       size="icon"
                       className="bg-red-500/10 hover:bg-red-500/20 rounded-full"
-                      onClick={() => setDeletingDriver(driver)}
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
@@ -192,22 +217,6 @@ export const DriverList = () => {
               ))}
         </TableBody>
       </Table>
-
-      {/* ✅ Edit Driver Dialog */}
-      <EditDriverDialog
-        driver={editingDriver}
-        open={!!editingDriver}
-        onOpenChange={(open) => !open && setEditingDriver(null)}
-        onEdit={handleEditDriver} // ✅ Pass edit function
-      />
-
-      {/* ✅ Delete Driver Dialog */}
-      <DeleteDriverDialog
-        driver={deletingDriver}
-        open={!!deletingDriver}
-        onOpenChange={(open) => !open && setDeletingDriver(null)}
-        onDelete={handleDeleteDriver} // ✅ Pass delete function
-      />
     </motion.div>
   );
 };
