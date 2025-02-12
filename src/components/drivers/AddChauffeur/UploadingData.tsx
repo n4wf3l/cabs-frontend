@@ -17,12 +17,6 @@ interface UploadingDataProps {
 const UploadingData = ({ form }: UploadingDataProps) => {
   const { control, register } = form;
 
-  const documents = [
-    { name: "id_card", label: "Carte d'identité" },
-    { name: "driver_license_photo", label: "Permis de conduire" },
-    { name: "bank_card_photo", label: "Carte bancaire" },
-    { name: "contract_photo", label: "Contrat" },
-  ];
 
   return (
     <motion.div
@@ -32,20 +26,19 @@ const UploadingData = ({ form }: UploadingDataProps) => {
       transition={{ duration: 0.5 }}
     >
       <h3 className="text-lg font-semibold">Documents</h3>
-      {documents.map((doc) => (
-        <FormField
-          key={doc.name}
+      <FormField
+          key="id_card"
           control={control}
-          name={doc.name}
+          name="id_card"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={doc.name}>{doc.label}</FormLabel>
+              <FormLabel htmlFor="id_card">Carte d'identité</FormLabel>
               <FormControl>
                 <Input
-                  id={doc.name}
+                  id="id_card"
                   type="file"
                   accept="image/*"
-                  {...register(doc.name)}
+                  {...register("id_card")}
                   onChange={(e) => field.onChange(e.target.files?.[0])}
                 />
               </FormControl>
@@ -53,7 +46,67 @@ const UploadingData = ({ form }: UploadingDataProps) => {
             </FormItem>
           )}
         />
-      ))}
+        <FormField
+          key="driver_license_photo"
+          control={control}
+          name="driver_license_photo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="driver_license_photo">Permis de conduire</FormLabel>
+              <FormControl>
+                <Input
+                  id="driver_license_photo"
+                  type="file"
+                  accept="image/*"
+                  {...register("driver_license_photo")}
+                  onChange={(e) => field.onChange(e.target.files?.[0])}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+               <FormField
+          key="bank_card_photo"
+          control={control}
+          name="bank_card_photo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="bank_card_photo">Carte bancaire</FormLabel>
+              <FormControl>
+                <Input
+                  id="bank_card_photo"
+                  type="file"
+                  accept="image/*"
+                  {...register("bank_card_photo")}
+                  onChange={(e) => field.onChange(e.target.files?.[0])}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+               <FormField
+          key="contract_photo"
+          control={control}
+          name="contract_photo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="contract_photo">Contrat</FormLabel>
+              <FormControl>
+                <Input
+                  id="contract_photo"
+                  type="file"
+                  accept="image/*"
+                  {...register("contract_photo")}
+                  onChange={(e) => field.onChange(e.target.files?.[0])}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
     </motion.div>
   );
 };
