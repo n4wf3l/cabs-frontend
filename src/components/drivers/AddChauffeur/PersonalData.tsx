@@ -201,6 +201,20 @@ const PersonalData = ({ form }) => {
           </FormItem>
         )}
       />
+           <FormField
+        control={form.control}
+        name="extra_info"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-white">Description informations importante</FormLabel>
+            <FormControl>
+              <Textarea {...field} />
+            </FormControl>
+            <FormMessage className="text-red-500" />{" "}
+            {/* Message d'erreur en rouge */}
+          </FormItem>
+        )}
+      />
     </div>
   );
 };
