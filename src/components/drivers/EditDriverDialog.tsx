@@ -197,6 +197,19 @@ export const EditDriverDialog = ({ driver, open, onOpenChange, onEdit }: EditDri
           </FormItem>
         )}
       />
+          <FormField
+        control={form.control}
+        name="end_date"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-white">Date de Fin</FormLabel>
+            <FormControl>
+              <Input type="date" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       {/* Birth and Nationality */}
       <FormField
         control={form.control}
@@ -290,6 +303,20 @@ export const EditDriverDialog = ({ driver, open, onOpenChange, onEdit }: EditDri
             <FormLabel className="text-white">Pays</FormLabel>
             <FormControl>
               <Input placeholder="Entrez le pays" {...field} />
+            </FormControl>
+            <FormMessage className="text-red-500" />{" "}
+            {/* Message d'erreur en rouge */}
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="extra_info"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-white">Description informations importante</FormLabel>
+            <FormControl>
+              <Textarea {...field} />
             </FormControl>
             <FormMessage className="text-red-500" />{" "}
             {/* Message d'erreur en rouge */}
