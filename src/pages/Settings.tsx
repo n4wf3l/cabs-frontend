@@ -1,18 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil } from "lucide-react";
 import Essence from "@/components/dashboard/Essence";
+import SettingsCards from "@/components/settings/SettingsCards";
+import Forms from "@/components/settings/Forms";
+import { fetchChauffeurs } from "@/api/chauffeurs";
+import { Mail, Lock, Eye, EyeOff, Save, UserPlus } from "lucide-react";
 
 const Settings = () => {
   const [showDrivers, setShowDrivers] = useState(false);
   const [showAdmins, setShowAdmins] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
+  const [drivers, setDrivers] = useState([]);
+  const [loadingDrivers, setLoadingDrivers] = useState(true);
+  const [email, setEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const navigate = useNavigate();
 
-  const drivers = ["Driver 1", "Driver 2", "Driver 3"];
+  useEffect(() => {
+    const loadChauffeurs = async () => {
+      try {
+        const chauffeurs = await fetchChauffeurs();
+        setDrivers(chauffeurs);
+      } catch (error) {
+        console.error("Erreur lors du chargement des chauffeurs:", error);
+      } finally {
+        setLoadingDrivers(false);
+      }
+    };
+
+    loadChauffeurs();
+  }, []);
+
   const admins = ["Admin 1", "Admin 2"];
+
+  const handleAccountSave = (e) => {
+    e.preventDefault();
+    // Logic for saving account details
+  };
+
+  const handleAdminAdd = (e) => {
+    e.preventDefault();
+    // Logic for adding a new admin
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -35,195 +71,17 @@ const Settings = () => {
 
         <hr className="hr-light-effect mt-10 mb-10" />
 
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div>
-            <Card
-              className="p-4 cursor-pointer hover:bg-secondary/50 text-center"
-              onClick={() => setShowDrivers(!showDrivers)}
-            >
-              <h3 className="text-xl font-bold">Chauffeurs</h3>
-              <p className="text-7xl font-bold text-primary">
-                {drivers.length}
-              </p>
-            </Card>
-            <AnimatePresence>
-              {showDrivers && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="p-4 bg-secondary rounded-md mt-2"
-                >
-                  <ul className="space-y-2">
-                    {drivers.map((driver, index) => (
-                      <li
-                        key={index}
-                        className="flex justify-between items-center"
-                      >
-                        {driver}
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => setEditingUser(driver)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+        <SettingsCards
+          drivers={drivers}
+          admins={admins}
+          loadingDrivers={loadingDrivers}
+          showDrivers={showDrivers}
+          setShowDrivers={setShowDrivers}
+          showAdmins={showAdmins}
+          setShowAdmins={setShowAdmins}
+        />
 
-          <div>
-            <Card
-              className="p-4 cursor-pointer hover:bg-secondary/50 text-center"
-              onClick={() => setShowAdmins(!showAdmins)}
-            >
-              <h3 className="text-xl font-bold">Admins</h3>
-              <p className="text-7xl font-bold text-primary">{admins.length}</p>
-            </Card>
-            <AnimatePresence>
-              {showAdmins && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="p-4 bg-secondary rounded-md mt-2"
-                >
-                  <ul className="space-y-2">
-                    {admins.map((admin, index) => (
-                      <li
-                        key={index}
-                        className="flex justify-between items-center"
-                      >
-                        {admin}
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => setEditingUser(admin)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="p-4 sm:p-6 mb-10">
-            <h2 className="text-xl font-bold mb-4">Mon Compte</h2>
-            <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-              <div className="space-y-2">
-                <label htmlFor="email" className="block text-sm font-medium">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  className="w-full p-2 border rounded-md bg-background"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="password" className="block text-sm font-medium">
-                  Nouveau mot de passe
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  className="w-full p-2 border rounded-md bg-background"
-                />
-              </div>
-              <Button type="submit" className="w-full md:w-auto">
-                Enregistrer les modifications
-              </Button>
-            </form>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="p-4 sm:p-6">
-            <h2 className="text-xl font-bold mb-4">
-              Ajouter un Administrateur
-            </h2>
-            <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-              <div className="space-y-2">
-                <label
-                  htmlFor="newAdminEmail"
-                  className="block text-sm font-medium"
-                >
-                  Email
-                </label>
-                <input
-                  id="newAdminEmail"
-                  type="email"
-                  className="w-full p-2 border rounded-md bg-background"
-                />
-              </div>
-              <div className="space-y-2">
-                <label
-                  htmlFor="newAdminPassword"
-                  className="block text-sm font-medium "
-                >
-                  Mot de passe
-                </label>
-                <input
-                  id="newAdminPassword"
-                  type="password"
-                  className="w-full p-2 border rounded-md bg-background"
-                />
-              </div>
-              <Button type="submit" className="w-full md:w-auto">
-                Ajouter Administrateur
-              </Button>
-            </form>
-          </Card>
-        </motion.div>
-
-        {/* Modale d'édition */}
-        <AnimatePresence>
-          {editingUser && (
-            <motion.div
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card className="p-6 bg-background w-96">
-                <h2 className="text-xl font-bold mb-4">
-                  Modifier {editingUser}
-                </h2>
-                <Button
-                  onClick={() => setEditingUser(null)}
-                  className="mt-4 w-full"
-                >
-                  Fermer
-                </Button>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <Forms />
       </main>
     </div>
   );

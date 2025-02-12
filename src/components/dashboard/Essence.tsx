@@ -1,20 +1,24 @@
 import { useEffect, useState } from "react";
-import { Fuel, Car } from "lucide-react";
+import { Fuel, Car, Cloud, Droplet } from "lucide-react";
 
 const Essence = () => {
   const [gasPrices, setGasPrices] = useState(null);
+  const [weather, setWeather] = useState(null);
 
   useEffect(() => {
-    const cachedData = localStorage.getItem("gasPrices");
-    const cacheTimestamp = localStorage.getItem("gasPricesTimestamp");
-    const oneDay = 24 * 60 * 60 * 1000; // 24 heures en millisecondes
+    const cachedGasData = localStorage.getItem("gasPrices");
+    const cachedWeatherData = localStorage.getItem("weatherData");
+    const cacheTimestamp = localStorage.getItem("dataTimestamp");
+    const oneHour = 60 * 60 * 1000; // 1 heure en millisecondes
 
     if (
-      cachedData &&
+      cachedGasData &&
+      cachedWeatherData &&
       cacheTimestamp &&
-      Date.now() - parseInt(cacheTimestamp) < oneDay
+      Date.now() - parseInt(cacheTimestamp) < oneHour
     ) {
-      setGasPrices(JSON.parse(cachedData));
+      setGasPrices(JSON.parse(cachedGasData));
+      setWeather(JSON.parse(cachedWeatherData));
     } else {
       const fetchGasPrices = async () => {
         try {
@@ -36,8 +40,6 @@ const Essence = () => {
           }
 
           const data = await response.json();
-          console.log(data); // Vérifie ici la structure des données
-
           const belgiumData = data.results.find(
             (country) => country.country === "Belgium"
           );
@@ -50,33 +52,81 @@ const Essence = () => {
 
           setGasPrices(belgiumData);
           localStorage.setItem("gasPrices", JSON.stringify(belgiumData));
-          localStorage.setItem("gasPricesTimestamp", Date.now().toString());
         } catch (error) {
-          console.error("Erreur:", error);
+          console.error(
+            "Erreur lors du chargement des prix de l'essence:",
+            error
+          );
+        }
+      };
+
+      const fetchWeather = async () => {
+        try {
+          const response = await fetch(
+            "https://meteostat.p.rapidapi.com/point/daily?lat=50.8503&lon=4.3517&start=2025-02-10&end=2025-02-10",
+            {
+              method: "GET",
+              headers: {
+                "x-rapidapi-key":
+                  "a76ae68987mshce8a54a27a108f9p13007ejsn6cb197c72d74",
+                "x-rapidapi-host": "meteostat.p.rapidapi.com",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`Erreur ${response.status} : Accès refusé.`);
+          }
+
+          const data = await response.json();
+          setWeather(data.data[0]);
+          localStorage.setItem("weatherData", JSON.stringify(data.data[0]));
+        } catch (error) {
+          console.error("Erreur lors du chargement de la météo:", error);
         }
       };
 
       fetchGasPrices();
+      fetchWeather();
+      localStorage.setItem("dataTimestamp", Date.now().toString());
     }
   }, []);
 
-  if (!gasPrices) {
-    return <p>Chargement des prix de l'essence...</p>;
+  if (!gasPrices || !weather) {
+    return <p>Chargement des données...</p>;
   }
 
   return (
-    <div className="hidden lg:block  top-20 right-10 bg-gray-800 p-4 rounded-lg shadow-lg">
-      <h2 className="text-lg font-bold mb-2 text-white">
-        Prix de l'essence en Belgique
-      </h2>
-      <div className="flex space-x-4">
-        <div className="flex items-center space-x-2">
-          <Fuel className="text-green-500" size={24} />
-          <span className="text-white">Essence : {gasPrices.gasoline} €</span>
+    <div className="hidden lg:flex flex-col space-y-4 top-20 right-10 bg-gray-800 p-4 rounded-lg shadow-lg">
+      <div>
+        <h2 className="text-lg font-bold mb-2 text-white">
+          Prix de l'essence en Belgique
+        </h2>
+        <div className="flex space-x-4">
+          <div className="flex items-center space-x-2">
+            <Fuel className="text-green-500" size={24} />
+            <span className="text-white">Essence : {gasPrices.gasoline} €</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Car className="text-yellow-500" size={24} />
+            <span className="text-white">Diesel : {gasPrices.diesel} €</span>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Car className="text-yellow-500" size={24} />
-          <span className="text-white">Diesel : {gasPrices.diesel} €</span>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-bold mb-2 text-white">Météo à Bruxelles</h2>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <Cloud className="text-blue-400" size={24} />
+            <span className="text-white">Température : {weather.tavg}°C</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Droplet className="text-blue-500" size={24} />
+            <span className="text-white">
+              Précipitations : {weather.prcp} mm
+            </span>
+          </div>
         </div>
       </div>
     </div>

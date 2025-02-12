@@ -11,6 +11,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Planning from "./pages/Planning";
 import AddDriver from "./pages/AddDriver";
+import DriverProfile from "./pages/DriverProfile";
 import ForgetPassword from "./pages/ForgetPassword";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/drivers" element={<Drivers />} />
           <Route path="/drivers/add" element={<AddDriver />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/drivers/:id" element={<DriverProfile />} />
           <Route path="/planning" element={<Planning />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="*" element={<NotFound />} />

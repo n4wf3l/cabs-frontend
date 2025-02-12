@@ -3,8 +3,6 @@ import {
   PaginationContent,
   PaginationItem,
   PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
 
 interface ShiftPaginationProps {
@@ -22,10 +20,13 @@ export const ShiftPagination = ({
     <Pagination>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious
+          <PaginationLink
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-            className="cursor-pointer"
-          />
+            className="cursor-pointer mr-10"
+            isActive={false}
+          >
+            Précédent
+          </PaginationLink>
         </PaginationItem>
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <PaginationItem key={page}>
@@ -39,12 +40,13 @@ export const ShiftPagination = ({
           </PaginationItem>
         ))}
         <PaginationItem>
-          <PaginationNext
-            onClick={() =>
-              onPageChange(Math.min(totalPages, currentPage + 1))
-            }
-            className="cursor-pointer"
-          />
+          <PaginationLink
+            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            className="cursor-pointer ml-10"
+            isActive={false}
+          >
+            Suivant
+          </PaginationLink>
         </PaginationItem>
       </PaginationContent>
     </Pagination>

@@ -84,11 +84,11 @@ export const Sidebar = () => {
         <div className="bg-background flex items-center justify-between p-4">
           {/* Affichage du logo seulement quand la sidebar est ouverte */}
           {!collapsed && (
-            <div className="w-32 h-10 transition-all duration-300">
+            <div className="w-64 h-20 transition-all duration-300">
               <img
                 src="/taxitimelogo.png"
                 alt="Taxi Time Logo"
-                className="object-contain h-full"
+                className="object-contain h-full ml-12"
               />
             </div>
           )}
@@ -142,7 +142,7 @@ export const Sidebar = () => {
               "w-full flex items-center justify-center space-x-2",
               collapsed ? "justify-center" : ""
             )}
-            onClick={() => console.log("Déconnexion")}
+            onClick={() => (window.location.href = "/login")}
           >
             <LogOut size={20} />
             {!collapsed && <span>Se déconnecter</span>}

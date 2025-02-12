@@ -91,26 +91,38 @@ const WorkData = ({ form }) => {
         "vendredi",
         "samedi",
         "dimanche",
-      ].map((day) => (
-        <FormField
-          key={day}
-          control={form.control}
-          name={`works_${day}`}
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value === true}
-                  onCheckedChange={(checked) => field.onChange(!!checked)}
-                />
-              </FormControl>
-              <FormLabel className="font-normal">
-                {day.charAt(0).toUpperCase() + day.slice(1)}
-              </FormLabel>
-            </FormItem>
-          )}
-        />
-      ))}
+      ].map((day, index) => {
+        const dayMapping = [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday",
+        ];
+        return (
+          <FormField
+            key={day}
+            control={form.control}
+            name={`works_${dayMapping[index]}`}
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value === true}
+                    onCheckedChange={(checked) => field.onChange(!!checked)}
+                  />
+                </FormControl>
+                <FormLabel className="font-normal">
+                  {day.charAt(0).toUpperCase() + day.slice(1)}
+                </FormLabel>
+              </FormItem>
+            )}
+          />
+        );
+      })}
+
       {/* Payment Preferences */}
       <h3 className="text-lg font-semibold">Préférences de paiement</h3>
       {/* General Payment Methods */}

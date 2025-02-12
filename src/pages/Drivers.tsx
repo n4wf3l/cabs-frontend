@@ -1,4 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from "@/hooks/use-toast";
+import { fetchChauffeurs, deleteChauffeur } from "@/api/chauffeurs";
 import {
   Table,
   TableBody,
@@ -7,20 +13,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EditDriverDialog } from "@/components/drivers/EditDriverDialog";
-import { DeleteDriverDialog } from "@/components/drivers/DeleteDriverDialog";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Plus, Download } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { deleteChauffeur, fetchChauffeurs } from "@/api/chauffeurs"; // Import API function
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sidebar } from "@/components/dashboard/Sidebar";
-import { Input } from "@/components/ui/input";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import { toast } from "@/hooks/use-toast";
+import { EditDriverDialog } from "@/components/drivers/EditDriverDialog";
+import { DeleteDriverDialog } from "@/components/drivers/DeleteDriverDialog";
+import { ShiftPagination } from "@/components/shifts/ShiftPagination";
+import {
+  Pencil,
+  Trash2,
+  Eye,
+  Plus,
+  Download,
+  User,
+  Phone,
+  Mail,
+  Clock,
+  Calendar,
+} from "lucide-react";
 
 export const Drivers = () => {
   const [drivers, setDrivers] = useState<any[]>([]);
@@ -37,7 +49,6 @@ export const Drivers = () => {
       try {
         const data = await fetchChauffeurs();
 
-        // Trier les chauffeurs par date de création décroissante (plus récents en premier)
         const sortedData = data.sort(
           (a, b) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -53,6 +64,15 @@ export const Drivers = () => {
 
     loadDrivers();
   }, []);
+
+  const totalPages = Math.ceil(drivers.length / driversPerPage);
+
+  const capitalizeWords = (str: string) => {
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
 
   const handleExportPDF = () => {
     const doc = new jsPDF();
@@ -79,9 +99,8 @@ export const Drivers = () => {
     .sort(
       (a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    ); // Trier après filtrage
+    );
 
-  // Pagination
   const indexOfLastDriver = currentPage * driversPerPage;
   const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
   const currentDrivers = filteredDrivers.slice(
@@ -90,34 +109,26 @@ export const Drivers = () => {
   );
 
   const handleDeleteDriver = async (driverId: string) => {
-    console.log("🚀 handleDeleteDriver called with driverId:", driverId);
-  
     try {
-      console.log("🗑 Calling deleteChauffeur API...");
-      await deleteChauffeur(driverId); // Ensure this API function is imported
-  
-      console.log("✅ Driver deleted successfully, updating state...");
-      setDrivers((prevDrivers) => {
-        const updatedDrivers = prevDrivers.filter((driver) => driver.id !== driverId);
-        console.log("🔄 Updated drivers list:", updatedDrivers);
-        return [...updatedDrivers]; // Ensure React re-renders the list
-      });
-  
+      await deleteChauffeur(driverId);
+      setDrivers((prevDrivers) =>
+        prevDrivers.filter((driver) => driver.id !== driverId)
+      );
+
       toast({
         title: "Succès",
         description: "Le chauffeur a été supprimé avec succès.",
         variant: "default",
       });
     } catch (error) {
-      console.error("❌ Error deleting driver:", error);
+      console.error("Erreur lors de la suppression du chauffeur:", error);
       toast({
         title: "Erreur",
-        description: "Une erreur s'est produite lors de la suppression du chauffeur.",
+        description: "Une erreur s'est produite lors de la suppression.",
         variant: "destructive",
       });
     }
   };
-  
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -152,7 +163,12 @@ export const Drivers = () => {
 
         <hr className="hr-light-effect mt-10 mb-10" />
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <motion.div
+          className="flex flex-col md:flex-row gap-4 mb-6"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
           <Input
             type="text"
             placeholder="Rechercher par nom ou téléphone"
@@ -160,69 +176,127 @@ export const Drivers = () => {
             onChange={(e) => setFilter(e.target.value)}
             className="flex-1 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent"
           />
-        </div>
+        </motion.div>
 
         <motion.div
+          key={currentPage}
           className="rounded-md border shadow-lg"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Table>
+          <Table className="w-full text-center">
             <TableHeader>
               <TableRow>
-                <TableHead>Nom</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Téléphone</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <User className="h-4 w-4 text-gray-500" />
+                    <span>Nom</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Mail className="h-4 w-4 text-gray-500" />
+                    <span>Email</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Phone className="h-4 w-4 text-gray-500" />
+                    <span>Téléphone</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Calendar className="h-4 w-4 text-gray-500" />
+                    <span>Date de début</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Clock className="h-4 w-4 text-gray-500" />
+                    <span>Type de shift</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="text-center">Actions</div>
+                </TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {loading
                 ? Array.from({ length: 5 }).map((_, index) => (
                     <TableRow key={index} className="border-b border-gray-200">
                       <TableCell>
-                        <Skeleton className="h-6 w-20" />
+                        <Skeleton className="h-6 w-20 mx-auto" />
                       </TableCell>
                       <TableCell>
-                        <Skeleton className="h-6 w-32" />
+                        <Skeleton className="h-6 w-32 mx-auto" />
                       </TableCell>
                       <TableCell>
-                        <Skeleton className="h-6 w-24" />
+                        <Skeleton className="h-6 w-24 mx-auto" />
                       </TableCell>
                       <TableCell>
-                        <Skeleton className="h-6 w-16" />
+                        <Skeleton className="h-6 w-24 mx-auto" />
                       </TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Skeleton className="h-6 w-16" />
+                      <TableCell>
+                        <Skeleton className="h-6 w-20 mx-auto" />
+                      </TableCell>
+                      <TableCell className="text-center space-x-2">
+                        <Skeleton className="h-6 w-16 mx-auto" />
                       </TableCell>
                     </TableRow>
                   ))
-                : currentDrivers.map((driver) => (
+                : drivers.map((driver) => (
                     <TableRow
                       key={driver.id}
-                      className="border-b border-gray-200 hover:bg-gray-900"
+                      className="border-b border-gray-200 hover:bg-gray-900 transition duration-300"
                     >
-                      <TableCell>
-                        {driver.first_name} {driver.last_name}
+                      {/* Icône Eye avant le nom */}
+                      <TableCell className="text-center flex items-center justify-center space-x-2">
+                        <button
+                          onClick={() => navigate(`/drivers/${driver.id}`)}
+                          className="text-blue-500 hover:text-blue-300"
+                        >
+                          <Eye className="bg-primary/10 hover:bg-primary/20 rounded-full" />
+                        </button>
+                        <span>
+                          {capitalizeWords(
+                            `${driver.first_name} ${driver.last_name}`
+                          )}
+                        </span>
                       </TableCell>
-                      <TableCell>{driver.email}</TableCell>
-                      <TableCell>{driver.phone}</TableCell>
-                      <TableCell>
+
+                      <TableCell className="text-center">
+                        {driver.email}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {driver.phone}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {new Date(driver.start_date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-center">
                         <Badge
                           variant={
-                            driver.employment_status === "Active"
+                            driver.shift_type === "Day"
                               ? "default"
-                              : "secondary"
+                              : driver.shift_type === "Night"
+                              ? "secondary"
+                              : "outline"
                           }
                         >
-                          {driver.employment_status === "Active"
-                            ? "Actif"
-                            : "Inactif"}
+                          {driver.shift_type === "Day"
+                            ? "Jour"
+                            : driver.shift_type === "Night"
+                            ? "Nuit"
+                            : "Long"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right space-x-2">
+
+                      {/* Boutons d'actions */}
+                      <TableCell className="text-center space-x-2">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -235,11 +309,7 @@ export const Drivers = () => {
                           variant="ghost"
                           size="icon"
                           className="bg-red-500/10 hover:bg-red-500/20 rounded-full"
-                          onClick={() => {
-                            console.log("Trash button clicked, setting deletingDriver..."); // Debug log
-                            console.log("Driver to delete:", driver); // Debug log
-                            setDeletingDriver(driver);
-                          }}
+                          onClick={() => setDeletingDriver(driver)}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
@@ -250,24 +320,18 @@ export const Drivers = () => {
           </Table>
         </motion.div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-6">
-          {[...Array(Math.ceil(filteredDrivers.length / driversPerPage))].map(
-            (_, index) => (
-              <Button
-                key={index + 1}
-                onClick={() => paginate(index + 1)}
-                className={`mx-1 px-3 py-1 text-sm rounded-lg shadow-md ${
-                  currentPage === index + 1
-                    ? "bg-primary text-white"
-                    : "bg-gray-300 text-black"
-                }`}
-              >
-                {index + 1}
-              </Button>
-            )
-          )}
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="mt-8"
+        >
+          <ShiftPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </motion.div>
 
         <EditDriverDialog
           driver={editingDriver}
@@ -281,20 +345,18 @@ export const Drivers = () => {
             );
           }}
         />
-       {deletingDriver !== null && deletingDriver !== undefined && (
-  <DeleteDriverDialog
-    driver={deletingDriver}
-    open={!!deletingDriver}
-    onOpenChange={(open) => {
-      if (!open) {
-        console.log("🚪 Closing delete dialog...");
-        setTimeout(() => setDeletingDriver(null), 300); // Delay clearing state
-      }
-    }}
-    onDelete={handleDeleteDriver}
-  />
-)}
-
+        {deletingDriver !== null && deletingDriver !== undefined && (
+          <DeleteDriverDialog
+            driver={deletingDriver}
+            open={!!deletingDriver}
+            onOpenChange={(open) => {
+              if (!open) {
+                setTimeout(() => setDeletingDriver(null), 300);
+              }
+            }}
+            onDelete={handleDeleteDriver}
+          />
+        )}
       </main>
     </div>
   );
