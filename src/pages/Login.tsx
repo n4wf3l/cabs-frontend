@@ -4,19 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn } from "lucide-react";
 import { motion, AnimatePresence, delay } from "framer-motion";
 import api from "../api/api"; // ✅ Import axios API instance
 //import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
-  
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,21 +43,25 @@ const Login = () => {
 
       if (payload.role === "admin") {
         navigate("/dashboard");
-        toast({ title: "Connexion réussie", description: `Bienvenue, ${email}!` });
+        toast({
+          title: "Connexion réussie",
+          description: `Bienvenue, ${email}!`,
+        });
       } else {
         navigate("/unauthorized"); // Redirect unauthorized users
         localStorage.removeItem("token"); // ✅ Remove token
+        setLoading(false);
       }
-
-      
     } catch (error) {
       console.error("❌ Login Failed:", error);
-      toast({ title: "Erreur", description: "Email ou mot de passe incorrect", variant: "destructive" });
+      toast({
+        title: "Erreur",
+        description: "Email ou mot de passe incorrect",
+        variant: "destructive",
+      });
+      setLoading(false);
     }
   };
-
- 
-  
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-black relative p-4">
@@ -107,33 +111,68 @@ const Login = () => {
             </motion.h2>
 
             <form onSubmit={handleLogin} className="space-y-4">
-              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, duration: 0.5 }}>
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+              >
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="name@example.com"
-                  className="text-black"
+                  className="text-white"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </motion.div>
-              <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.8, duration: 0.5 }}>
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.8, duration: 0.5 }}
+              >
                 <Label htmlFor="password">Mot de passe</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  className="text-white"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    className="text-white"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-yellow-500 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </motion.div>
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.5 }}>
-                <Button type="submit" className="bg-gray-800 text-white hover:bg-yellow-800 w-full" disabled={loading}>
-                  {loading ? "Connexion..." : <><LogIn className="mr-2 h-4 w-4" /> Se connecter</>}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1, duration: 0.5 }}
+              >
+                <Button
+                  type="submit"
+                  className="bg-gray-800 text-white hover:bg-yellow-800 w-full"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    "Connexion..."
+                  ) : (
+                    <>
+                      <LogIn className="mr-2 h-4 w-4" /> Se connecter
+                    </>
+                  )}
                 </Button>
               </motion.div>
             </form>
@@ -155,11 +194,20 @@ const Login = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            <a href="https://www.taxitime.be" target="_blank" rel="noopener noreferrer" className="text-white text-lg font-bold hover:text-yellow-400">
+            <a
+              href="https://www.taxitime.be"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white text-lg font-bold hover:text-yellow-400"
+            >
               Taxi Time.
             </a>
-            <p className="text-sm mt-2 text-center">La plateforme dédiée aux sociétés de taxi.</p>
-            <p className="text-xs mt-10 text-gray-400">Made with love in Brussels.</p>
+            <p className="text-sm mt-2 text-center">
+              La plateforme dédiée aux sociétés de taxi.
+            </p>
+            <p className="text-xs mt-10 text-gray-400">
+              Made with love in Brussels.
+            </p>
           </motion.div>
         </motion.div>
       )}
