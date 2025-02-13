@@ -54,6 +54,19 @@ export const Sidebar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Charger l'état de la sidebar depuis le localStorage
+  useEffect(() => {
+    const storedCollapsed = localStorage.getItem("sidebarCollapsed");
+    if (storedCollapsed !== null) {
+      setCollapsed(JSON.parse(storedCollapsed));
+    }
+  }, []);
+
+  // Mettre à jour le localStorage lorsque l'état de la sidebar change
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsed));
+  }, [collapsed]);
+
   // Gestion de l'ouverture/fermeture en fonction du device
   const toggleSidebar = () => {
     setCollapsed(!collapsed); // Même comportement pour mobile et desktop
@@ -150,7 +163,7 @@ export const Sidebar = () => {
             )}
             onClick={handleLogout}
           >
-            <LogOut size={20}/>
+            <LogOut size={20} />
             {!collapsed && <span>Se déconnecter</span>}
           </Button>
         </div>

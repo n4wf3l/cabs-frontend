@@ -3,7 +3,6 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import Essence from "@/components/dashboard/Essence";
 import Graphic from "@/components/dashboard/Graphic";
 import { Card } from "@/components/ui/card";
-import WazeMap from "@/components/dashboard/WazeMap";
 import { Users, Car, TrendingUp } from "lucide-react";
 import {
   LineChart,
@@ -178,12 +177,6 @@ const Dashboard = () => {
           ))}
         </div>
         <Graphic chartData={chartData} />
-
-        {/* Carte Waze en bas du dashboard */}
-        <div className="mt-10">
-          <h2 className="text-xl font-bold mb-4">Carte Waze en Temps Réel</h2>
-          <WazeMap />
-        </div>
       </main>
     </div>
   );
