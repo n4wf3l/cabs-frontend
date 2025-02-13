@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { toast } from "@/hooks/use-toast";
+import { toast, useToast } from "@/hooks/use-toast";
 import { fetchChauffeurs, deleteChauffeur } from "@/api/chauffeurs";
 import {
   Table,
@@ -21,6 +21,8 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { EditDriverDialog } from "@/components/drivers/EditDriverDialog";
 import { DeleteDriverDialog } from "@/components/drivers/DeleteDriverDialog";
 import { ShiftPagination } from "@/components/shifts/ShiftPagination";
+import { pdf, PDFDownloadLink } from "@react-pdf/renderer";
+import PDFDocument from "@/components/drivers/PDFDocument";
 import {
   Pencil,
   Trash2,
@@ -32,9 +34,11 @@ import {
   Mail,
   Clock,
   Calendar,
+  ArrowUpDown,
 } from "lucide-react";
 
 export const Drivers = () => {
+  const { toast } = useToast();
   const [drivers, setDrivers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingDriver, setEditingDriver] = useState<any>(null);
@@ -44,16 +48,17 @@ export const Drivers = () => {
   const driversPerPage = 10;
   const navigate = useNavigate();
 
+  const [sortBy, setSortBy] = useState<"name" | "date" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   useEffect(() => {
     const loadDrivers = async () => {
       try {
         const data = await fetchChauffeurs();
-
         const sortedData = data.sort(
           (a, b) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
-
         setDrivers(sortedData);
       } catch (error) {
         console.error("Erreur lors du chargement des chauffeurs:", error);
@@ -65,45 +70,94 @@ export const Drivers = () => {
     loadDrivers();
   }, []);
 
+  const handleExportPDF = async () => {
+    setLoading(true);
+
+    try {
+      // Générer le document PDF
+      const blob = await pdf(<PDFDocument drivers={drivers} />).toBlob();
+
+      // Créer un lien de téléchargement
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "chauffeurs.pdf";
+      document.body.appendChild(a);
+      a.click();
+
+      // Nettoyer après téléchargement
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      // 🔔 Afficher le message de succès
+      toast({
+        title: "PDF généré avec succès !",
+        description: "Votre fichier chauffeurs.pdf a bien été téléchargé.",
+        duration: 3000, // Affiché pendant 3 secondes
+      });
+    } catch (error) {
+      console.error("Erreur lors de la génération du PDF :", error);
+
+      // Afficher un message d'erreur
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le PDF. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const totalPages = Math.ceil(drivers.length / driversPerPage);
 
-  const capitalizeWords = (str: string) => {
-    return str
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
+  const handleSortByName = () => {
+    if (sortBy === "name") {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy("name");
+      setSortOrder("asc");
+    }
   };
 
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Liste des Chauffeurs", 14, 20);
-    autoTable(doc, {
-      head: [["Nom", "Email", "Téléphone", "Statut"]],
-      body: drivers.map((driver) => [
-        `${driver.first_name} ${driver.last_name}`,
-        driver.email,
-        driver.phone,
-        driver.employment_status === "Active" ? "Actif" : "Inactif",
-      ]),
+  const handleSortByDate = () => {
+    if (sortBy === "date") {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy("date");
+      setSortOrder("asc");
+    }
+  };
+
+  const sortDrivers = (driversList: any[]) => {
+    if (!sortBy) return driversList;
+
+    return [...driversList].sort((a, b) => {
+      let comparison = 0;
+
+      if (sortBy === "name") {
+        comparison = a.first_name.localeCompare(b.first_name);
+      } else if (sortBy === "date") {
+        comparison =
+          new Date(a.start_date).getTime() - new Date(b.start_date).getTime();
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
     });
-    doc.save("chauffeurs.pdf");
   };
 
-  const filteredDrivers = drivers
-    .filter(
-      (driver) =>
-        driver.first_name.toLowerCase().includes(filter.toLowerCase()) ||
-        driver.last_name.toLowerCase().includes(filter.toLowerCase()) ||
-        driver.phone.includes(filter)
-    )
-    .sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
+  const filteredDrivers = drivers.filter(
+    (driver) =>
+      driver.first_name.toLowerCase().includes(filter.toLowerCase()) ||
+      driver.last_name.toLowerCase().includes(filter.toLowerCase()) ||
+      driver.phone.includes(filter)
+  );
+
+  const sortedAndFilteredDrivers = sortDrivers(filteredDrivers);
 
   const indexOfLastDriver = currentPage * driversPerPage;
   const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
-  const currentDrivers = filteredDrivers.slice(
+  const currentDrivers = sortedAndFilteredDrivers.slice(
     indexOfFirstDriver,
     indexOfLastDriver
   );
@@ -130,8 +184,6 @@ export const Drivers = () => {
     }
   };
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar />
@@ -152,12 +204,16 @@ export const Drivers = () => {
             >
               <Plus size={14} className="mr-1" /> Ajouter
             </Button>
-            <Button
-              onClick={handleExportPDF}
-              className="px-3 py-1 text-xs md:px-4 md:py-2 md:text-sm bg-secondary text-white rounded-lg shadow-md hover:bg-secondary/80"
-            >
-              <Download size={14} className="mr-1" /> Exporter PDF
-            </Button>
+            <div>
+              <Button
+                onClick={handleExportPDF}
+                className="px-3 py-1 text-xs md:px-4 md:py-2 md:text-sm bg-secondary text-white rounded-lg shadow-md hover:bg-secondary/80"
+                disabled={loading}
+              >
+                <Download size={14} className="mr-1" />{" "}
+                {loading ? "Génération..." : "Exporter PDF"}
+              </Button>
+            </div>
           </div>
         </motion.div>
 
@@ -179,7 +235,6 @@ export const Drivers = () => {
         </motion.div>
 
         <motion.div
-          key={currentPage}
           className="rounded-md border shadow-lg"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -188,36 +243,58 @@ export const Drivers = () => {
           <Table className="w-full text-center">
             <TableHeader>
               <TableRow>
-                <TableHead>
+                {/* Nouvelle colonne pour l'icône 👁️ */}
+                <TableHead className="w-12">
+                  {" "}
+                  {/* Réduit la largeur pour un meilleur alignement */}
+                  <div className="flex items-center justify-center">
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  </div>
+                </TableHead>
+
+                <TableHead
+                  onClick={handleSortByName}
+                  className="cursor-pointer"
+                >
                   <div className="flex items-center justify-center space-x-2">
                     <User className="h-4 w-4 text-gray-500" />
                     <span>Nom</span>
+                    <ArrowUpDown className="h-4 w-4 text-gray-500" />
                   </div>
                 </TableHead>
+
                 <TableHead>
                   <div className="flex items-center justify-center space-x-2">
                     <Mail className="h-4 w-4 text-gray-500" />
                     <span>Email</span>
                   </div>
                 </TableHead>
+
                 <TableHead>
                   <div className="flex items-center justify-center space-x-2">
                     <Phone className="h-4 w-4 text-gray-500" />
                     <span>Téléphone</span>
                   </div>
                 </TableHead>
-                <TableHead>
+
+                <TableHead
+                  onClick={handleSortByDate}
+                  className="cursor-pointer"
+                >
                   <div className="flex items-center justify-center space-x-2">
                     <Calendar className="h-4 w-4 text-gray-500" />
                     <span>Date de début</span>
+                    <ArrowUpDown className="h-4 w-4 text-gray-500" />
                   </div>
                 </TableHead>
+
                 <TableHead>
                   <div className="flex items-center justify-center space-x-2">
                     <Clock className="h-4 w-4 text-gray-500" />
                     <span>Type de shift</span>
                   </div>
                 </TableHead>
+
                 <TableHead>
                   <div className="text-center">Actions</div>
                 </TableHead>
@@ -226,8 +303,11 @@ export const Drivers = () => {
 
             <TableBody>
               {loading
-                ? Array.from({ length: 5 }).map((_, index) => (
-                    <TableRow key={index} className="border-b border-gray-200">
+                ? Array.from({ length: driversPerPage }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Skeleton className="h-6 w-6 mx-auto" />
+                      </TableCell>
                       <TableCell>
                         <Skeleton className="h-6 w-20 mx-auto" />
                       </TableCell>
@@ -243,29 +323,31 @@ export const Drivers = () => {
                       <TableCell>
                         <Skeleton className="h-6 w-20 mx-auto" />
                       </TableCell>
-                      <TableCell className="text-center space-x-2">
+                      <TableCell>
                         <Skeleton className="h-6 w-16 mx-auto" />
                       </TableCell>
                     </TableRow>
                   ))
-                : drivers.map((driver) => (
+                : currentDrivers.map((driver) => (
                     <TableRow
                       key={driver.id}
-                      className="border-b border-gray-200 hover:bg-gray-900 transition duration-300"
+                      className="hover:bg-gray-900 text-white transition duration-300"
                     >
-                      {/* Icône Eye avant le nom */}
-                      <TableCell className="text-center flex items-center justify-center space-x-2">
+                      {/* Colonne séparée pour l'icône 👁️ */}
+                      <TableCell className="text-center">
                         <button
                           onClick={() => navigate(`/drivers/${driver.id}`)}
                           className="text-blue-500 hover:text-blue-300"
                         >
-                          <Eye className="bg-primary/10 hover:bg-primary/20 rounded-full" />
+                          <Eye className="h-8 w-8 bg-primary/10 hover:bg-primary/20 rounded-full p-1" />
                         </button>
-                        <span>
-                          {capitalizeWords(
-                            `${driver.first_name} ${driver.last_name}`
-                          )}
-                        </span>
+                      </TableCell>
+
+                      <TableCell className="text-center font-semibold text-lg text-white">
+                        {driver.first_name.charAt(0).toUpperCase() +
+                          driver.first_name.slice(1).toLowerCase()}{" "}
+                        {driver.last_name.charAt(0).toUpperCase() +
+                          driver.last_name.slice(1).toLowerCase()}
                       </TableCell>
 
                       <TableCell className="text-center">
@@ -294,8 +376,6 @@ export const Drivers = () => {
                             : "Long"}
                         </Badge>
                       </TableCell>
-
-                      {/* Boutons d'actions */}
                       <TableCell className="text-center space-x-2">
                         <Button
                           variant="ghost"
@@ -321,9 +401,10 @@ export const Drivers = () => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          key={currentPage}
+          initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
+          transition={{ delay: 0.2, duration: 0.2 }}
           className="mt-8"
         >
           <ShiftPagination

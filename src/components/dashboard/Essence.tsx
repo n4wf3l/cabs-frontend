@@ -28,7 +28,7 @@ const Essence = () => {
               method: "GET",
               headers: {
                 "x-rapidapi-key":
-                  "d47fc6b23emsh536bb2509bf0522p1d7b5cjsne789218aee9d",
+                  "128aa3729cmsh623e418ce1823d4p124c87jsn561dfa3c49ee",
                 "x-rapidapi-host": "gas-price.p.rapidapi.com",
                 "Content-Type": "application/json",
               },

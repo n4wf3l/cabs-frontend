@@ -191,13 +191,7 @@ const Shifts = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <div
-        className={`fixed z-50 md:relative md:translate-x-0 transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <Sidebar />
-      </div>
+      <Sidebar />
 
       <main className="flex-1 p-4 md:p-8 md:ml-64">
         <motion.div
