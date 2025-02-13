@@ -212,6 +212,15 @@ export const Drivers = () => {
           <Table className="w-full text-center">
             <TableHeader>
               <TableRow>
+                {/* Nouvelle colonne pour l'icône 👁️ */}
+                <TableHead className="w-12">
+                  {" "}
+                  {/* Réduit la largeur pour un meilleur alignement */}
+                  <div className="flex items-center justify-center">
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  </div>
+                </TableHead>
+
                 <TableHead
                   onClick={handleSortByName}
                   className="cursor-pointer"
@@ -222,18 +231,21 @@ export const Drivers = () => {
                     <ArrowUpDown className="h-4 w-4 text-gray-500" />
                   </div>
                 </TableHead>
+
                 <TableHead>
                   <div className="flex items-center justify-center space-x-2">
                     <Mail className="h-4 w-4 text-gray-500" />
                     <span>Email</span>
                   </div>
                 </TableHead>
+
                 <TableHead>
                   <div className="flex items-center justify-center space-x-2">
                     <Phone className="h-4 w-4 text-gray-500" />
                     <span>Téléphone</span>
                   </div>
                 </TableHead>
+
                 <TableHead
                   onClick={handleSortByDate}
                   className="cursor-pointer"
@@ -244,12 +256,14 @@ export const Drivers = () => {
                     <ArrowUpDown className="h-4 w-4 text-gray-500" />
                   </div>
                 </TableHead>
+
                 <TableHead>
                   <div className="flex items-center justify-center space-x-2">
                     <Clock className="h-4 w-4 text-gray-500" />
                     <span>Type de shift</span>
                   </div>
                 </TableHead>
+
                 <TableHead>
                   <div className="text-center">Actions</div>
                 </TableHead>
@@ -260,6 +274,9 @@ export const Drivers = () => {
               {loading
                 ? Array.from({ length: driversPerPage }).map((_, index) => (
                     <TableRow key={index}>
+                      <TableCell>
+                        <Skeleton className="h-6 w-6 mx-auto" />
+                      </TableCell>
                       <TableCell>
                         <Skeleton className="h-6 w-20 mx-auto" />
                       </TableCell>
@@ -285,22 +302,23 @@ export const Drivers = () => {
                       key={driver.id}
                       className="hover:bg-gray-900 text-white transition duration-300"
                     >
+                      {/* Colonne séparée pour l'icône 👁️ */}
                       <TableCell className="text-center">
-                        <div className="flex items-center justify-center space-x-2">
-                          <button
-                            onClick={() => navigate(`/drivers/${driver.id}`)}
-                            className="text-blue-500 hover:text-blue-300"
-                          >
-                            <Eye className="h-8 w-8 bg-primary/10 hover:bg-primary/20 rounded-full p-1" />
-                          </button>
-                          <span>
-                            {driver.first_name.charAt(0).toUpperCase() +
-                              driver.first_name.slice(1).toLowerCase()}{" "}
-                            {driver.last_name.charAt(0).toUpperCase() +
-                              driver.last_name.slice(1).toLowerCase()}
-                          </span>
-                        </div>
+                        <button
+                          onClick={() => navigate(`/drivers/${driver.id}`)}
+                          className="text-blue-500 hover:text-blue-300"
+                        >
+                          <Eye className="h-8 w-8 bg-primary/10 hover:bg-primary/20 rounded-full p-1" />
+                        </button>
                       </TableCell>
+
+                      <TableCell className="text-center font-semibold text-lg text-white">
+                        {driver.first_name.charAt(0).toUpperCase() +
+                          driver.first_name.slice(1).toLowerCase()}{" "}
+                        {driver.last_name.charAt(0).toUpperCase() +
+                          driver.last_name.slice(1).toLowerCase()}
+                      </TableCell>
+
                       <TableCell className="text-center">
                         {driver.email}
                       </TableCell>
@@ -352,9 +370,10 @@ export const Drivers = () => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          key={currentPage}
+          initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
+          transition={{ delay: 0.2, duration: 0.2 }}
           className="mt-8"
         >
           <ShiftPagination

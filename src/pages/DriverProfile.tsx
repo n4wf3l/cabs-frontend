@@ -24,6 +24,7 @@ import {
   Plus,
   Eye,
   CreditCard as PaymentIcon,
+  ArrowLeft,
 } from "lucide-react";
 import { updateChauffeur } from "@/api/chauffeurs";
 const DriverProfile = () => {
@@ -104,22 +105,26 @@ const DriverProfile = () => {
           exit={{ opacity: 0, y: -50 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-2xl font-bold text-center md:text-left">
-            Profil de {driver.first_name} {driver.last_name}
-          </h1>
+          {/* Section Titre avec flèche retour */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/drivers")}
+              className="text-gray-400 hover:text-primary transition-all"
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <h1 className="text-2xl font-bold text-gray-200">
+              Profil de {driver.first_name} {driver.last_name}
+            </h1>
+          </div>
+
+          {/* Boutons Actions */}
           <div className="flex gap-4">
             <Button
-              onClick={() => navigate("/drivers")}
-              className="px-3 py-1 text-xs md:px-4 md:py-2 md:text-sm bg-primary text-white rounded-lg shadow-md hover:bg-primary/80"
-            >
-              Retour
-            </Button>
-
-            <Button
               onClick={handleExportPDF}
-              className="px-3 py-1 text-xs md:px-4 md:py-2 md:text-sm bg-secondary text-white rounded-lg shadow-md hover:bg-secondary/80"
+              className="flex items-center px-3 py-1 text-xs md:px-4 md:py-2 md:text-sm bg-secondary text-white rounded-lg shadow-md hover:bg-secondary/80"
             >
-              <Download size={14} className="mr-1" /> Exporter PDF
+              <Download size={14} className="mr-2" /> Exporter PDF
             </Button>
           </div>
         </motion.div>
@@ -598,13 +603,21 @@ const DriverProfile = () => {
                     <label className="block text-sm font-medium text-gray-400">
                       Date de Début
                     </label>
-                    <span>{driver.start_date}</span>
+                    <span>
+                      {new Date(driver.start_date).toLocaleDateString("fr-FR")}
+                    </span>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-400">
                       Date de Fin
                     </label>
-                    <span>{driver.end_date}</span>
+                    <span>
+                      {new Date(driver.end_date).toLocaleDateString("fr-FR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </span>
                   </div>
                 </div>
               </motion.div>
