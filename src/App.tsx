@@ -13,6 +13,7 @@ import Planning from "./pages/Planning";
 import AddDriver from "./pages/AddDriver";
 import DriverProfile from "./pages/DriverProfile";
 import ForgetPassword from "./pages/ForgetPassword";
+import PrivateRoute from "./PrivateRoute";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
+          <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/shifts" element={<Shifts />} />
           <Route path="/drivers" element={<Drivers />} />
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/settings" element={<Settings />} />
           <Route path="/drivers/:id" element={<DriverProfile />} />
           <Route path="/planning" element={<Planning />} />
+          </Route>
+          <Route path="/unauthorized" element={<h1>🚫 Accès refusé</h1>} />
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

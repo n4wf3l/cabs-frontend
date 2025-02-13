@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -36,6 +36,12 @@ export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   // Vérifie si l'écran est en mode mobile
   useEffect(() => {
@@ -142,9 +148,9 @@ export const Sidebar = () => {
               "w-full flex items-center justify-center space-x-2",
               collapsed ? "justify-center" : ""
             )}
-            onClick={() => (window.location.href = "/login")}
+            onClick={handleLogout}
           >
-            <LogOut size={20} />
+            <LogOut size={20}/>
             {!collapsed && <span>Se déconnecter</span>}
           </Button>
         </div>

@@ -5,26 +5,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { LogIn } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, delay } from "framer-motion";
+import api from "../api/api"; // ✅ Import axios API instance
+//import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userType, setUserType] = useState("admin");
+  const [loading, setLoading] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (email && password) {
-      navigate(userType === "admin" ? "/dashboard" : "/chauffeur/dashboard");
-      toast({
-        title: "Connexion réussie",
-        description: `Bienvenue, ${email}!`,
-      });
-    }
-  };
+  
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -33,24 +25,39 @@ const Login = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const fullText =
-    "LLa plateforme dédiée aux sociétés de taxi pour gérer leurs chauffeurs simplement et efficacement.";
-  const [visibleText, setVisibleText] = useState("");
-  const indexRef = useRef(0);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  useEffect(() => {
-    if (!showSplash) {
-      const interval = setInterval(() => {
-        if (indexRef.current < fullText.length) {
-          setVisibleText((prev) => prev + fullText.charAt(indexRef.current));
-          indexRef.current++;
-        } else {
-          clearInterval(interval);
-        }
-      }, 50);
-      return () => clearInterval(interval);
+    try {
+      // ✅ Send login request to backend
+      const response = await api.post("/auth/login", { email, password });
+
+      // ✅ Store JWT token
+      const { accessToken } = response.data;
+      localStorage.setItem("token", accessToken); // ✅ Store token
+
+      // ✅ Decode JWT token to get role
+      const payload = JSON.parse(atob(accessToken.split(".")[1])); // Decode JWT
+      console.log("🔍 Decoded Token:", payload);
+
+      if (payload.role === "admin") {
+        navigate("/dashboard");
+        toast({ title: "Connexion réussie", description: `Bienvenue, ${email}!` });
+      } else {
+        navigate("/unauthorized"); // Redirect unauthorized users
+        localStorage.removeItem("token"); // ✅ Remove token
+      }
+
+      
+    } catch (error) {
+      console.error("❌ Login Failed:", error);
+      toast({ title: "Erreur", description: "Email ou mot de passe incorrect", variant: "destructive" });
     }
-  }, [showSplash]);
+  };
+
+ 
+  
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-black relative p-4">
@@ -100,11 +107,7 @@ const Login = () => {
             </motion.h2>
 
             <form onSubmit={handleLogin} className="space-y-4">
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-              >
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, duration: 0.5 }}>
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -116,11 +119,7 @@ const Login = () => {
                   required
                 />
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
-              >
+              <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.8, duration: 0.5 }}>
                 <Label htmlFor="password">Mot de passe</Label>
                 <Input
                   id="password"
@@ -131,16 +130,9 @@ const Login = () => {
                   required
                 />
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.5 }}
-              >
-                <Button
-                  type="submit"
-                  className="bg-gray-800 text-white hover:bg-yellow-800 w-full"
-                >
-                  <LogIn className="mr-2 h-4 w-4" /> Se connecter
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.5 }}>
+                <Button type="submit" className="bg-gray-800 text-white hover:bg-yellow-800 w-full" disabled={loading}>
+                  {loading ? "Connexion..." : <><LogIn className="mr-2 h-4 w-4" /> Se connecter</>}
                 </Button>
               </motion.div>
             </form>
@@ -162,18 +154,11 @@ const Login = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            <a
-              href="https://www.taxitime.be"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white text-lg font-bold hover:text-yellow-400"
-            >
+            <a href="https://www.taxitime.be" target="_blank" rel="noopener noreferrer" className="text-white text-lg font-bold hover:text-yellow-400">
               Taxi Time.
             </a>
-            <p className="text-sm mt-2 text-center">{visibleText}</p>
-            <p className="text-xs mt-10 text-gray-400">
-              Made with love in Brussels.
-            </p>
+            <p className="text-sm mt-2 text-center">La plateforme dédiée aux sociétés de taxi.</p>
+            <p className="text-xs mt-10 text-gray-400">Made with love in Brussels.</p>
           </motion.div>
         </motion.div>
       )}
