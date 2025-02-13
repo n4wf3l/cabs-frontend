@@ -5,14 +5,35 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "@/hooks/use-toast";
 import { fetchChauffeurs, deleteChauffeur } from "@/api/chauffeurs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Sidebar } from "@/components/dashboard/Sidebar";
-import DriverList from "@/components/drivers/DriverList";
 import { EditDriverDialog } from "@/components/drivers/EditDriverDialog";
 import { DeleteDriverDialog } from "@/components/drivers/DeleteDriverDialog";
 import { ShiftPagination } from "@/components/shifts/ShiftPagination";
-import { Plus, Download } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Eye,
+  Plus,
+  Download,
+  User,
+  Phone,
+  Mail,
+  Clock,
+  Calendar,
+  ArrowUpDown,
+} from "lucide-react";
 
 export const Drivers = () => {
   const [drivers, setDrivers] = useState<any[]>([]);
@@ -24,16 +45,17 @@ export const Drivers = () => {
   const driversPerPage = 10;
   const navigate = useNavigate();
 
+  const [sortBy, setSortBy] = useState<"name" | "date" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   useEffect(() => {
     const loadDrivers = async () => {
       try {
         const data = await fetchChauffeurs();
-
         const sortedData = data.sort(
           (a, b) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
-
         setDrivers(sortedData);
       } catch (error) {
         console.error("Erreur lors du chargement des chauffeurs:", error);
@@ -46,6 +68,57 @@ export const Drivers = () => {
   }, []);
 
   const totalPages = Math.ceil(drivers.length / driversPerPage);
+
+  const handleSortByName = () => {
+    if (sortBy === "name") {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy("name");
+      setSortOrder("asc");
+    }
+  };
+
+  const handleSortByDate = () => {
+    if (sortBy === "date") {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy("date");
+      setSortOrder("asc");
+    }
+  };
+
+  const sortDrivers = (driversList: any[]) => {
+    if (!sortBy) return driversList;
+
+    return [...driversList].sort((a, b) => {
+      let comparison = 0;
+
+      if (sortBy === "name") {
+        comparison = a.first_name.localeCompare(b.first_name);
+      } else if (sortBy === "date") {
+        comparison =
+          new Date(a.start_date).getTime() - new Date(b.start_date).getTime();
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+  };
+
+  const filteredDrivers = drivers.filter(
+    (driver) =>
+      driver.first_name.toLowerCase().includes(filter.toLowerCase()) ||
+      driver.last_name.toLowerCase().includes(filter.toLowerCase()) ||
+      driver.phone.includes(filter)
+  );
+
+  const sortedAndFilteredDrivers = sortDrivers(filteredDrivers);
+
+  const indexOfLastDriver = currentPage * driversPerPage;
+  const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
+  const currentDrivers = sortedAndFilteredDrivers.slice(
+    indexOfFirstDriver,
+    indexOfLastDriver
+  );
 
   const handleExportPDF = () => {
     const doc = new jsPDF();
@@ -131,35 +204,166 @@ export const Drivers = () => {
         </motion.div>
 
         <motion.div
-          key={currentPage}
-          initial={{ opacity: 0, x: -20, y: -10 }}
-          animate={{ opacity: 1, x: 0, y: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="mt-8"
+          className="rounded-md border shadow-lg"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <DriverList
-            drivers={drivers}
-            loading={loading}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            driversPerPage={driversPerPage}
-          />
+          <Table className="w-full text-center">
+            <TableHeader>
+              <TableRow>
+                <TableHead
+                  onClick={handleSortByName}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <User className="h-4 w-4 text-gray-500" />
+                    <span>Nom</span>
+                    <ArrowUpDown className="h-4 w-4 text-gray-500" />
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Mail className="h-4 w-4 text-gray-500" />
+                    <span>Email</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Phone className="h-4 w-4 text-gray-500" />
+                    <span>Téléphone</span>
+                  </div>
+                </TableHead>
+                <TableHead
+                  onClick={handleSortByDate}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <Calendar className="h-4 w-4 text-gray-500" />
+                    <span>Date de début</span>
+                    <ArrowUpDown className="h-4 w-4 text-gray-500" />
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Clock className="h-4 w-4 text-gray-500" />
+                    <span>Type de shift</span>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="text-center">Actions</div>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="mt-8"
-          >
-            <ShiftPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </motion.div>
+            <TableBody>
+              {loading
+                ? Array.from({ length: driversPerPage }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Skeleton className="h-6 w-20 mx-auto" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-6 w-32 mx-auto" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-6 w-24 mx-auto" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-6 w-24 mx-auto" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-6 w-20 mx-auto" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-6 w-16 mx-auto" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : currentDrivers.map((driver) => (
+                    <TableRow
+                      key={driver.id}
+                      className="hover:bg-gray-900 text-white transition duration-300"
+                    >
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center space-x-2">
+                          <button
+                            onClick={() => navigate(`/drivers/${driver.id}`)}
+                            className="text-blue-500 hover:text-blue-300"
+                          >
+                            <Eye className="h-8 w-8 bg-primary/10 hover:bg-primary/20 rounded-full p-1" />
+                          </button>
+                          <span>
+                            {driver.first_name.charAt(0).toUpperCase() +
+                              driver.first_name.slice(1).toLowerCase()}{" "}
+                            {driver.last_name.charAt(0).toUpperCase() +
+                              driver.last_name.slice(1).toLowerCase()}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {driver.email}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {driver.phone}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {new Date(driver.start_date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge
+                          variant={
+                            driver.shift_type === "Day"
+                              ? "default"
+                              : driver.shift_type === "Night"
+                              ? "secondary"
+                              : "outline"
+                          }
+                        >
+                          {driver.shift_type === "Day"
+                            ? "Jour"
+                            : driver.shift_type === "Night"
+                            ? "Nuit"
+                            : "Long"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="bg-primary/10 hover:bg-primary/20 rounded-full"
+                          onClick={() => setEditingDriver(driver)}
+                        >
+                          <Pencil className="h-4 w-4 text-primary" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="bg-red-500/10 hover:bg-red-500/20 rounded-full"
+                          onClick={() => setDeletingDriver(driver)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+            </TableBody>
+          </Table>
         </motion.div>
 
-        {/* Dialogues pour l'édition et la suppression */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="mt-8"
+        >
+          <ShiftPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </motion.div>
+
         <EditDriverDialog
           driver={editingDriver}
           open={!!editingDriver}
