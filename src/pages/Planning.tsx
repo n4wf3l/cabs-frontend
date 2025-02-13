@@ -196,7 +196,7 @@ function App() {
     return (
       <div
         className={`p-4 rounded-lg ${
-          type === "Jour" ? "bg-gray-800" : "bg-gray-900"
+          type === "Jour" ? "bg-yellow-800" : "bg-purple-900"
         } mb-2`}
       >
         <div className="flex justify-between items-center mb-2">
