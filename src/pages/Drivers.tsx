@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { toast } from "@/hooks/use-toast";
+import { toast, useToast } from "@/hooks/use-toast";
 import { fetchChauffeurs, deleteChauffeur } from "@/api/chauffeurs";
 import {
   Table,
@@ -21,6 +21,8 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { EditDriverDialog } from "@/components/drivers/EditDriverDialog";
 import { DeleteDriverDialog } from "@/components/drivers/DeleteDriverDialog";
 import { ShiftPagination } from "@/components/shifts/ShiftPagination";
+import { pdf, PDFDownloadLink } from "@react-pdf/renderer";
+import PDFDocument from "@/components/drivers/PDFDocument";
 import {
   Pencil,
   Trash2,
@@ -36,6 +38,7 @@ import {
 } from "lucide-react";
 
 export const Drivers = () => {
+  const { toast } = useToast();
   const [drivers, setDrivers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingDriver, setEditingDriver] = useState<any>(null);
@@ -66,6 +69,45 @@ export const Drivers = () => {
 
     loadDrivers();
   }, []);
+
+  const handleExportPDF = async () => {
+    setLoading(true);
+
+    try {
+      // Générer le document PDF
+      const blob = await pdf(<PDFDocument drivers={drivers} />).toBlob();
+
+      // Créer un lien de téléchargement
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "chauffeurs.pdf";
+      document.body.appendChild(a);
+      a.click();
+
+      // Nettoyer après téléchargement
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      // 🔔 Afficher le message de succès
+      toast({
+        title: "PDF généré avec succès !",
+        description: "Votre fichier chauffeurs.pdf a bien été téléchargé.",
+        duration: 3000, // Affiché pendant 3 secondes
+      });
+    } catch (error) {
+      console.error("Erreur lors de la génération du PDF :", error);
+
+      // Afficher un message d'erreur
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le PDF. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const totalPages = Math.ceil(drivers.length / driversPerPage);
 
@@ -120,21 +162,6 @@ export const Drivers = () => {
     indexOfLastDriver
   );
 
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Liste des Chauffeurs", 14, 20);
-    autoTable(doc, {
-      head: [["Nom", "Email", "Téléphone", "Statut"]],
-      body: drivers.map((driver) => [
-        `${driver.first_name} ${driver.last_name}`,
-        driver.email,
-        driver.phone,
-        driver.employment_status === "Active" ? "Actif" : "Inactif",
-      ]),
-    });
-    doc.save("chauffeurs.pdf");
-  };
-
   const handleDeleteDriver = async (driverId: string) => {
     try {
       await deleteChauffeur(driverId);
@@ -177,12 +204,16 @@ export const Drivers = () => {
             >
               <Plus size={14} className="mr-1" /> Ajouter
             </Button>
-            <Button
-              onClick={handleExportPDF}
-              className="px-3 py-1 text-xs md:px-4 md:py-2 md:text-sm bg-secondary text-white rounded-lg shadow-md hover:bg-secondary/80"
-            >
-              <Download size={14} className="mr-1" /> Exporter PDF
-            </Button>
+            <div>
+              <Button
+                onClick={handleExportPDF}
+                className="px-3 py-1 text-xs md:px-4 md:py-2 md:text-sm bg-secondary text-white rounded-lg shadow-md hover:bg-secondary/80"
+                disabled={loading}
+              >
+                <Download size={14} className="mr-1" />{" "}
+                {loading ? "Génération..." : "Exporter PDF"}
+              </Button>
+            </div>
           </div>
         </motion.div>
 
