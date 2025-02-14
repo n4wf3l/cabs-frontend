@@ -135,6 +135,7 @@ const WorkData = ({ form }) => {
           key={paymentMethod}
           control={form.control}
           name={paymentMethod}
+          defaultValue={true}
           render={({ field }) => (
             <FormItem className="flex flex-row items-center space-x-3 space-y-0">
               <FormControl>
@@ -160,6 +161,7 @@ const WorkData = ({ form }) => {
             key={paymentMethod}
             control={form.control}
             name={paymentMethod}
+            defaultValue={true}
             render={({ field }) => (
               <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                 <FormControl>
@@ -186,6 +188,7 @@ const WorkData = ({ form }) => {
             key={paymentMethod}
             control={form.control}
             name={paymentMethod}
+            defaultValue={true}
             render={({ field }) => (
               <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                 <FormControl>
@@ -212,6 +215,7 @@ const WorkData = ({ form }) => {
             key={paymentMethod}
             control={form.control}
             name={paymentMethod}
+            defaultValue={true}
             render={({ field }) => (
               <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                 <FormControl>
@@ -241,6 +245,7 @@ const WorkData = ({ form }) => {
           key={paymentMethod}
           control={form.control}
           name={paymentMethod}
+          defaultValue={true}
           render={({ field }) => (
             <FormItem className="flex flex-row items-center space-x-3 space-y-0">
               <FormControl>
