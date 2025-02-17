@@ -9,7 +9,7 @@ const InteractiveMap: React.FC = () => {
     L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
       {
-        attribution: "&copy; CartoDB",
+        attribution: "Taxi Time",
       }
     ).addTo(map);
 
