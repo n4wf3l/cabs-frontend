@@ -15,11 +15,15 @@ export const fetchChauffeurs = async () => {
 export const createChauffeur = async (formData: FormData) => {
   try {
     const response = await api.post("/chauffeurs", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: { 
+        "Content-Type": "multipart/form-data",
+        "Authorization": `Bearer ${localStorage.getItem("token")}` // ✅ Ensure token is sent
+      },
     });
+
     return response.data;
   } catch (error) {
-    console.error("Error creating chauffeur:", error);
+    console.error("🚨 Error creating chauffeur:", error.response?.data || error);
     throw error;
   }
 };

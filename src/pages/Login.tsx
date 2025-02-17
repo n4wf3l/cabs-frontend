@@ -19,11 +19,17 @@ const Login = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard");
+    }
+
     const timer = setTimeout(() => {
       setShowSplash(false);
     }, 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [navigate]);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

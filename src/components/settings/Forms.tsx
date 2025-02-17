@@ -1,49 +1,40 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
+import { createAdmin } from "@/api/admin";
+import { useToast } from "../ui/use-toast";
 
 const Forms = () => {
   const [adminFirstName, setAdminFirstName] = useState("");
   const [adminLastName, setAdminLastName] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
   const [adminCompany, setAdminCompany] = useState("");
+  const { toast } = useToast(); // ✅ Notification system
 
   const handleAdminAdd = async (e) => {
     e.preventDefault();
     
-    const adminData = {
-      first_name: adminFirstName,
-      last_name: adminLastName,
-      email: adminEmail,
-      company_id: adminCompany, // Ensure you have a valid company_id
-    };
+
   
     try {
-      const response = await fetch("http://localhost:3000/admins", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(adminData),
+      await createAdmin({
+        first_name: adminFirstName,
+        last_name: adminLastName,
+        email: adminEmail,
+        company_id: adminCompany,
       });
-  
-      if (!response.ok) {
-        throw new Error("Failed to add admin");
-      }
-  
-      const result = await response.json();
-      console.log("✅ Admin added successfully:", result);
-  
-      // Clear form after success
+
+      // ✅ Success feedback
+      toast({ title: "Succès", description: "Admin ajouté avec succès !" });
+
+      // ✅ Clear form
       setAdminFirstName("");
       setAdminLastName("");
       setAdminEmail("");
       setAdminCompany("");
-  
-      alert("Admin ajouté avec succès !");
     } catch (error) {
-      console.error("❌ Error adding admin:", error);
-      alert("Erreur lors de l'ajout de l'admin.");
+      console.error("❌ Erreur lors de l'ajout d'un admin:", error);
+      toast({ title: "Erreur", description: "Impossible d'ajouter l'admin.", variant: "destructive" });
     }
   };
 

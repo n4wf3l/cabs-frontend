@@ -16,56 +16,71 @@ const AddChauffeurForm = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (data: any) => {
-    setIsLoading(true); // Active le chargement
-
-    const formData = new FormData();
-
-    Object.entries(data).forEach(([key, value]) => {
-      if (typeof value === "boolean") {
-        formData.append(key, value ? "true" : "false");
-      } else if (typeof value === "string") {
-        formData.append(key, value);
-      }
-    });
-
-    const fileFields = [
-      "id_card",
-      "driver_license_photo",
-      "bank_card_photo",
-      "contract_photo",
-    ];
-    fileFields.forEach((field) => {
-      if (data[field] instanceof FileList && data[field].length > 0) {
-        formData.append(field, data[field][0]);
-      }
-    });
-
+    setIsLoading(true); // Activate loading state
+  
     try {
+      const formData = new FormData();
+  
+      // ✅ Convert boolean values correctly
+      Object.entries(data).forEach(([key, value]) => {
+        if (typeof value === "boolean") {
+          formData.append(key, value ? "true" : "false");
+        } else if (typeof value === "string") {
+          formData.append(key, value);
+        }
+      });
+  
+      // ✅ Ensure file uploads work correctly
+      const fileFields = [
+        "id_card",
+        "driver_license_photo",
+        "bank_card_photo",
+        "contract_photo",
+      ];
+      fileFields.forEach((field) => {
+        if (data[field] instanceof FileList && data[field].length > 0) {
+          formData.append(field, data[field][0]); // Add file
+        }
+      });
+  
+      // ✅ Get token from localStorage
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("❌ Authentication error: No token found.");
+      }
+  
+      console.log("🔑 Sending request with token:", token); // ✅ Debugging
+  
+      // ✅ Send request with Authorization header
       const response = await fetch("http://localhost:3000/chauffeurs", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ Ensure authentication
+        },
         body: formData,
       });
-
+  
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
           `HTTP error! Status: ${response.status}. Response: ${errorText}`
         );
       }
-
+  
       const result = await response.json();
-      toast.success("Chauffeur ajouté avec succès!");
-      form.reset();
-
-      // Redirige vers la page des chauffeurs après succès
+      toast.success("🚗 Chauffeur ajouté avec succès!");
+      form.reset(); // ✅ Reset form after success
+  
+      // ✅ Redirect to chauffeurs list after success
       navigate("/drivers", { state: { newDriver: result } });
     } catch (error) {
-      console.error("Failed to submit form:", error);
+      console.error("❌ Failed to submit form:", error);
       toast.error("Erreur lors de l'ajout du chauffeur.");
     } finally {
-      setIsLoading(false); // Désactive le chargement après la soumission
+      setIsLoading(false); // Disable loading state
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-background flex">
