@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import Essence from "@/components/dashboard/Essence";
 import Graphic from "@/components/dashboard/Graphic";
+import InteractiveMap from "@/components/dashboard/InteractiveMap";
 import { Card } from "@/components/ui/card";
 import { Users, Car, TrendingUp } from "lucide-react";
 import {
@@ -177,6 +178,12 @@ const Dashboard = () => {
           ))}
         </div>
         <Graphic chartData={chartData} />
+        <div>
+          <h2 className="text-xl font-bold mb-4">
+            Suivi des chauffeurs en temps réel
+          </h2>
+          <InteractiveMap />
+        </div>
       </main>
     </div>
   );
