@@ -302,100 +302,108 @@ export const Drivers = () => {
             </TableHeader>
 
             <TableBody>
-              {loading
-                ? Array.from({ length: driversPerPage }).map((_, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <Skeleton className="h-6 w-6 mx-auto" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-6 w-20 mx-auto" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-6 w-32 mx-auto" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-6 w-24 mx-auto" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-6 w-24 mx-auto" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-6 w-20 mx-auto" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-6 w-16 mx-auto" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                : currentDrivers.map((driver) => (
-                    <TableRow
-                      key={driver.id}
-                      className="hover:bg-gray-900 text-white transition duration-300"
-                    >
-                      {/* Colonne séparée pour l'icône 👁️ */}
-                      <TableCell className="text-center">
-                        <button
-                          onClick={() => navigate(`/drivers/${driver.id}`)}
-                          className="text-blue-500 hover:text-blue-300"
-                        >
-                          <Eye className="h-8 w-8 bg-primary/10 hover:bg-primary/20 rounded-full p-1" />
-                        </button>
-                      </TableCell>
-
-                      <TableCell className="text-center font-semibold text-lg text-white">
-                        {driver.first_name.charAt(0).toUpperCase() +
-                          driver.first_name.slice(1).toLowerCase()}{" "}
-                        {driver.last_name.charAt(0).toUpperCase() +
-                          driver.last_name.slice(1).toLowerCase()}
-                      </TableCell>
-
-                      <TableCell className="text-center">
-                        {driver.email}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {driver.phone}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {new Date(driver.start_date).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge
-                          variant={
-                            driver.shift_type === "Day"
-                              ? "default"
-                              : driver.shift_type === "Night"
-                              ? "secondary"
-                              : "outline"
-                          }
-                        >
-                          {driver.shift_type === "Day"
-                            ? "Jour"
+              {loading ? (
+                Array.from({ length: driversPerPage }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton className="h-6 w-6 mx-auto" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-20 mx-auto" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-32 mx-auto" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-24 mx-auto" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-24 mx-auto" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-20 mx-auto" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-16 mx-auto" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : currentDrivers.length > 0 ? (
+                currentDrivers.map((driver) => (
+                  <TableRow
+                    key={driver.id}
+                    className="hover:bg-gray-900 text-white transition duration-300"
+                  >
+                    <TableCell className="text-center">
+                      <button
+                        onClick={() => navigate(`/drivers/${driver.id}`)}
+                        className="text-blue-500 hover:text-blue-300"
+                      >
+                        <Eye className="h-8 w-8 bg-primary/10 hover:bg-primary/20 rounded-full p-1" />
+                      </button>
+                    </TableCell>
+                    <TableCell className="text-center font-semibold text-lg text-white">
+                      {driver.first_name.charAt(0).toUpperCase() +
+                        driver.first_name.slice(1).toLowerCase()}{" "}
+                      {driver.last_name.charAt(0).toUpperCase() +
+                        driver.last_name.slice(1).toLowerCase()}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {driver.email}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {driver.phone}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {new Date(driver.start_date).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge
+                        variant={
+                          driver.shift_type === "Day"
+                            ? "default"
                             : driver.shift_type === "Night"
-                            ? "Nuit"
-                            : "Long"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-center space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="bg-primary/10 hover:bg-primary/20 rounded-full"
-                          onClick={() => setEditingDriver(driver)}
-                        >
-                          <Pencil className="h-4 w-4 text-primary" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="bg-red-500/10 hover:bg-red-500/20 rounded-full"
-                          onClick={() => setDeletingDriver(driver)}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            ? "secondary"
+                            : "outline"
+                        }
+                      >
+                        {driver.shift_type === "Day"
+                          ? "Jour"
+                          : driver.shift_type === "Night"
+                          ? "Nuit"
+                          : "Long"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-primary/10 hover:bg-primary/20 rounded-full"
+                        onClick={() => setEditingDriver(driver)}
+                      >
+                        <Pencil className="h-4 w-4 text-primary" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="bg-red-500/10 hover:bg-red-500/20 rounded-full"
+                        onClick={() => setDeletingDriver(driver)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={7}
+                    className="text-center py-4 text-gray-400"
+                  >
+                    Aucun donnée n'est disponible dans la base de données.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </motion.div>
