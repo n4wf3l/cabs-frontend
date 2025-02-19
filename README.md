@@ -1,69 +1,39 @@
-# Welcome to your Lovable project
+# 🚖 Taxi Time - Gestion des Chauffeurs (Frontend)
 
-## Project info
+## 🚀 Présentation
 
-**URL**: https://lovable.dev/projects/d50d1857-360c-4704-95a5-485956d70758
+**Taxi Time** est une plateforme moderne et performante conçue pour **révolutionner la gestion des sociétés de taxi**.  
+Grâce à une interface intuitive et puissante, elle permet aux entreprises de taxis d’**optimiser les plannings de leurs chauffeurs**, d’améliorer leur rentabilité et d’automatiser leur gestion quotidienne.
 
-## How can I edit this code?
+Ce projet a un **but lucratif**, avec l’objectif d’apporter une solution efficace et évolutive pour les **flottes de taxis** et leurs **dispatchers**.
 
-There are several ways of editing your application.
+Le backend est développé séparément par **[@kvsj123](https://github.com/kvsj123)**.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d50d1857-360c-4704-95a5-485956d70758) and start prompting.
+## 🛠️ Technologies utilisées
 
-Changes made via Lovable will be committed automatically to this repo.
+- **React.js** - Interface dynamique et réactive
+- **Tailwind CSS** - Design épuré et responsive
+- **JavaScript (ES6+)** - Développement moderne
+- **Vite.js** - Build ultra-rapide
+- **React Hooks (useState, useEffect)** - Gestion des états
+- **React Router** - Navigation entre pages
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 📥 Installation & Démarrage
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 1️⃣ Cloner le repository
+- **npm install** (Installer les dépendances)
+- **npm run dev** (Lancer l'application)
 
-Follow these steps:
+## 🌐 Backend (Développé par @kvsj123)
+Le backend est développé séparément dans le repository de  kvsj123. Il fournit toutes les API nécessaires pour gérer les chauffeurs et leurs courses ainsi que la connexion à la base de donnée.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🔒 Licence et Droits d'Utilisation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Ce projet est **propriétaire et confidentiel**.  
+L'utilisation, la modification et la redistribution sont **strictement interdites** sans autorisation écrite.  
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/d50d1857-360c-4704-95a5-485956d70758) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Le code source est fourni **uniquement** pour la société cliente sous les termes du contrat établi.  
