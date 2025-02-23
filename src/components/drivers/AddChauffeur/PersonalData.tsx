@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 const PersonalData = ({ form }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [companyId, setCompanyId] = useState(""); // ✅ Store company_id
+  const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(true);
 
   // ✅ Get token from LocalStorage
@@ -64,7 +65,37 @@ const PersonalData = ({ form }) => {
     form.setValue("company_id", companyId); // ✅ Update the form field programmatically
     form.trigger("company_id"); // ✅ Ensure validation is triggered
   }
-  }, [companyId]);
+
+  const fetchCompanyName = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/taxi-companies/${companyId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const companyData = await response.json();
+      if (companyData && companyData.name) {
+        setCompanyName(companyData.name); // ✅ Store company name
+        console.log(companyData.name)
+      } else {
+        console.warn("⚠️ No company name found:", companyData);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching company name:", error);
+    }
+  };
+
+  
+
+
+  fetchCompanyName();
+
+  if (companyId) {
+    form.setValue("name", companyName); // ✅ Update the form field programmatically
+    form.trigger("name"); // ✅ Ensure validation is triggered
+  }
+
+  }, [companyId,companyName]);
   
 
   
@@ -162,13 +193,13 @@ const PersonalData = ({ form }) => {
 
 <FormField
   control={form.control}
-  name="company_id"
+  name="name"
   render={({ field }) => (
     <FormItem>
       <FormLabel className="text-white">Employeur</FormLabel>
       <FormControl>
         <Input
-          value={loading ? "Chargement..." : field.value || "Non défini"} 
+          value={companyName} 
           readOnly // Prevent manual changes
           {...field} // ✅ Ensure it's linked to the form
         />
