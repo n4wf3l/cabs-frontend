@@ -7,7 +7,7 @@ Grâce à une interface intuitive et puissante, elle permet aux entreprises de t
 
 Ce projet a un **but lucratif**, avec l’objectif d’apporter une solution efficace et évolutive pour les **flottes de taxis** et leurs **dispatchers**.
 
-Le backend est développé séparément par **[@kvsj123](https://github.com/kvsj123)**.
+Le **[backend](https://github.com/kvsj123/taxi-time-backend/)** est développé séparément par **[@kvsj123](https://github.com/kvsj123)**.
 
 ---
 
