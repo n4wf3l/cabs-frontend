@@ -14,10 +14,12 @@ import AddDriver from "./pages/AddDriver";
 import DriverProfile from "./pages/DriverProfile";
 import ForgetPassword from "./pages/ForgetPassword";
 import PrivateRoute from "./PrivateRoute";
+import { AuthProvider } from "./AuthContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
+  <AuthProvider>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -42,6 +44,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </AuthProvider>
 );
 
 export default App;

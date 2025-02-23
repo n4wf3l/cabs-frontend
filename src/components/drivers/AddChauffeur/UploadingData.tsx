@@ -106,6 +106,26 @@ const UploadingData = ({ form }: UploadingDataProps) => {
             </FormItem>
           )}
         />
+         <FormField
+          key="photo_chauffeur"
+          control={control}
+          name="photo_chauffeur"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="photo_chauffeur">Photo Chauffeur</FormLabel>
+              <FormControl>
+                <Input
+                  id="photo_chauffeur"
+                  type="file"
+                  accept="image/*"
+                  {...register("photo_chauffeur")}
+                  onChange={(e) => field.onChange(e.target.files?.[0])}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
     </motion.div>
   );

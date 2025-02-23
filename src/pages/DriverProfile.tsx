@@ -143,13 +143,17 @@ const DriverProfile = () => {
               >
                 <div className="bg-gray-800 rounded-xl p-6 shadow-lg mb-6">
                   <div className="flex flex-col items-center">
-                    <div className="w-32 h-32 rounded-full overflow-hidden mb-4">
+                  <div className="bg-gray-700 rounded-lg p-4 flex flex-col items-center">
+                    {driver.driver_license_photo ? (
                       <img
-                        src="/taxidriver.png"
-                        alt="Photo du chauffeur"
-                        className="w-full h-full object-cover"
+                        src={driver.photo_chauffeur}
+                        alt="Permis de conduire"
+                        className="w-32 h-20 object-cover rounded-md border border-gray-500"
                       />
-                    </div>
+                    ) : (
+                      <span className="text-gray-400">Aucune photo disponible</span>
+                    )}
+                  </div>
                     <h2 className="text-xl font-semibold text-white">
                       {driver.first_name} {driver.last_name}
                     </h2>
@@ -469,6 +473,23 @@ const DriverProfile = () => {
                       ))}
                     </div>
                   </div>
+                  <div>
+                  <h4 className="text-lg font-medium text-white mb-2">
+                    Statut du Chauffeur
+                  </h4>
+                  <div className="space-y-2">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={driver.extra}
+                        readOnly
+                        className="form-checkbox text-blue-500"
+                      />
+                      <span>Flex Worker</span>
+                    </label>
+                  </div>
+                </div>
+
                 </div>
               </motion.div>
 
@@ -612,11 +633,13 @@ const DriverProfile = () => {
                       Date de Fin
                     </label>
                     <span>
-                      {new Date(driver.end_date).toLocaleDateString("fr-FR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
+                      {driver.end_date
+                        ? new Date(driver.end_date).toLocaleDateString("fr-FR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })
+                        : "Pas de date de fin définie"}
                     </span>
                   </div>
                 </div>

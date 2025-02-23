@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
 import { createAdmin } from "@/api/admin";
@@ -8,20 +8,57 @@ const Forms = () => {
   const [adminFirstName, setAdminFirstName] = useState("");
   const [adminLastName, setAdminLastName] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
-  const [adminCompany, setAdminCompany] = useState("");
+  const [adminCompany, setAdminCompany] = useState(""); // ✅ Auto-filled company ID
+  const [adminPassword, setAdminPassword] = useState(""); // ✅ Password field
+  const [showPassword, setShowPassword] = useState(false); // ✅ Toggle password visibility
   const { toast } = useToast(); // ✅ Notification system
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
+      const authUserId = decodedToken.sub; // Extract auth_user_id
+
+      const fetchCompanyId = async () => {
+        try {
+          const response = await fetch(`http://localhost:3000/admins/auth/${authUserId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          const adminData = await response.json();
+
+          if (adminData && adminData.company_id) {
+            setAdminCompany(adminData.company_id); // ✅ Auto-fill company ID
+          } else {
+            console.warn("⚠️ No company_id found in response:", adminData);
+          }
+        } catch (error) {
+          console.error("❌ Error fetching admin data:", error);
+        }
+      };
+
+      fetchCompanyId();
+    } catch (error) {
+      console.error("❌ Error decoding token:", error);
+    }
+  }, []);
 
   const handleAdminAdd = async (e) => {
     e.preventDefault();
-    
 
-  
     try {
       await createAdmin({
         first_name: adminFirstName,
         last_name: adminLastName,
         email: adminEmail,
-        company_id: adminCompany,
+        company_id: adminCompany, // ✅ Use the auto-filled company ID
+        password: adminPassword, // ✅ Include password
       });
 
       // ✅ Success feedback
@@ -31,7 +68,8 @@ const Forms = () => {
       setAdminFirstName("");
       setAdminLastName("");
       setAdminEmail("");
-      setAdminCompany("");
+      setAdminCompany(""); // ✅ Reset company ID
+      setAdminPassword("");
     } catch (error) {
       console.error("❌ Erreur lors de l'ajout d'un admin:", error);
       toast({ title: "Erreur", description: "Impossible d'ajouter l'admin.", variant: "destructive" });
@@ -108,16 +146,44 @@ const Forms = () => {
             <input
               type="text"
               value={adminCompany}
-              onChange={(e) => setAdminCompany(e.target.value)}
-              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              placeholder="Entreprise X"
+              disabled
+              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-not-allowed opacity-75"
+              placeholder="Chargement..."
             />
+          </div>
+
+          {/* ✅ Password Field */}
+          <div>
+            <label className="block text-sm font-medium mb-1.5 text-gray-300">
+              <div className="flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                <span>Mot de passe</span>
+              </div>
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="Entrez le mot de passe"
+              />
+              {/* ✅ Toggle Password Visibility */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-yellow-500 focus:outline-none"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
         </div>
 
         <button
           type="submit"
           className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+          disabled={!adminCompany} // ✅ Disable button if company_id is not loaded
         >
           <UserPlus className="w-4 h-4" />
           Ajouter

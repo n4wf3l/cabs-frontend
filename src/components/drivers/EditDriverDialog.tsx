@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Dialog,
@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Eye, EyeOff } from "lucide-react";
 
 interface EditDriverDialogProps {
   driver: any;
@@ -48,6 +49,8 @@ export const EditDriverDialog = ({
 }: EditDriverDialogProps) => {
   const form = useForm({ defaultValues: driver });
   const { control, register, handleSubmit, reset } = form;
+  const [showPassword, setShowPassword] = useState(false);
+
 
   useEffect(() => {
     if (driver) {
@@ -80,14 +83,25 @@ export const EditDriverDialog = ({
         const value = updatedData[key];
 
         // Ensure we only append the first file from a FileList
+      // ✅ Special handling for `photo_chauffeur`
+      if (key === "photo_chauffeur") {
         if (value instanceof FileList && value.length > 0) {
-          formData.append(key, value[0]); // Take the first file
+          formData.append(key, value[0]); // Use first file if FileList
         } else if (value instanceof File) {
           formData.append(key, value);
-        } else if (value !== null && value !== undefined) {
-          formData.append(key, String(value)); // Convert null to empty string
+        } else if (typeof value === "string" && value.startsWith("http")) {
+          formData.append(key, value); // Keep URL if unchanged
         }
-      });
+      } 
+      // ✅ Handle other file uploads correctly
+      else if (value instanceof FileList && value.length > 0) {
+        formData.append(key, value[0]); // Take first file if FileList
+      } else if (value instanceof File) {
+        formData.append(key, value);
+      } else if (value !== null && value !== undefined) {
+        formData.append(key, String(value)); // Convert null to empty string
+      }
+    });
 
       // Debugging: Log the formData contents
       console.log("📦 Submitting FormData Content:");
@@ -110,6 +124,7 @@ export const EditDriverDialog = ({
     { name: "driver_license_photo", label: "Permis de conduire" },
     { name: "bank_card_photo", label: "Carte bancaire" },
     { name: "contract_photo", label: "Contrat" },
+    { name: "photo_chauffeur", label: "Photo Chauffeur" },
   ];
 
   if (!driver) return null;
@@ -179,6 +194,35 @@ export const EditDriverDialog = ({
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="password"
+                
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Mot de passe</FormLabel>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Entrez le mot de passe"
+                          {...field}
+                        />
+                      </FormControl>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-yellow-500 focus:outline-none"
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
+                    <FormMessage className="text-red-500" />{" "}
+                    {/* Message d'erreur en rouge */}
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="phone"
@@ -485,6 +529,24 @@ export const EditDriverDialog = ({
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="extra"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value === true}
+                        onCheckedChange={(checked) => field.onChange(!!checked)}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal text-white">
+                      Flex Worker
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+
               {/* Days of the Week Checkboxes */}
               <h3 className="text-lg font-semibold">Journée de travail</h3>
               {[

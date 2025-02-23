@@ -81,6 +81,23 @@ const WorkData = ({ form }) => {
           </FormItem>
         )}
       />
+      <FormField
+  control={form.control}
+  name="extra"
+  defaultValue={false} // ✅ Default value set to true
+  render={({ field }) => (
+    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox
+          checked={field.value === true}
+          onCheckedChange={(checked) => field.onChange(!!checked)}
+        />
+      </FormControl>
+      <FormLabel className="font-normal">Flex Worker</FormLabel>
+    </FormItem>
+  )}
+/>
+
       {/* Days of the Week Checkboxes */}
       <h3 className="text-lg font-semibold">Journée de travail</h3>
       {[

@@ -14,6 +14,7 @@ const AddChauffeurForm = () => {
   const form = useForm();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+        
 
   const onSubmit = async (data: any) => {
     setIsLoading(true); // Activate loading state
@@ -36,6 +37,7 @@ const AddChauffeurForm = () => {
         "driver_license_photo",
         "bank_card_photo",
         "contract_photo",
+        "photo_chauffeur"
       ];
       fileFields.forEach((field) => {
         if (data[field] instanceof FileList && data[field].length > 0) {
@@ -45,6 +47,7 @@ const AddChauffeurForm = () => {
   
       // ✅ Get token from localStorage
       const token = localStorage.getItem("token");
+
       if (!token) {
         throw new Error("❌ Authentication error: No token found.");
       }
@@ -114,7 +117,7 @@ const AddChauffeurForm = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <PersonalData form={form} />
+                <PersonalData form={form}/>
                 <WorkData form={form} />
               </div>
               <div className="mt-6">
