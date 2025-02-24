@@ -3,173 +3,267 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import Essence from "@/components/dashboard/Essence";
 import InteractiveResults from "@/components/dashboard/InteractiveResults";
 import { ShiftSearch } from "@/components/shifts/ShiftSearch";
-import { ShiftGrid } from "@/components/shifts/ShiftGrid";
 import { ShiftPagination } from "@/components/shifts/ShiftPagination";
-import { Menu } from "lucide-react";
+import { Menu, Search, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import jsPDF from "jspdf";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import ShiftPreviewCard from "@/components/shifts/ShiftPreviewCard";
+import ShiftCard from "@/components/shifts/ShiftCard";
 
 export interface Shift {
   id: string;
   driverName: string;
+  driverFirstName: string;
   date: string;
   startTime: string;
   endTime: string;
   distance: number;
   status: "en_cours" | "terminé" | "annulé";
+  totalKm?: number;
+  initialKm?: number;
+  vehiclePhotos?: string[];
+  entryTicket?: string;
+  exitTicket?: string;
 }
 
-const mockShifts: Shift[] = [
+// Liste des shifts avec détails
+const shiftsData: Shift[] = [
   {
     id: "1",
-    driverName: "Jean Dupont",
-    date: "2024-02-06",
-    startTime: "08:00",
-    endTime: "16:00",
-    distance: 120,
+    driverName: "Jean",
+    driverFirstName: "Dupont",
+    date: "15-03-2024",
+    startTime: "08:30",
+    endTime: "16:30",
+    distance: 245,
     status: "terminé",
+    totalKm: 245,
+    initialKm: 78920,
+    vehiclePhotos: [
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+    ],
+    entryTicket: "ticket.jpg",
+    exitTicket: "ticket.jpg",
   },
   {
     id: "2",
-    driverName: "Marie Martin",
-    date: "2024-02-06",
+    driverName: "Sophie",
+    driverFirstName: "Martin",
+    date: "15-03-2024",
     startTime: "09:00",
     endTime: "17:00",
-    distance: 85,
-    status: "en_cours",
+    distance: 198,
+    status: "terminé",
+    totalKm: 198,
+    initialKm: 45670,
+    vehiclePhotos: [
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+    ],
+    entryTicket: "ticket.jpg",
+    exitTicket: "ticket.jpg",
   },
   {
     id: "3",
-    driverName: "Paul Durand",
-    date: "2024-02-07",
-    startTime: "07:30",
-    endTime: "15:30",
-    distance: 95,
+    driverName: "Sophie",
+    driverFirstName: "Martin",
+    date: "15-03-2024",
+    startTime: "09:00",
+    endTime: "17:00",
+    distance: 198,
     status: "terminé",
+    totalKm: 198,
+    initialKm: 45670,
+    vehiclePhotos: [
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+    ],
+    entryTicket: "ticket.jpg",
+    exitTicket: "ticket.jpg",
   },
   {
     id: "4",
-    driverName: "Sophie Bernard",
-    date: "2024-02-07",
-    startTime: "10:00",
-    endTime: "18:00",
-    distance: 110,
-    status: "annulé",
+    driverName: "Sophie",
+    driverFirstName: "Martin",
+    date: "15-03-2024",
+    startTime: "09:00",
+    endTime: "17:00",
+    distance: 198,
+    status: "terminé",
+    totalKm: 198,
+    initialKm: 45670,
+    vehiclePhotos: [
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+    ],
+    entryTicket: "ticket.jpg",
+    exitTicket: "ticket.jpg",
   },
   {
     id: "5",
-    driverName: "Luc Moreau",
-    date: "2024-02-08",
-    startTime: "06:00",
-    endTime: "14:00",
-    distance: 130,
+    driverName: "Sophie",
+    driverFirstName: "Martin",
+    date: "15-03-2024",
+    startTime: "09:00",
+    endTime: "17:00",
+    distance: 198,
     status: "terminé",
+    totalKm: 198,
+    initialKm: 45670,
+    vehiclePhotos: [
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+    ],
+    entryTicket: "ticket.jpg",
+    exitTicket: "ticket.jpg",
   },
   {
     id: "6",
-    driverName: "Clara Lefevre",
-    date: "2024-02-08",
-    startTime: "11:00",
-    endTime: "19:00",
-    distance: 75,
-    status: "en_cours",
+    driverName: "Sophie",
+    driverFirstName: "Martin",
+    date: "15-03-2024",
+    startTime: "09:00",
+    endTime: "17:00",
+    distance: 198,
+    status: "terminé",
+    totalKm: 198,
+    initialKm: 45670,
+    vehiclePhotos: [
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+    ],
+    entryTicket: "ticket.jpg",
+    exitTicket: "ticket.jpg",
   },
   {
     id: "7",
-    driverName: "Thomas Petit",
-    date: "2024-02-09",
-    startTime: "08:30",
-    endTime: "16:30",
-    distance: 140,
+    driverName: "Sophie",
+    driverFirstName: "Martin",
+    date: "15-03-2024",
+    startTime: "09:00",
+    endTime: "17:00",
+    distance: 198,
     status: "terminé",
+    totalKm: 198,
+    initialKm: 45670,
+    vehiclePhotos: [
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+    ],
+    entryTicket: "ticket.jpg",
+    exitTicket: "ticket.jpg",
   },
   {
     id: "8",
-    driverName: "Emma Laurent",
-    date: "2024-02-09",
-    startTime: "09:15",
-    endTime: "17:15",
-    distance: 90,
-    status: "en_cours",
+    driverName: "Sophie",
+    driverFirstName: "Martin",
+    date: "15-03-2024",
+    startTime: "09:00",
+    endTime: "17:00",
+    distance: 198,
+    status: "terminé",
+    totalKm: 198,
+    initialKm: 45670,
+    vehiclePhotos: [
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+    ],
+    entryTicket: "ticket.jpg",
+    exitTicket: "ticket.jpg",
   },
   {
     id: "9",
-    driverName: "Hugo Simon",
-    date: "2024-02-10",
-    startTime: "07:00",
-    endTime: "15:00",
-    distance: 100,
-    status: "annulé",
+    driverName: "Sophie",
+    driverFirstName: "Martin",
+    date: "15-03-2024",
+    startTime: "09:00",
+    endTime: "17:00",
+    distance: 198,
+    status: "terminé",
+    totalKm: 198,
+    initialKm: 45670,
+    vehiclePhotos: [
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+    ],
+    entryTicket: "ticket.jpg",
+    exitTicket: "ticket.jpg",
   },
   {
     id: "10",
-    driverName: "Julie Fontaine",
-    date: "2024-02-10",
-    startTime: "10:30",
-    endTime: "18:30",
-    distance: 115,
+    driverName: "Sophie",
+    driverFirstName: "Martin",
+    date: "15-03-2024",
+    startTime: "09:00",
+    endTime: "17:00",
+    distance: 198,
     status: "terminé",
-  },
-  {
-    id: "11",
-    driverName: "Ahmed Ben Ali",
-    date: "2024-02-11",
-    startTime: "08:00",
-    endTime: "16:00",
-    distance: 150,
-    status: "en_cours",
-  },
-  {
-    id: "12",
-    driverName: "Fatima Zahra",
-    date: "2024-02-12",
-    startTime: "09:30",
-    endTime: "17:30",
-    distance: 95,
-    status: "terminé",
-  },
-  {
-    id: "13",
-    driverName: "Mohamed Karim",
-    date: "2024-02-13",
-    startTime: "07:45",
-    endTime: "15:45",
-    distance: 120,
-    status: "annulé",
-  },
-  {
-    id: "14",
-    driverName: "Leila Haddad",
-    date: "2024-02-14",
-    startTime: "10:15",
-    endTime: "18:15",
-    distance: 80,
-    status: "terminé",
-  },
-  {
-    id: "15",
-    driverName: "Omar El Idrissi",
-    date: "2024-02-15",
-    startTime: "06:30",
-    endTime: "14:30",
-    distance: 140,
-    status: "en_cours",
+    totalKm: 198,
+    initialKm: 45670,
+    vehiclePhotos: [
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+      "taxiavant.jpg",
+    ],
+    entryTicket: "ticket.jpg",
+    exitTicket: "ticket.jpg",
   },
 ];
 
 const Shifts = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
 
   const shiftsPerPage = 9;
 
-  const filteredShifts = mockShifts.filter(
-    (shift) =>
-      shift.driverName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shift.date.includes(searchTerm)
-  );
+  // Filtrer les shifts selon la recherche et la date sélectionnée
+  const filteredShifts = shiftsData.filter((shift) => {
+    const searchLower = searchQuery.toLowerCase();
+    const nameMatch =
+      shift.driverName.toLowerCase().includes(searchLower) ||
+      shift.driverFirstName.toLowerCase().includes(searchLower);
 
+    if (selectedDate) {
+      const formattedSelectedDate = format(selectedDate, "dd-MM-yyyy");
+      return nameMatch && shift.date === formattedSelectedDate;
+    }
+    return nameMatch;
+  });
+
+  // Calculer les indices pour la pagination
   const indexOfLastShift = currentPage * shiftsPerPage;
   const indexOfFirstShift = indexOfLastShift - shiftsPerPage;
   const currentShifts = filteredShifts.slice(
@@ -178,10 +272,11 @@ const Shifts = () => {
   );
   const totalPages = Math.ceil(filteredShifts.length / shiftsPerPage);
 
+  // Exportation d’un shift en PDF
   const exportToPDF = (shift: Shift) => {
     const doc = new jsPDF();
     doc.text(`Détails du Shift`, 20, 20);
-    doc.text(`Chauffeur: ${shift.driverName}`, 20, 30);
+    doc.text(`Chauffeur: ${shift.driverName} ${shift.driverFirstName}`, 20, 30);
     doc.text(`Date: ${shift.date}`, 20, 40);
     doc.text(`Heure de début: ${shift.startTime}`, 20, 50);
     doc.text(`Heure de fin: ${shift.endTime}`, 20, 60);
@@ -209,57 +304,67 @@ const Shifts = () => {
 
         <hr className="hr-light-effect mb-10" />
 
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <ShiftSearch onSearch={setSearchTerm} />
-        </motion.div>
+        <div className="max-w-2xl mx-auto flex gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+            <Input
+              type="text"
+              placeholder="Rechercher par nom..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-card/50 border-white/10"
+            />
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={`w-[240px] justify-start text-left font-normal ${
+                  !selectedDate && "text-muted-foreground"
+                }`}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {selectedDate
+                  ? format(selectedDate, "dd MMMM yyyy", { locale: fr })
+                  : "Sélectionner une date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-card" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                initialFocus
+                locale={fr}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="mt-6"
-        >
-          <ShiftGrid
-            shifts={currentShifts.map((shift) => ({
-              ...shift,
-              actions: (
-                <div className="flex justify-between items-center space-x-2 mt-2">
-                  <button
-                    onClick={() => exportToPDF(shift)}
-                    className="flex-1 p-2 bg-green-500 text-white rounded"
-                  >
-                    Exporter en PDF
-                  </button>
-                  <button
-                    onClick={() =>
-                      alert(`Détails du shift de ${shift.driverName}`)
-                    }
-                    className="flex-1 p-2 bg-blue-500 text-white rounded"
-                  >
-                    Voir Détails
-                  </button>
-                </div>
-              ),
-            }))}
-          />
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          {currentShifts.map((shift) => (
+            <ShiftPreviewCard
+              key={shift.id}
+              {...shift}
+              onViewDetails={() => setSelectedShift(shift)}
+            />
+          ))}
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="mt-8"
+        <ShiftPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+
+        <Dialog
+          open={!!selectedShift}
+          onOpenChange={() => setSelectedShift(null)}
         >
-          <ShiftPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </motion.div>
+          <DialogContent className="max-w-4xl bg-background/95 backdrop-blur-sm border-white/10">
+            {selectedShift && <ShiftCard {...selectedShift} />}
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

@@ -17,7 +17,7 @@ export const ShiftPagination = ({
   onPageChange,
 }: ShiftPaginationProps) => {
   return (
-    <Pagination>
+    <Pagination className="mt-10">
       <PaginationContent>
         <PaginationItem>
           <PaginationLink
