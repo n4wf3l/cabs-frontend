@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import Essence from "@/components/dashboard/Essence";
+import InteractiveResults from "@/components/dashboard/InteractiveResults";
 import SettingsCards from "@/components/settings/SettingsCards";
 import Forms from "@/components/settings/Forms";
 import { fetchChauffeurs } from "@/api/chauffeurs";
@@ -66,7 +67,7 @@ const Settings = () => {
           <h1 className="text-2xl font-bold text-center md:text-left">
             Paramètres
           </h1>
-          <Essence />
+          <InteractiveResults />
         </motion.div>
 
         <hr className="hr-light-effect mt-10 mb-10" />

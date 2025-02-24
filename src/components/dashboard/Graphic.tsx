@@ -46,21 +46,46 @@ const Graphic: React.FC<GraphicProps> = ({ chartData }) => {
             }}
           />
           <Tooltip
-            formatter={(value) => {
-              if (typeof value === "number") {
-                const hours = Math.floor(value / 3600)
+            content={({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const data = payload[0].payload;
+                const hours = Math.floor(data.shiftStart / 3600)
                   .toString()
                   .padStart(2, "0");
-                const minutes = Math.floor((value % 3600) / 60)
+                const minutes = Math.floor((data.shiftStart % 3600) / 60)
                   .toString()
                   .padStart(2, "0");
-                return `${hours}:${minutes}`;
+
+                return (
+                  <div
+                    style={{
+                      background: "rgba(0, 0, 0, 0.8)",
+                      color: "#fff",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                    }}
+                  >
+                    <div style={{ fontWeight: "bold", marginBottom: "5px" }}>
+                      🏷 {data.name}
+                    </div>
+                    <div style={{ color: "#4A90E2", fontSize: "16px" }}>
+                      🕒 Début : {hours}:{minutes}
+                    </div>
+                  </div>
+                );
               }
-              return "Pas commencé";
+              return null;
             }}
           />
-          <Legend />
-          <Line type="monotone" dataKey="shiftStart" stroke="#4A90E2" />
+          <Legend formatter={() => "Début de shift"} />
+          <Line
+            type="monotone"
+            dataKey="shiftStart"
+            name="Début de shift"
+            stroke="#4A90E2"
+          />
           <ReferenceLine
             y={21600}
             stroke="blue"

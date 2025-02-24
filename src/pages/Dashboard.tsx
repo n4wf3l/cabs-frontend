@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import Essence from "@/components/dashboard/Essence";
 import Graphic from "@/components/dashboard/Graphic";
 import InteractiveMap from "@/components/dashboard/InteractiveMap";
+import InteractiveResults from "@/components/dashboard/InteractiveResults";
 import { Card } from "@/components/ui/card";
 import { Users, Car, TrendingUp } from "lucide-react";
 import {
@@ -124,33 +125,10 @@ const Dashboard = () => {
           <h1 className="text-2xl font-bold text-center md:text-left">
             Tableau de Bord
           </h1>
-          <Essence />
+          <InteractiveResults />
         </motion.div>
 
         <hr className="hr-light-effect mb-10" />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={stat.title}
-              className="p-4 glass-card border border-transparent hover:border-white hover:scale-105 transition-all duration-500"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2, duration: 0.5 }}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <h3 className="text-2xl font-bold mt-2">{stat.value}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {stat.trend}
-                  </p>
-                </div>
-                <stat.icon className="text-primary" size={24} />
-              </div>
-            </motion.div>
-          ))}
-        </div>
 
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {activeDrivers.map((driver, index) => (
@@ -177,6 +155,7 @@ const Dashboard = () => {
             </motion.div>
           ))}
         </div>
+
         <Graphic chartData={chartData} />
         <div>
           <h2 className="text-xl font-bold mb-4">

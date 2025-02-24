@@ -1,17 +1,27 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 const InteractiveMap: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const map = L.map("map").setView([50.8503, 4.3517], 12); // Bruxelles par défaut
+    const map = L.map("map", {
+      zoomControl: true, // Active les boutons + et -
+      scrollWheelZoom: false, // Désactive le zoom avec la molette
+      doubleClickZoom: false, // Désactive le zoom au double-clic
+      touchZoom: false, // Désactive le zoom tactile
+      dragging: true, // Permet le déplacement
+    }).setView([50.8503, 4.3517], 12);
 
     L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
       {
         attribution: "Taxi Time",
       }
-    ).addTo(map);
+    )
+      .addTo(map)
+      .on("load", () => setLoading(false)); // Cache le loader une fois la carte chargée
 
     const drivers = [
       { name: "Ahmed", lat: 50.8203, lng: 4.3017, speed: 0.0005 },
@@ -32,7 +42,7 @@ const InteractiveMap: React.FC = () => {
     ];
 
     const taxiIcon = L.icon({
-      iconUrl: "taxi.png", // Icône taxi jaune visible
+      iconUrl: "taxi.png",
       iconSize: [35, 35],
       iconAnchor: [17, 35],
     });
@@ -54,7 +64,7 @@ const InteractiveMap: React.FC = () => {
       });
     };
 
-    const interval = setInterval(updatePositions, 3000); // Mise à jour toutes les 3 secondes
+    const interval = setInterval(updatePositions, 3000);
 
     return () => {
       clearInterval(interval);
@@ -64,33 +74,37 @@ const InteractiveMap: React.FC = () => {
 
   return (
     <div style={{ position: "relative" }}>
-      <div
-        style={{
-          position: "absolute",
-          top: "10px",
-          right: "10px",
-          background: "red",
-          color: "white",
-          padding: "5px 15px",
-          borderRadius: "5px",
-          fontWeight: "bold",
-          display: "flex",
-          alignItems: "center",
-          gap: "5px",
-          zIndex: 1000,
-          animation: "pulse 1.5s infinite",
-        }}
-      >
-        <span
+      {/* Loader animé */}
+      {loading && (
+        <div
           style={{
-            display: "inline-block",
-            animation: "scaleAnim 1.5s infinite",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "500px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(0, 0, 0, 0.8)",
+            zIndex: 1000,
+            transition: "opacity 0.5s ease-in-out",
           }}
         >
-          🔴
-        </span>{" "}
-        En direct
-      </div>
+          <div
+            style={{
+              width: "50px",
+              height: "50px",
+              border: "6px solid rgba(255, 255, 255, 0.3)",
+              borderTop: "6px solid white",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+            }}
+          ></div>
+        </div>
+      )}
+
+      {/* Carte interactive */}
       <div
         id="map"
         style={{
@@ -98,14 +112,19 @@ const InteractiveMap: React.FC = () => {
           height: "500px",
           position: "relative",
           zIndex: 0,
+          opacity: loading ? 0 : 1, // Transition fluide
+          transition: "opacity 0.5s ease-in-out",
         }}
       ></div>
+
+      {/* Animation du loader */}
       <style>
-        {`@keyframes scaleAnim {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.3); }
-          100% { transform: scale(1); }
-        }`}
+        {`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        `}
       </style>
     </div>
   );

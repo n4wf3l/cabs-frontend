@@ -21,6 +21,7 @@ import { format, addWeeks, startOfWeek, endOfWeek, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { motion } from "framer-motion";
 import Essence from "@/components/dashboard/Essence";
+import InteractiveResults from "@/components/dashboard/InteractiveResults";
 
 const daysOfWeek = [
   "Lundi",
@@ -267,7 +268,7 @@ function App() {
           <h1 className="text-2xl font-bold text-center md:text-left">
             Planning
           </h1>
-          <Essence />
+          <InteractiveResults />
         </motion.div>
         <hr className="hr-light-effect mt-10 mb-10" />
         {/* Week Navigation */}

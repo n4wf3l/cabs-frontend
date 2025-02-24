@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import Essence from "@/components/dashboard/Essence";
+import InteractiveResults from "@/components/dashboard/InteractiveResults";
 import { ShiftSearch } from "@/components/shifts/ShiftSearch";
 import { ShiftGrid } from "@/components/shifts/ShiftGrid";
 import { ShiftPagination } from "@/components/shifts/ShiftPagination";
@@ -203,7 +204,7 @@ const Shifts = () => {
           <h1 className="text-2xl font-bold text-center md:text-left">
             Gestion des Shifts
           </h1>
-          <Essence />
+          <InteractiveResults />
         </motion.div>
 
         <hr className="hr-light-effect mb-10" />

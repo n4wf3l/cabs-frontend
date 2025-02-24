@@ -29,7 +29,7 @@ const menuItems = [
     href: "#",
     disabled: true,
   },
-  { title: "Bilan (v2)", icon: BarChart2, href: "#", disabled: true },
+  { title: "Bilan (v3)", icon: BarChart2, href: "#", disabled: true },
 ];
 
 export const Sidebar = () => {
