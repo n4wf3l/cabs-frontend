@@ -33,48 +33,40 @@ const menuItems = [
 ];
 
 export const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    const storedState = localStorage.getItem("sidebarCollapsed");
+    return storedState ? JSON.parse(storedState) : false;
+  });
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
-  // Vérifie si l'écran est en mode mobile
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768); // Tailwind md breakpoint
+      setIsMobile(window.innerWidth < 768);
     };
-    handleResize(); // Check initial
-    window.addEventListener("resize", handleResize); // Update on resize
-
+    window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Charger l'état de la sidebar depuis le localStorage
-  useEffect(() => {
-    const storedCollapsed = localStorage.getItem("sidebarCollapsed");
-    if (storedCollapsed !== null) {
-      setCollapsed(JSON.parse(storedCollapsed));
-    }
-  }, []);
-
-  // Mettre à jour le localStorage lorsque l'état de la sidebar change
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsed));
   }, [collapsed]);
 
-  // Gestion de l'ouverture/fermeture en fonction du device
   const toggleSidebar = () => {
-    setCollapsed(!collapsed); // Même comportement pour mobile et desktop
+    setCollapsed((prev) => !prev);
+  };
+
+  const handleNavigation = (href: string) => {
+    if (collapsed) {
+      setCollapsed(true); // Force la sidebar à rester fermée
+    }
+    navigate(href);
   };
 
   return (
     <>
-      {/* Bouton visible uniquement en mobile pour afficher le sidebar */}
       {isMobile && collapsed && (
         <Button
           variant="ghost"
@@ -86,22 +78,19 @@ export const Sidebar = () => {
         </Button>
       )}
 
-      {/* Sidebar */}
       <div
         className={cn(
           "h-screen fixed left-0 top-0 z-40 flex flex-col glass-card transition-all duration-300",
           isMobile
             ? collapsed
-              ? "-translate-x-full md:translate-x-0" // Cacher complètement en mobile
-              : "translate-x-0" // Afficher en mobile après clic
+              ? "-translate-x-full md:translate-x-0"
+              : "translate-x-0"
             : collapsed
-            ? "w-20" // Réduire sur desktop
-            : "w-64" // Agrandir sur desktop
+            ? "w-20"
+            : "w-64"
         )}
       >
-        {/* Logo et bouton alignés sur la même ligne */}
         <div className="bg-background flex items-center justify-between p-4">
-          {/* Affichage du logo seulement quand la sidebar est ouverte */}
           {!collapsed && (
             <div className="w-64 h-20 transition-all duration-300">
               <img
@@ -111,8 +100,6 @@ export const Sidebar = () => {
               />
             </div>
           )}
-
-          {/* Bouton pour ouvrir/fermer la sidebar sur mobile et desktop */}
           <Button
             variant="ghost"
             size="icon"
@@ -123,18 +110,18 @@ export const Sidebar = () => {
           </Button>
         </div>
 
-        {/* Navigation */}
         <nav className="flex-1 p-4 bg-background">
           <ul className="space-y-2">
             {menuItems.map((item) => {
               const isActive = location.pathname === item.href;
               return (
                 <li key={item.title}>
-                  <Link
-                    to={item.href}
-                    onClick={(e) => item.disabled && e.preventDefault()}
+                  <button
+                    onClick={() =>
+                      !item.disabled && handleNavigation(item.href)
+                    }
                     className={cn(
-                      "flex p-2 hover:bg-secondary/50 rounded-lg transition-colors",
+                      "w-full flex p-2 hover:bg-secondary/50 rounded-lg transition-colors text-left",
                       collapsed ? "justify-center" : "items-center space-x-2",
                       item.disabled && "opacity-50 cursor-not-allowed",
                       isActive && "bg-primary/20 text-primary"
@@ -145,14 +132,13 @@ export const Sidebar = () => {
                       className={isActive ? "text-primary" : ""}
                     />
                     {!collapsed && <span>{item.title}</span>}
-                  </Link>
+                  </button>
                 </li>
               );
             })}
           </ul>
         </nav>
 
-        {/* Bouton de déconnexion */}
         <div className="p-4 bg-background">
           <Button
             variant="destructive"
@@ -161,7 +147,10 @@ export const Sidebar = () => {
               "w-full flex items-center justify-center space-x-2",
               collapsed ? "justify-center" : ""
             )}
-            onClick={handleLogout}
+            onClick={() => {
+              localStorage.removeItem("token");
+              navigate("/login");
+            }}
           >
             <LogOut size={20} />
             {!collapsed && <span>Se déconnecter</span>}
