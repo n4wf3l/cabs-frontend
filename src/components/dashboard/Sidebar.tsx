@@ -115,23 +115,33 @@ export const Sidebar = () => {
             {menuItems.map((item) => {
               const isActive = location.pathname === item.href;
               return (
-                <li key={item.title}>
+                <li key={item.title} className="relative group">
                   <button
                     onClick={() =>
                       !item.disabled && handleNavigation(item.href)
                     }
                     className={cn(
-                      "w-full flex p-2 hover:bg-secondary/50 rounded-lg transition-colors text-left",
+                      "w-full flex p-2 hover:bg-secondary/50 rounded-lg transition-colors text-left relative",
                       collapsed ? "justify-center" : "items-center space-x-2",
                       item.disabled && "opacity-50 cursor-not-allowed",
                       isActive && "bg-primary/20 text-primary"
                     )}
                   >
+                    {/* Icône */}
                     <item.icon
                       size={20}
                       className={isActive ? "text-primary" : ""}
                     />
+
+                    {/* Nom de la page affiché uniquement si non-collapsé */}
                     {!collapsed && <span>{item.title}</span>}
+
+                    {/* Tooltip affiché au survol quand sidebar est fermée */}
+                    {collapsed && (
+                      <span className="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        {item.title}
+                      </span>
+                    )}
                   </button>
                 </li>
               );
@@ -140,21 +150,32 @@ export const Sidebar = () => {
         </nav>
 
         <div className="p-4 bg-background">
-          <Button
-            variant="destructive"
-            size="icon"
-            className={cn(
-              "w-full flex items-center justify-center space-x-2",
-              collapsed ? "justify-center" : ""
-            )}
-            onClick={() => {
-              localStorage.removeItem("token");
-              navigate("/login");
-            }}
-          >
-            <LogOut size={20} />
-            {!collapsed && <span>Se déconnecter</span>}
-          </Button>
+          <div className="relative group">
+            <Button
+              variant="destructive"
+              size="icon"
+              className={cn(
+                "w-full flex items-center justify-center space-x-2",
+                collapsed ? "justify-center" : ""
+              )}
+              onClick={() => {
+                localStorage.removeItem("token");
+                navigate("/login");
+              }}
+            >
+              <LogOut size={20} />
+
+              {/* Texte affiché si sidebar ouverte */}
+              {!collapsed && <span>Se déconnecter</span>}
+
+              {/* Tooltip affiché au survol si sidebar fermée */}
+              {collapsed && (
+                <span className="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  Se déconnecter
+                </span>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </>
