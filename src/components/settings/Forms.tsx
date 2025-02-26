@@ -222,8 +222,6 @@ const Forms = () => {
           type="submit"
           className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
           disabled={!adminCompany}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
         >
           <UserPlus className="w-4 h-4" />
           Ajouter
