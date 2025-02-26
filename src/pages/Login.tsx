@@ -30,7 +30,6 @@ const Login = () => {
     return () => clearTimeout(timer);
   }, [navigate]);
 
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -53,6 +52,16 @@ const Login = () => {
           title: "Connexion réussie",
           description: `Bienvenue, ${email}!`,
         });
+        setTimeout(() => {
+          const input = document.createElement("input");
+          input.setAttribute("type", "password");
+          input.setAttribute("name", "password");
+          input.setAttribute("autocomplete", "current-password");
+          document.body.appendChild(input);
+          input.focus();
+          input.blur();
+          document.body.removeChild(input);
+        }, 500);
       } else {
         navigate("/unauthorized"); // Redirect unauthorized users
         localStorage.removeItem("token"); // ✅ Remove token
@@ -116,7 +125,17 @@ const Login = () => {
               Se connecter
             </motion.h2>
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form
+              onSubmit={handleLogin}
+              className="space-y-4"
+              autoComplete="on"
+            >
+              <input
+                type="text"
+                name="username"
+                autoComplete="username"
+                style={{ display: "none" }}
+              />
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -125,12 +144,14 @@ const Login = () => {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="name@example.com"
                   className="text-white"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoComplete="email"
                 />
               </motion.div>
               <motion.div
@@ -142,12 +163,14 @@ const Login = () => {
                 <div className="relative">
                   <Input
                     id="password"
+                    name="password"
                     type={showPassword ? "text" : "password"}
                     className="text-white"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    autoComplete="current-password"
                   />
                   <button
                     type="button"
