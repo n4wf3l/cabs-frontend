@@ -1,45 +1,11 @@
 import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
-import Essence from "@/components/dashboard/Essence";
 import Graphic from "@/components/dashboard/Graphic";
 import InteractiveMap from "@/components/dashboard/InteractiveMap";
 import InteractiveResults from "@/components/dashboard/InteractiveResults";
-import { Card } from "@/components/ui/card";
-import { Users, Car, TrendingUp } from "lucide-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  Legend,
-  ReferenceLine,
-} from "recharts";
 import { motion } from "framer-motion";
 
-const stats = [
-  {
-    title: "Chauffeurs Actifs",
-    value: "12",
-    icon: Users,
-    trend: "+2 cette semaine",
-  },
-  {
-    title: "Véhicules en Route",
-    value: "8",
-    icon: Car,
-    trend: "75% de la flotte",
-  },
-  {
-    title: "Chiffre d'Affaires",
-    value: "€2,450",
-    icon: TrendingUp,
-    trend: "+15% ce mois",
-  },
-];
-
+// Fonction pour formater le temps en HH:MM:SS
 const formatTime = (seconds: number) => {
   const hrs = Math.floor(seconds / 3600)
     .toString()
@@ -51,31 +17,47 @@ const formatTime = (seconds: number) => {
   return `${hrs}:${mins}:${secs}`;
 };
 
-const generateShiftStartInPast = () => {
-  const now = new Date();
-  const pastOffset = Math.floor(Math.random() * 3 + 1) * 60 * 60 * 1000; // 1 à 3 heures en arrière
-  return new Date(now.getTime() - pastOffset);
+// Fonction pour générer un shift réaliste
+const generateShiftStart = (isNightShift: boolean) => {
+  let shiftHour, shiftMinute;
+
+  if (isNightShift) {
+    shiftHour = Math.floor(Math.random() * 12) + 18; // 18h à 5h59
+    if (shiftHour >= 24) shiftHour -= 24;
+  } else {
+    shiftHour = Math.floor(Math.random() * 12) + 6; // 6h à 17h59
+  }
+
+  shiftMinute = Math.floor(Math.random() * 60);
+
+  // Ajouter une variation aléatoire de retard/avance (5 min à 3h)
+  const variation = Math.floor(Math.random() * (3 * 3600)) - 1800; // ±30 min
+  let adjustedShift = shiftHour * 3600 + shiftMinute * 60 + variation;
+
+  return adjustedShift < 0 ? 0 : adjustedShift;
 };
 
+// Génération des chauffeurs avec shifts réalistes
 const activeDrivers = [
-  "Ahmed",
-  "Youssef",
-  "Fatima",
-  "Khadija",
-  "Mohamed",
-  "Omar",
-  "Salma",
-  "Ibrahim",
-  "Sara",
-  "Nadia",
-  "Hassan",
-  "Mounir",
-  "Layla",
-  "Soufiane",
-  "Rachid",
-].map((name) => ({
-  name,
-  shiftStart: generateShiftStartInPast(),
+  { name: "Ahmed", isNightShift: false },
+  { name: "Youssef", isNightShift: false },
+  { name: "Fatima", isNightShift: false },
+  { name: "Khadija", isNightShift: false },
+  { name: "Mohamed", isNightShift: false },
+  { name: "Omar", isNightShift: false },
+  { name: "Salma", isNightShift: false },
+  { name: "Ibrahim", isNightShift: false },
+  { name: "Sara", isNightShift: false },
+  { name: "Nadia", isNightShift: false },
+  { name: "Hassan", isNightShift: true },
+  { name: "Mounir", isNightShift: true },
+  { name: "Layla", isNightShift: true },
+  { name: "Soufiane", isNightShift: true },
+  { name: "Rachid", isNightShift: true },
+].map((driver) => ({
+  name: driver.name,
+  shiftStart: generateShiftStart(driver.isNightShift),
+  isNightShift: driver.isNightShift,
 }));
 
 const Dashboard = () => {
@@ -86,13 +68,19 @@ const Dashboard = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
+      const currentTimeInSeconds =
+        now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
       const updatedTimes: { [key: string]: number } = {};
 
       activeDrivers.forEach((driver) => {
-        const elapsedSeconds = Math.floor(
-          (now.getTime() - driver.shiftStart.getTime()) / 1000
-        );
-        updatedTimes[driver.name] = elapsedSeconds > 0 ? elapsedSeconds : 0;
+        let elapsedSeconds = currentTimeInSeconds - driver.shiftStart;
+
+        // Si le shift est négatif (shift de nuit après minuit), recalculer
+        if (elapsedSeconds < 0) {
+          elapsedSeconds += 86400; // Ajouter 24h
+        }
+
+        updatedTimes[driver.name] = elapsedSeconds;
       });
 
       setCurrentTimes(updatedTimes);
@@ -101,15 +89,9 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const chartData = activeDrivers.map((driver) => {
-    const shiftHour = driver.shiftStart.getHours();
-    const shiftMinute = driver.shiftStart.getMinutes();
-    const shiftTime = shiftHour * 3600 + shiftMinute * 60;
-    return {
-      name: driver.name,
-      shiftStart: shiftTime,
-    };
-  });
+  // Diviser les données en shift de jour et shift de nuit
+  const chartDataDay = activeDrivers.filter((d) => !d.isNightShift);
+  const chartDataNight = activeDrivers.filter((d) => d.isNightShift);
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -130,6 +112,7 @@ const Dashboard = () => {
 
         <hr className="hr-light-effect mb-10" />
 
+        {/* Affichage des chauffeurs avec leur compteur de shift */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {activeDrivers.map((driver, index) => (
             <motion.div
@@ -143,11 +126,17 @@ const Dashboard = () => {
                 <div>
                   <p className="text-lg font-semibold">{driver.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    Début du shift : {driver.shiftStart.toLocaleTimeString()}
+                    Début du shift : {formatTime(driver.shiftStart)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-primary">
+                  <p
+                    className={`text-xl font-bold ${
+                      driver.isNightShift
+                        ? "text-purple-500"
+                        : "text-yellow-500"
+                    }`}
+                  >
                     {formatTime(currentTimes[driver.name] || 0)}
                   </p>
                 </div>
@@ -156,7 +145,8 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <Graphic chartData={chartData} />
+        {/* Affichage des graphiques avec shift jour et nuit */}
+        <Graphic chartDataDay={chartDataDay} chartDataNight={chartDataNight} />
         <div>
           <h2 className="text-xl font-bold mb-4">
             Suivi des chauffeurs en temps réel
