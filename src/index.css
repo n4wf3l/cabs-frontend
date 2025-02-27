@@ -75,3 +75,33 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Scrollbar générale */
+::-webkit-scrollbar {
+  width: 8px; /* Largeur de la scrollbar */
+  height: 8px;
+}
+
+/* Fond de la scrollbar */
+::-webkit-scrollbar-track {
+  background: #1e1e1e; /* Fond foncé */
+  border-radius: 10px;
+}
+
+/* Barre de défilement */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #2017a3, #ffcc00); /* Dégradé stylé */
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+/* Effet au survol */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #2017a3, #ff6600);
+}
+
+/* Scrollbar sur Firefox */
+* {
+  scrollbar-width: thin; /* Rend la scrollbar fine */
+  scrollbar-color: #2017a3 #1e1e1e; /* Couleur du pouce et du fond */
+}
