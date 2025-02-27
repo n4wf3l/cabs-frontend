@@ -16,36 +16,37 @@ import ForgetPassword from "./pages/ForgetPassword";
 import HistoryShifts from "./pages/HistoryShifts";
 import PrivateRoute from "./PrivateRoute";
 import { AuthProvider } from "./AuthContext";
+import Unauthorized from "./pages/Unauthorized";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <AuthProvider>
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/history-shifts" element={<HistoryShifts />} />
-            <Route path="/shifts" element={<Shifts />} />
-            <Route path="/drivers" element={<Drivers />} />
-            <Route path="/drivers/add" element={<AddDriver />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/drivers/:id" element={<DriverProfile />} />
-            <Route path="/planning" element={<Planning />} />
-          </Route>
-          <Route path="/unauthorized" element={<h1>🚫 Accès refusé</h1>} />
-          <Route path="/forget-password" element={<ForgetPassword />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/history-shifts" element={<HistoryShifts />} />
+              <Route path="/shifts" element={<Shifts />} />
+              <Route path="/drivers" element={<Drivers />} />
+              <Route path="/drivers/add" element={<AddDriver />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/drivers/:id" element={<DriverProfile />} />
+              <Route path="/planning" element={<Planning />} />
+            </Route>
+            <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
   </AuthProvider>
 );
 
