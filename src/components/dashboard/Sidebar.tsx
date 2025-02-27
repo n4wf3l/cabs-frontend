@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -39,6 +40,7 @@ export const Sidebar = () => {
   });
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isOpening, setIsOpening] = useState(false); // Détection de l'ouverture manuelle
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -55,12 +57,15 @@ export const Sidebar = () => {
   }, [collapsed]);
 
   const toggleSidebar = () => {
+    if (collapsed) {
+      setIsOpening(true); // Animation activée uniquement lors d'une ouverture
+    }
     setCollapsed((prev) => !prev);
   };
 
   const handleNavigation = (href: string) => {
     if (collapsed) {
-      setCollapsed(true); // Force la sidebar à rester fermée
+      setCollapsed(true);
     }
     navigate(href);
   };
@@ -112,9 +117,40 @@ export const Sidebar = () => {
 
         <nav className="flex-1 p-4 bg-background">
           <ul className="space-y-2">
-            {menuItems.map((item) => {
+            {menuItems.map((item, index) => {
               const isActive = location.pathname === item.href;
-              return (
+              return isOpening && !collapsed ? ( // Appliquer l'animation uniquement lors de l'ouverture
+                <motion.li
+                  key={item.title}
+                  className="relative group"
+                  initial={{ x: -50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <button
+                    onClick={() =>
+                      !item.disabled && handleNavigation(item.href)
+                    }
+                    className={cn(
+                      "w-full flex p-2 hover:bg-secondary/50 rounded-lg transition-colors text-left relative",
+                      collapsed ? "justify-center" : "items-center space-x-2",
+                      item.disabled && "opacity-50 cursor-not-allowed",
+                      isActive && "bg-primary/20 text-primary"
+                    )}
+                  >
+                    <item.icon
+                      size={20}
+                      className={isActive ? "text-primary" : ""}
+                    />
+                    {!collapsed && <span>{item.title}</span>}
+                    {collapsed && (
+                      <span className="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        {item.title}
+                      </span>
+                    )}
+                  </button>
+                </motion.li>
+              ) : (
                 <li key={item.title} className="relative group">
                   <button
                     onClick={() =>
@@ -127,16 +163,11 @@ export const Sidebar = () => {
                       isActive && "bg-primary/20 text-primary"
                     )}
                   >
-                    {/* Icône */}
                     <item.icon
                       size={20}
                       className={isActive ? "text-primary" : ""}
                     />
-
-                    {/* Nom de la page affiché uniquement si non-collapsé */}
                     {!collapsed && <span>{item.title}</span>}
-
-                    {/* Tooltip affiché au survol quand sidebar est fermée */}
                     {collapsed && (
                       <span className="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         {item.title}
@@ -164,11 +195,7 @@ export const Sidebar = () => {
               }}
             >
               <LogOut size={20} />
-
-              {/* Texte affiché si sidebar ouverte */}
               {!collapsed && <span>Se déconnecter</span>}
-
-              {/* Tooltip affiché au survol si sidebar fermée */}
               {collapsed && (
                 <span className="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   Se déconnecter
