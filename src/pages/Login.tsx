@@ -1,48 +1,41 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye, EyeOff, LogIn } from "lucide-react";
-import { motion, AnimatePresence, delay } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "../api/api"; // ✅ Import axios API instance
-//import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/dashboard");
-    }
+    if (token) navigate("/dashboard");
 
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2000);
+    const timer = setTimeout(() => setShowSplash(false), 2000);
     return () => clearTimeout(timer);
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage(""); // Reset error message on new attempt
 
     try {
-      // ✅ Send login request to backend
       const response = await api.post("/auth/login", { email, password });
-
-      // ✅ Store JWT token
       const { accessToken } = response.data;
-      localStorage.setItem("token", accessToken); // ✅ Store token
+      localStorage.setItem("token", accessToken);
 
-      // ✅ Decode JWT token to get role
       const payload = JSON.parse(atob(accessToken.split(".")[1])); // Decode JWT
       console.log("🔍 Decoded Token:", payload);
 
@@ -52,6 +45,7 @@ const Login = () => {
           title: "Connexion réussie",
           description: `Bienvenue, ${email}!`,
         });
+
         setTimeout(() => {
           const input = document.createElement("input");
           input.setAttribute("type", "password");
@@ -63,12 +57,13 @@ const Login = () => {
           document.body.removeChild(input);
         }, 500);
       } else {
-        navigate("/unauthorized"); // Redirect unauthorized users
-        localStorage.removeItem("token"); // ✅ Remove token
+        navigate("/unauthorized");
+        localStorage.removeItem("token");
         setLoading(false);
       }
     } catch (error) {
       console.error("❌ Login Failed:", error);
+      setErrorMessage("Email ou mot de passe incorrect. Veuillez réessayer.");
       toast({
         title: "Erreur",
         description: "Email ou mot de passe incorrect",
@@ -125,10 +120,12 @@ const Login = () => {
               Se connecter
             </motion.h2>
 
-            <form
+            <motion.form
               onSubmit={handleLogin}
               className="space-y-4"
               autoComplete="on"
+              animate={errorMessage ? { x: [-10, 10, -5, 5, 0] } : {}}
+              transition={{ duration: 0.3 }}
             >
               <input
                 type="text"
@@ -136,6 +133,7 @@ const Login = () => {
                 autoComplete="username"
                 style={{ display: "none" }}
               />
+
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -154,6 +152,7 @@ const Login = () => {
                   autoComplete="email"
                 />
               </motion.div>
+
               <motion.div
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -185,6 +184,18 @@ const Login = () => {
                   </button>
                 </div>
               </motion.div>
+
+              {errorMessage && (
+                <motion.p
+                  className="text-red-500 text-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {errorMessage}
+                </motion.p>
+              )}
+
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -204,7 +215,7 @@ const Login = () => {
                   )}
                 </Button>
               </motion.div>
-            </form>
+            </motion.form>
 
             <motion.a
               href="/forget-password"
