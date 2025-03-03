@@ -9,6 +9,7 @@ import Shifts from "./pages/Shifts";
 import Drivers from "./pages/Drivers";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Maps from "./pages/Maps";
 import Planning from "./pages/Planning";
 import AddDriver from "./pages/AddDriver";
 import DriverProfile from "./pages/DriverProfile";
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/settings" element={<Settings />} />
               <Route path="/drivers/:id" element={<DriverProfile />} />
               <Route path="/planning" element={<Planning />} />
+              <Route path="/map" element={<Maps />} />
             </Route>
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/forget-password" element={<ForgetPassword />} />

@@ -15,10 +15,12 @@ import {
   LogOut,
   Menu,
   X,
+  Map,
 } from "lucide-react";
 
 const menuItems = [
   { title: "Tableau de bord", icon: LayoutDashboard, href: "/dashboard" },
+  { title: "Map", icon: Map, href: "/map" },
   { title: "Shifts", icon: Clock, href: "/shifts" },
   { title: "Chauffeurs", icon: User, href: "/drivers" },
   { title: "Planning", icon: Calendar, href: "/planning" },

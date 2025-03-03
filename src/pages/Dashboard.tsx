@@ -147,12 +147,6 @@ const Dashboard = () => {
 
         {/* Affichage des graphiques avec shift jour et nuit */}
         <Graphic chartDataDay={chartDataDay} chartDataNight={chartDataNight} />
-        <div>
-          <h2 className="text-xl font-bold mb-4">
-            Suivi des chauffeurs en temps réel
-          </h2>
-          <InteractiveMap />
-        </div>
       </main>
     </div>
   );
