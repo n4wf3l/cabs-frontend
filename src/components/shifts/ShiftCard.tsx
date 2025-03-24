@@ -17,6 +17,8 @@ import {
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent } from "../ui/dialog";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 interface ShiftCardProps {
   driverName: string;
@@ -37,13 +39,86 @@ const ShiftCard = ({
   date,
   startTime,
   endTime,
-  totalKm,
-  initialKm,
+  totalKm = 0,
+  initialKm = 0,
   vehiclePhotos = [],
   entryTicket,
   exitTicket,
 }: ShiftCardProps) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+  const generatePdf = () => {
+    const doc = new jsPDF();
+
+    // ✅ Titre du document
+    doc.setFontSize(18);
+    doc.text("Rapport de shift", 14, 20);
+
+    // ✅ Informations générales
+    doc.setFontSize(12);
+    doc.text(`Chauffeur : ${driverFirstName} ${driverName}`, 14, 30);
+    doc.text(`Date : ${date}`, 14, 40);
+    doc.text(`Heure de travail : ${startTime} - ${endTime}`, 14, 50);
+
+    // ✅ Tableau des kilométrages
+    (doc as any).autoTable({
+      startY: 60,
+      head: [
+        ["Kilométrage initial", "Distance parcourue", "Kilométrage total"],
+      ],
+      body: [[`${initialKm} km`, `${totalKm} km`, `${initialKm + totalKm} km`]],
+      theme: "grid",
+    });
+
+    let yPosition = (doc as any).lastAutoTable?.finalY + 10 || 80; // Ajuste la position sous le tableau
+
+    // ✅ Ajout des Tickets (Entrée et Sortie)
+    if (entryTicket || exitTicket) {
+      doc.text("Tickets :", 14, yPosition);
+      yPosition += 10;
+
+      if (entryTicket) {
+        doc.text("Ticket d'entrée :", 14, yPosition);
+        const imgEntry = new Image();
+        imgEntry.src = entryTicket;
+        imgEntry.onload = () => {
+          doc.addImage(imgEntry, "JPEG", 14, yPosition + 5, 80, 50);
+          doc.save("Shift_Report.pdf");
+        };
+        yPosition += 60;
+      }
+
+      if (exitTicket) {
+        doc.text("Ticket de sortie :", 14, yPosition);
+        const imgExit = new Image();
+        imgExit.src = exitTicket;
+        imgExit.onload = () => {
+          doc.addImage(imgExit, "JPEG", 14, yPosition + 5, 80, 50);
+          doc.save("Shift_Report.pdf");
+        };
+        yPosition += 60;
+      }
+    }
+
+    // ✅ Ajout des photos du véhicule
+    if (vehiclePhotos.length > 0) {
+      doc.text("Photos du véhicule :", 14, yPosition);
+      yPosition += 10;
+
+      vehiclePhotos.slice(0, 3).forEach((photo, index) => {
+        const img = new Image();
+        img.src = photo;
+        img.onload = () => {
+          doc.addImage(img, "JPEG", 14 + index * 65, yPosition, 60, 45);
+          if (index === vehiclePhotos.length - 1) {
+            doc.save("Shift_Report.pdf");
+          }
+        };
+      });
+    } else {
+      doc.save("Shift_Report.pdf");
+    }
+  };
 
   return (
     <motion.div
@@ -245,9 +320,12 @@ const ShiftCard = ({
         </div>
       </motion.div>
 
-      {/* Bouton Export PDF */}
+      {/* ✅ Bouton Export PDF */}
       <div className="flex justify-end pt-4 sticky bottom-0 py-4">
-        <Button className="bg-blue-700 hover:bg-blue-900 text-white transition-colors">
+        <Button
+          className="bg-blue-700 hover:bg-blue-900 text-white transition-colors"
+          onClick={generatePdf}
+        >
           <Download className="w-4 h-4 mr-2" />
           Exporter en PDF
         </Button>
