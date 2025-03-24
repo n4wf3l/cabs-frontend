@@ -8,6 +8,11 @@ import {
   User,
   FileText,
   X,
+  AlertTriangle,
+  BatteryCharging,
+  Plug,
+  BadgeCheck,
+  Route,
 } from "lucide-react";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
@@ -42,7 +47,7 @@ const ShiftCard = ({
 
   return (
     <motion.div
-      className="space-y-6 max-h-[80vh] overflow-y-auto overflow-x-hidden pr-2 text-white scrollbar-hide"
+      className="space-y-6 max-h-[80vh] overflow-y-scroll overflow-x-hidden pr-6 pl-5 text-white w-full flex flex-col relative scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-600 mt-5 ml-2"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
@@ -100,7 +105,7 @@ const ShiftCard = ({
             <Car className="w-5 h-5 text-blue-700" />
             <span className="font-medium">Kilométrage initial</span>
           </div>
-          <p className="text-2xl font-semibold text-center">{initialKm} km</p>
+          <p className="text-2xl font-semibold text-center">12 500 km</p>
         </motion.div>
         <motion.div
           className="p-4 rounded-lg bg-secondary/50"
@@ -110,7 +115,69 @@ const ShiftCard = ({
             <Car className="w-5 h-5 text-blue-700" />
             <span className="font-medium">Distance parcourue</span>
           </div>
-          <p className="text-2xl font-semibold text-center">{totalKm} km</p>
+          <p className="text-2xl font-semibold text-center">3 200 km</p>
+        </motion.div>
+      </motion.div>
+
+      {/* Nouvelles infos ajoutées */}
+      <motion.div
+        className="grid gap-4 md:grid-cols-2 mt-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <motion.div
+          className="p-4 rounded-lg bg-secondary/50"
+          whileHover={{ scale: 1.05 }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <BadgeCheck className="w-5 h-5 text-green-600" />
+            <span className="font-medium">Numéro de licence</span>
+          </div>
+          <p className="text-2xl font-semibold text-center">AB-12345-X</p>
+        </motion.div>
+        <motion.div
+          className="p-4 rounded-lg bg-secondary/50"
+          whileHover={{ scale: 1.05 }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Plug className="w-5 h-5 text-yellow-600" />
+            <span className="font-medium">Nombre de prises</span>
+          </div>
+          <p className="text-2xl font-semibold text-center">57</p>
+        </motion.div>
+        <motion.div
+          className="p-4 rounded-lg bg-secondary/50"
+          whileHover={{ scale: 1.05 }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <BatteryCharging className="w-5 h-5 text-blue-500" />
+            <span className="font-medium">Km en charge</span>
+          </div>
+          <p className="text-2xl font-semibold text-center">1 800 km</p>
+        </motion.div>
+        <motion.div
+          className="p-4 rounded-lg bg-secondary/50"
+          whileHover={{ scale: 1.05 }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+            <span className="font-medium">Chutes</span>
+          </div>
+          <p className="text-2xl font-semibold text-center">2</p>
+        </motion.div>
+        <motion.div
+          className="p-4 rounded-lg bg-secondary/50"
+          whileHover={{ scale: 1.05 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Route className="w-5 h-5 text-gray-700" />
+            <span className="font-medium">Kilométrage total</span>
+          </div>
+          <p className="text-2xl font-semibold text-center">15 700 km</p>
         </motion.div>
       </motion.div>
 
