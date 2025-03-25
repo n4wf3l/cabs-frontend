@@ -9,20 +9,21 @@ import { useNavigate } from "react-router-dom";
 import PersonalData from "@/components/drivers/AddChauffeur/PersonalData";
 import WorkData from "@/components/drivers/AddChauffeur/WorkData";
 import UploadingData from "@/components/drivers/AddChauffeur/UploadingData";
+import FullScreenLoader from "@/components/drivers/AddChauffeur/FullScreenLoader";
 
 const AddChauffeurForm = () => {
   const form = useForm();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-        
 
   const onSubmit = async (data: any) => {
-    setIsLoading(true); // Activate loading state
-  
+    setIsLoading(true); // ✅ Active le loader
+    const startTime = Date.now(); // ⏱ Capture du temps de début
+
     try {
       const formData = new FormData();
-  
-      // ✅ Convert boolean values correctly
+
+      // ✅ Convertit correctement les valeurs booléennes
       Object.entries(data).forEach(([key, value]) => {
         if (typeof value === "boolean") {
           formData.append(key, value ? "true" : "false");
@@ -30,60 +31,64 @@ const AddChauffeurForm = () => {
           formData.append(key, value);
         }
       });
-  
-      // ✅ Ensure file uploads work correctly
+
+      // ✅ Gestion des fichiers
       const fileFields = [
         "id_card",
         "driver_license_photo",
         "bank_card_photo",
         "contract_photo",
-        "photo_chauffeur"
+        "photo_chauffeur",
       ];
       fileFields.forEach((field) => {
         if (data[field] instanceof FileList && data[field].length > 0) {
-          formData.append(field, data[field][0]); // Add file
+          formData.append(field, data[field][0]);
         }
       });
-  
-      // ✅ Get token from localStorage
-      const token = localStorage.getItem("token");
 
-      if (!token) {
-        throw new Error("❌ Authentication error: No token found.");
-      }
-  
-      console.log("🔑 Sending request with token:", token); // ✅ Debugging
-  
-      // ✅ Send request with Authorization header
+      // ✅ Récupération du token
+      const token = localStorage.getItem("token");
+      if (!token)
+        throw new Error("❌ Authentification échouée : Aucun token trouvé.");
+
+      console.log("🔑 Envoi de la requête avec le token :", token);
+
+      // ✅ Envoi de la requête API
       const response = await fetch("http://localhost:3000/chauffeurs", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // ✅ Ensure authentication
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
-          `HTTP error! Status: ${response.status}. Response: ${errorText}`
+          `❌ Erreur HTTP ! Statut: ${response.status}. Réponse: ${errorText}`
         );
       }
-  
+
       const result = await response.json();
-      toast.success("🚗 Chauffeur ajouté avec succès!");
-      form.reset(); // ✅ Reset form after success
-  
-      // ✅ Redirect to chauffeurs list after success
+      toast.success("🚗 Chauffeur ajouté avec succès !");
+      form.reset(); // ✅ Reset du formulaire
+
+      // ✅ Redirection après succès
       navigate("/drivers", { state: { newDriver: result } });
     } catch (error) {
-      console.error("❌ Failed to submit form:", error);
-      toast.error("Erreur lors de l'ajout du chauffeur.");
+      console.error("❌ Échec de l'ajout du chauffeur :", error);
+      toast.error(
+        "❌ Erreur lors de l'ajout du chauffeur. Veuillez réessayer."
+      );
     } finally {
-      setIsLoading(false); // Disable loading state
+      // ✅ Attendre un minimum de 5 secondes avant de désactiver le loader
+      const elapsedTime = Date.now() - startTime;
+      const minDuration = 5000; // ⏳ Durée minimale du loader en ms
+
+      setTimeout(
+        () => setIsLoading(false),
+        Math.max(0, minDuration - elapsedTime)
+      );
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -115,24 +120,33 @@ const AddChauffeurForm = () => {
           transition={{ duration: 0.6 }}
         >
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <PersonalData form={form}/>
-                <WorkData form={form} />
-              </div>
-              <div className="mt-6">
-                <UploadingData form={form} />
-              </div>
-              <div className="flex justify-end mt-6">
-                <Button
-                  type="submit"
-                  className="w-full md:w-auto"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Ajout en cours..." : "Ajouter le chauffeur"}
-                </Button>
-              </div>
-            </form>
+            <div>
+              {/* ✅ Loader en plein écran */}
+              <FullScreenLoader isLoading={isLoading} />
+
+              {/* ✅ Formulaire */}
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <PersonalData form={form} />
+                  <WorkData form={form} />
+                </div>
+                <div className="mt-6">
+                  <UploadingData form={form} />
+                </div>
+                <div className="flex justify-end mt-6">
+                  <button
+                    type="submit"
+                    className="w-full md:w-auto bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition-all"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Ajout en cours..." : "Ajouter le chauffeur"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </Form>
         </motion.div>
       </main>
