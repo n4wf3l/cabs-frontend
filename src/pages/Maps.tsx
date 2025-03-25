@@ -32,7 +32,7 @@ const Index = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000); // ⏳ Affiche le loader au moins 2 secondes
+    }, 1000); // ⏳ Affiche le loader au moins 1 secondes
     return () => clearTimeout(timer);
   }, []);
 
