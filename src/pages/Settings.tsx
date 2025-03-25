@@ -52,17 +52,15 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <div className="fixed z-50 md:relative md:translate-x-0 transition-transform duration-300">
-        <Sidebar />
-      </div>
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
 
       <main className="flex-1 p-4 md:p-8 md:ml-64">
         <motion.div
           className="flex flex-col md:flex-row items-center justify-between mb-8 mt-10"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
         >
           <h1 className="text-2xl font-bold text-center md:text-left">
             Paramètres
@@ -70,7 +68,7 @@ const Settings = () => {
           <InteractiveResults />
         </motion.div>
 
-        <hr className="hr-light-effect mt-10 mb-10" />
+        <hr className="hr-light-effect mb-10" />
 
         <SettingsCards
           drivers={drivers}
