@@ -240,7 +240,7 @@ export const Drivers = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Table className="w-full text-center">
+          <Table className="w-full text-center relative overflow-hidden">
             <TableHeader>
               <TableRow>
                 {/* Nouvelle colonne pour l'icône 👁️ */}
@@ -300,11 +300,18 @@ export const Drivers = () => {
                 </TableHead>
               </TableRow>
             </TableHeader>
-
-            <TableBody>
+            <TableBody
+              className="relative overflow-hidden" // ✅ Empêche le scrollbar temporaire
+            >
               {loading ? (
+                // ✅ Animation des Skeletons (fade-in + slide-up)
                 Array.from({ length: driversPerPage }).map((_, index) => (
-                  <TableRow key={index}>
+                  <motion.tr
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: index * 0.1 }}
+                  >
                     <TableCell>
                       <Skeleton className="h-6 w-6 mx-auto" />
                     </TableCell>
@@ -326,13 +333,17 @@ export const Drivers = () => {
                     <TableCell>
                       <Skeleton className="h-6 w-16 mx-auto" />
                     </TableCell>
-                  </TableRow>
+                  </motion.tr>
                 ))
               ) : currentDrivers.length > 0 ? (
-                currentDrivers.map((driver) => (
-                  <TableRow
+                // ✅ Animation des lignes du tableau (fade-in + slide-up)
+                currentDrivers.map((driver, index) => (
+                  <motion.tr
                     key={driver.id}
-                    className="hover:bg-gray-900 text-white transition duration-300"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="hover:bg-gray-900 text-white transition duration-300 overflow-hidden"
                   >
                     <TableCell className="text-center">
                       <button
@@ -392,17 +403,22 @@ export const Drivers = () => {
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
                     </TableCell>
-                  </TableRow>
+                  </motion.tr>
                 ))
               ) : (
-                <TableRow>
+                // ✅ Animation du message "Aucune donnée"
+                <motion.tr
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
                   <TableCell
                     colSpan={7}
                     className="text-center py-4 text-gray-400"
                   >
                     Aucun donnée n'est disponible dans la base de données.
                   </TableCell>
-                </TableRow>
+                </motion.tr>
               )}
             </TableBody>
           </Table>
