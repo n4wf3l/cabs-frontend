@@ -64,7 +64,7 @@ const ForgetPassword = () => {
           className="w-full p-8 flex flex-col justify-center items-center" // Ajout de items-center pour centrer le contenu
         >
           <img
-            src="/taxitimelogo.png"
+            src="/cabslogo.png"
             alt="Taxi Time"
             className="h-10 mb-6 mx-auto"
           />

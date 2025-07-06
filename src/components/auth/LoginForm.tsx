@@ -20,7 +20,10 @@ export const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-sm animate-slideIn">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 w-full max-w-sm animate-slideIn"
+    >
       <div className="space-y-2">
         <Input
           type="email"

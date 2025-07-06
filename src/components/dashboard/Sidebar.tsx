@@ -101,7 +101,7 @@ export const Sidebar = () => {
           {!collapsed && (
             <div className="w-64 h-20 transition-all duration-300">
               <img
-                src="/taxitimelogo.png"
+                src="/cabslogo.png"
                 alt="Taxi Time Logo"
                 className="object-contain h-full ml-12"
               />
