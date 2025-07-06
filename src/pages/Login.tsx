@@ -86,22 +86,14 @@ const Login = () => {
               : "opacity-100"
           }`}
         >
-          <img
-            src="/cabslogo.png"
-            alt="Taxi Time"
-            className="h-40 animate-pulse"
-          />
+          <img src="/cabslogo.png" alt="Cabs" className="h-40 animate-pulse" />
         </div>
       )}
 
       {!showSplash && (
         <div className="w-full max-w-4xl flex flex-col lg:flex-row bg-gray-900 text-white rounded-lg overflow-hidden shadow-xl">
           <div className="w-full lg:w-1/2 p-8 flex flex-col justify-center">
-            <img
-              src="/cabslogo.png"
-              alt="Taxi Time"
-              className="h-10 mb-6 mx-auto"
-            />
+            <img src="/cabslogo.png" alt="Cabs" className="h-10 mb-6 mx-auto" />
             <h2 className="text-2xl font-bold mb-4 text-center">
               Se connecter
             </h2>
@@ -159,7 +151,7 @@ const Login = () => {
               rel="noopener noreferrer"
               className="text-white text-lg font-bold hover:text-yellow-400"
             >
-              Taxi Time.
+              Cabs.
             </a>
             <p className="text-sm mt-2 text-center">{visibleText}</p>
             <p className="text-xs mt-10 text-gray-400">

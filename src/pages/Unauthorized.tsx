@@ -34,7 +34,7 @@ const Unauthorized = () => {
             </h1>
             <div className="w-16 h-1 bg-red-500 mb-4"></div>
             <p className="text-gray-300 mb-4">
-              Cette interface est réservée aux administrateurs de Taxi Time.
+              Cette interface est réservée aux administrateurs de Cabs.
             </p>
             <p className="text-gray-400 text-sm">
               Si vous êtes administrateur, veuillez vous connecter avec vos
@@ -56,7 +56,7 @@ const Unauthorized = () => {
               Application Chauffeur
             </h2>
             <p className="text-gray-300 mb-6">
-              L'application Taxi Time pour chauffeurs est disponible sur mobile.
+              L'application Cabs pour chauffeurs est disponible sur mobile.
               Téléchargez-la dès maintenant :
             </p>
 
@@ -111,7 +111,7 @@ const Unauthorized = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 0.6 }}
       >
-        © 2025 Taxi Time. Tous droits réservés.
+        © 2025 Cabs. Tous droits réservés.
       </motion.div>
     </motion.div>
   );

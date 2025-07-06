@@ -14,7 +14,7 @@ export const LoginForm = () => {
     // TODO: Implement actual authentication
     toast({
       title: "Connexion réussie",
-      description: "Bienvenue sur Taxi Time",
+      description: "Bienvenue sur Cabs",
     });
     navigate("/dashboard");
   };

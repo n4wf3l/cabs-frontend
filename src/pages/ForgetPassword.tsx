@@ -13,7 +13,7 @@ const ForgetPassword = () => {
     e.preventDefault();
     const phoneNumber = "+32467686600"; // Numéro de téléphone fixe
     const message =
-      "Bonjour, j'ai oublié mon mot de passe en tant qu'administrateur pour me connecter à la plateforme Taxi Time. Est-ce possible que vous me le réinitialisez?";
+      "Bonjour, j'ai oublié mon mot de passe en tant qu'administrateur pour me connecter à la plateforme Cabs. Est-ce possible que vous me le réinitialisez?";
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
       message
     )}`;
@@ -63,11 +63,7 @@ const ForgetPassword = () => {
           transition={{ delay: 0.3, duration: 0.5 }}
           className="w-full p-8 flex flex-col justify-center items-center" // Ajout de items-center pour centrer le contenu
         >
-          <img
-            src="/cabslogo.png"
-            alt="Taxi Time"
-            className="h-10 mb-6 mx-auto"
-          />
+          <img src="/cabslogo.png" alt="Cabs" className="h-10 mb-6 mx-auto" />
           <h2 className="text-2xl font-bold mb-4 text-center">
             Mot de passe oublié
           </h2>
@@ -104,7 +100,7 @@ const ForgetPassword = () => {
               rel="noopener noreferrer"
               className="text-white transition-colors duration-300 hover:text-yellow-400"
             >
-              Taxi Time.
+              Cabs.
             </a>
           </h2>
           <p className="text-sm mt-2 text-center">{visibleText}</p>{" "}
