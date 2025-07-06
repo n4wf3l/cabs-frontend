@@ -1,8 +1,8 @@
-# 🚖 Taxi Time - Gestion des Chauffeurs (Frontend)
+# 🚖 Cabs - Gestion des Chauffeurs (Frontend)
 
 ## 🚀 Présentation
 
-**Taxi Time** est une plateforme moderne et performante conçue pour **révolutionner la gestion des sociétés de taxi**.  
+**Cabs** est une plateforme moderne et performante conçue pour **révolutionner la gestion des sociétés de taxi**.  
 Grâce à une interface intuitive et puissante, elle permet aux entreprises de taxis d’**optimiser les plannings de leurs chauffeurs**, d’améliorer leur rentabilité et d’automatiser leur gestion quotidienne.
 
 Ce projet a un **but lucratif**, avec l’objectif d’apporter une solution efficace et évolutive pour les **flottes de taxis** et leurs **dispatchers**.
