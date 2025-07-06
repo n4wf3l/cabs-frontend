@@ -102,7 +102,7 @@ export const Sidebar = () => {
             <div className="w-64 h-20 transition-all duration-300">
               <img
                 src="/cabslogo.png"
-                alt="Taxi Time Logo"
+                alt="Cabs Logo"
                 className="object-contain h-full ml-12"
               />
             </div>

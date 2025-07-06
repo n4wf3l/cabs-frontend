@@ -14,8 +14,7 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-6">
-      {/* Logo Taxi Time en grand */}
-      <img src="/cabslogo.png" alt="Taxi Time" className="h-24 mb-6" />
+      <img src="/cabslogo.png" alt="Cabs" className="h-24 mb-6" />
 
       <h1 className="text-6xl font-extrabold text-yellow-500">404</h1>
       <p className="text-xl text-gray-400 mt-2">Oops ! Page introuvable.</p>
