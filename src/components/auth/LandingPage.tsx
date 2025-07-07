@@ -64,7 +64,21 @@ export const LandingPage = () => {
             transition={{ duration: 1 }}
             className="relative h-full"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40 z-10" />
+            {/* Remplacer cette ligne */}
+            {/* <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40 z-10" /> */}
+
+            {/* Par ce bloc multi-dégradé */}
+            <div className="absolute inset-0 z-10">
+              {/* Dégradé principal du coin bas gauche (noir) vers le haut droit (plus clair) */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-black via-black/60 to-black/10" />
+
+              {/* Dégradé supplémentaire pour renforcer le coin bas gauche */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
+
+              {/* Ajustement subtil pour améliorer la lisibilité du texte */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
+            </div>
+
             <img
               src="/cover.png"
               alt="Taxi Background"
