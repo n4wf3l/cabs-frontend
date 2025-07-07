@@ -9,9 +9,9 @@ import {
   MapPin,
   Calendar,
 } from "lucide-react";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { Sidebar } from "@/components/Sidebar";
 import { motion, AnimatePresence } from "framer-motion";
-import Essence from "@/components/dashboard/Essence";
+import Essence from "@/components/header/Essence";
 import { ShiftPagination } from "@/components/shifts/ShiftPagination";
 
 interface ShiftHistory {

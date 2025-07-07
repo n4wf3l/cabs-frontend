@@ -8,50 +8,68 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-  deleteChauffeur,
-  fetchChauffeurs,
-  updateChauffeur,
-} from "@/api/chauffeurs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { EditDriverDialog } from "./EditDriverDialog";
 import { DeleteDriverDialog } from "./DeleteDriverDialog";
+import { ViewDriverDialog } from "./ViewDriverDialog"; // On va créer ce composant
 
-export const DriverList = () => {
+// Importer les données mockées au lieu des fonctions API
+import { mockDrivers, mockDeleteDriver } from "./DriversMock";
+
+// Interface pour les props
+interface DriverListProps {
+  filter: string;
+}
+
+export const DriverList = ({ filter }: DriverListProps) => {
   const [drivers, setDrivers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingDriver, setEditingDriver] = useState<any>(null);
   const [deletingDriver, setDeletingDriver] = useState<any>(null);
+  const [viewingDriver, setViewingDriver] = useState<any>(null); // Nouvel état pour la visualisation
   const { toast } = useToast();
 
   useEffect(() => {
+    // Simuler le chargement des données
     const loadDrivers = async () => {
       try {
-        const data = await fetchChauffeurs();
-        setDrivers(data);
+        // Simuler un délai réseau
+        setTimeout(() => {
+          setDrivers(mockDrivers);
+          setLoading(false);
+        }, 1000);
       } catch (error) {
         console.error("❌ Erreur lors du chargement des chauffeurs:", error);
-      } finally {
         setLoading(false);
       }
     };
     loadDrivers();
   }, []);
 
-  // ✅ Handle delete driver
+  // Filtrage basé sur la prop filter
+  const filteredDrivers = drivers.filter(
+    (driver) =>
+      filter === "" ||
+      driver.first_name.toLowerCase().includes(filter.toLowerCase()) ||
+      driver.last_name.toLowerCase().includes(filter.toLowerCase()) ||
+      driver.email.toLowerCase().includes(filter.toLowerCase()) ||
+      driver.phone.includes(filter)
+  );
+
+  // Fonction de suppression utilisant mockDeleteDriver
   const handleDeleteDriver = async (driverId: string) => {
     try {
-      await deleteChauffeur(driverId);
+      await mockDeleteDriver(driverId);
       toast({
         title: "Succès",
         description: "Chauffeur supprimé avec succès!",
         variant: "default",
       });
-      setDrivers((prev) => prev.filter((driver) => driver.id !== driverId)); // ✅ Remove deleted driver from state
+      setDrivers((prev) => prev.filter((driver) => driver.id !== driverId));
     } catch (error) {
       toast({
         title: "Erreur",
@@ -61,10 +79,11 @@ export const DriverList = () => {
     }
   };
 
+  // Fonction de mise à jour simulée
   const handleEditDriver = async (updatedDriver: any) => {
     try {
-      // Call API to update driver details
-      await updateChauffeur(updatedDriver.id, updatedDriver);
+      // Simuler un délai réseau
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast({
         title: "Succès",
@@ -72,7 +91,7 @@ export const DriverList = () => {
         variant: "default",
       });
 
-      // Update state to reflect changes
+      // Mettre à jour l'état local
       setDrivers((prev) =>
         prev.map((driver) =>
           driver.id === updatedDriver.id ? updatedDriver : driver
@@ -86,13 +105,6 @@ export const DriverList = () => {
       });
     }
   };
-
-  <EditDriverDialog
-    driver={editingDriver}
-    open={!!editingDriver}
-    onOpenChange={(open) => !open && setEditingDriver(null)}
-    onEdit={handleEditDriver} // ✅ Pass onEdit function
-  />;
 
   return (
     <motion.div
@@ -139,10 +151,10 @@ export const DriverList = () => {
                   </TableCell>
                 </TableRow>
               ))
-            : drivers.map((driver) => (
+            : filteredDrivers.map((driver) => (
                 <TableRow
                   key={driver.id}
-                  className="border-b border-gray-200 hover:bg-gray-50"
+                  className="border-b border-gray-700 hover:bg-gray-800/50 transition-colors duration-200"
                 >
                   <TableCell>
                     {driver.first_name} {driver.last_name}
@@ -171,6 +183,15 @@ export const DriverList = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right space-x-2">
+                    {/* Bouton pour voir les détails du chauffeur */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="bg-blue-500/10 hover:bg-blue-500/20 rounded-full"
+                      onClick={() => setViewingDriver(driver)}
+                    >
+                      <Eye className="h-4 w-4 text-blue-500" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -193,6 +214,13 @@ export const DriverList = () => {
         </TableBody>
       </Table>
 
+      {/* Message si aucun résultat après filtrage */}
+      {!loading && filteredDrivers.length === 0 && (
+        <div className="text-center py-8 text-gray-400">
+          Aucun chauffeur ne correspond à votre recherche
+        </div>
+      )}
+
       {/* ✅ Edit Driver Dialog */}
       <EditDriverDialog
         driver={editingDriver}
@@ -207,6 +235,13 @@ export const DriverList = () => {
         open={!!deletingDriver}
         onOpenChange={(open) => !open && setDeletingDriver(null)}
         onDelete={handleDeleteDriver} // ✅ Pass delete function
+      />
+
+      {/* View Driver Dialog */}
+      <ViewDriverDialog
+        driver={viewingDriver}
+        open={!!viewingDriver}
+        onOpenChange={(open) => !open && setViewingDriver(null)}
       />
     </motion.div>
   );

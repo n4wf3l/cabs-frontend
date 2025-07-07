@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Map from "../components/map/Map";
 import SidebarMap from "../components/map/SidebarMap";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { Sidebar } from "@/components/Sidebar";
 import {
   BRUSSELS_CENTER,
   Taxi,
@@ -12,7 +12,6 @@ import {
 } from "../utils/mapData";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import InteractiveResults from "@/components/dashboard/InteractiveResults";
 
 // ✅ Clé API Mapbox
 const MAPBOX_TOKEN =

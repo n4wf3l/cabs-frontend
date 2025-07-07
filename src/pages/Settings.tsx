@@ -1,72 +1,38 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Sidebar } from "@/components/dashboard/Sidebar";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
-import Essence from "@/components/dashboard/Essence";
-import InteractiveResults from "@/components/dashboard/InteractiveResults";
+import { Sidebar } from "@/components/Sidebar";
+import { SettingsHeader } from "@/components/settings/SettingsHeader";
 import SettingsCards from "@/components/settings/SettingsCards";
-import Forms from "@/components/settings/Forms";
-import { fetchChauffeurs } from "@/api/chauffeurs";
-import { Mail, Lock, Eye, EyeOff, Save, UserPlus } from "lucide-react";
+import Forms from "@/components/settings/SettingsForm";
 
 const Settings = () => {
   const [showDrivers, setShowDrivers] = useState(false);
   const [showAdmins, setShowAdmins] = useState(false);
   const [drivers, setDrivers] = useState([]);
+  const [admins, setAdmins] = useState([
+    "admin@example.com",
+    "admin2@example.com",
+  ]);
   const [loadingDrivers, setLoadingDrivers] = useState(true);
   const [email, setEmail] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [showAdminPassword, setShowAdminPassword] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const loadChauffeurs = async () => {
-      try {
-        const chauffeurs = await fetchChauffeurs();
-        setDrivers(chauffeurs);
-      } catch (error) {
-        console.error("Erreur lors du chargement des chauffeurs:", error);
-      } finally {
-        setLoadingDrivers(false);
-      }
-    };
-
-    loadChauffeurs();
+    // Simuler le chargement des chauffeurs
+    setTimeout(() => {
+      setDrivers([
+        { id: "1", first_name: "Jean", last_name: "Dupont" },
+        { id: "2", first_name: "Marie", last_name: "Lambert" },
+        // ... autres chauffeurs
+      ]);
+      setLoadingDrivers(false);
+    }, 1500);
   }, []);
-
-  const admins = ["Admin 1", "Admin 2"];
-
-  const handleAccountSave = (e) => {
-    e.preventDefault();
-    // Logic for saving account details
-  };
-
-  const handleAdminAdd = (e) => {
-    e.preventDefault();
-    // Logic for adding a new admin
-  };
 
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 
       <main className="flex-1 p-4 md:p-8 md:ml-64">
-        <motion.div
-          className="flex flex-col md:flex-row items-center justify-between mb-8 mt-10"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-2xl font-bold text-center md:text-left">
-            Paramètres
-          </h1>
-          <InteractiveResults />
-        </motion.div>
+        <SettingsHeader />
 
         <hr className="hr-light-effect mb-10" />
 
