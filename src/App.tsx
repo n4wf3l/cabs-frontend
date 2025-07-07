@@ -2,7 +2,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import LandingPage from "./components/auth/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import Shifts from "./pages/Shifts";
@@ -74,104 +80,130 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// Composant pour conditionner l'affichage du TopRevealBar
+const ConditionalTopRevealBar = () => {
+  const location = useLocation();
+  const authPaths = ["/login", "/forget-password", "/"]; // Chemins où le TopRevealBar ne doit pas s'afficher
+
+  if (authPaths.includes(location.pathname)) {
+    return null;
+  }
+
+  return <TopRevealBar />;
+};
+
+// Wrapper pour le BrowserRouter afin d'utiliser useLocation
+const AppWithRouter = () => {
+  return (
+    <BrowserRouter>
+      <AppWithTopRevealBar />
+    </BrowserRouter>
+  );
+};
+
+// Composant principal avec vérification conditionnelle du TopRevealBar
+const AppWithTopRevealBar = () => {
+  return (
+    <ThemeProvider>
+      <div className="app">
+        <ConditionalTopRevealBar />
+        <AppContent>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route
+              path="/login"
+              element={
+                <div className="auth-page">
+                  <LandingPage />
+                </div>
+              }
+            />
+            <Route
+              path="/forget-password"
+              element={<Navigate to="/login" replace />}
+            />
+            <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedLayout>
+                    <Dashboard />
+                  </ProtectedLayout>
+                }
+              />
+              <Route
+                path="/history-shifts"
+                element={
+                  <ProtectedLayout>
+                    <HistoryShifts />
+                  </ProtectedLayout>
+                }
+              />
+              <Route
+                path="/shifts"
+                element={
+                  <ProtectedLayout>
+                    <Shifts />
+                  </ProtectedLayout>
+                }
+              />
+              <Route
+                path="/drivers"
+                element={
+                  <ProtectedLayout>
+                    <Drivers />
+                  </ProtectedLayout>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedLayout>
+                    <Settings />
+                  </ProtectedLayout>
+                }
+              />
+              <Route
+                path="/planning"
+                element={
+                  <ProtectedLayout>
+                    <Planning />
+                  </ProtectedLayout>
+                }
+              />
+              <Route
+                path="/map"
+                element={
+                  <ProtectedLayout>
+                    <Maps />
+                  </ProtectedLayout>
+                }
+              />
+              <Route
+                path="/vehicles"
+                element={
+                  <ProtectedLayout>
+                    <Vehicles />
+                  </ProtectedLayout>
+                }
+              />
+            </Route>
+            <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AppContent>
+      </div>
+    </ThemeProvider>
+  );
+};
+
 const App = () => (
   <AuthProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <ThemeProvider>
-            <div className="app">
-              <TopRevealBar />
-              <AppContent>
-                <Routes>
-                  <Route path="/" element={<Navigate to="/login" replace />} />
-                  <Route
-                    path="/login"
-                    element={
-                      <div className="auth-page">
-                        <LandingPage />
-                      </div>
-                    }
-                  />
-                  <Route
-                    path="/forget-password"
-                    element={<Navigate to="/login" replace />}
-                  />
-                  <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
-                    <Route
-                      path="/dashboard"
-                      element={
-                        <ProtectedLayout>
-                          <Dashboard />
-                        </ProtectedLayout>
-                      }
-                    />
-                    <Route
-                      path="/history-shifts"
-                      element={
-                        <ProtectedLayout>
-                          <HistoryShifts />
-                        </ProtectedLayout>
-                      }
-                    />
-                    <Route
-                      path="/shifts"
-                      element={
-                        <ProtectedLayout>
-                          <Shifts />
-                        </ProtectedLayout>
-                      }
-                    />
-                    <Route
-                      path="/drivers"
-                      element={
-                        <ProtectedLayout>
-                          <Drivers />
-                        </ProtectedLayout>
-                      }
-                    />
-                    <Route
-                      path="/settings"
-                      element={
-                        <ProtectedLayout>
-                          <Settings />
-                        </ProtectedLayout>
-                      }
-                    />
-                    <Route
-                      path="/planning"
-                      element={
-                        <ProtectedLayout>
-                          <Planning />
-                        </ProtectedLayout>
-                      }
-                    />
-                    <Route
-                      path="/map"
-                      element={
-                        <ProtectedLayout>
-                          <Maps />
-                        </ProtectedLayout>
-                      }
-                    />
-                    <Route
-                      path="/vehicles"
-                      element={
-                        <ProtectedLayout>
-                          <Vehicles />
-                        </ProtectedLayout>
-                      }
-                    />
-                  </Route>
-                  <Route path="/unauthorized" element={<Unauthorized />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </AppContent>
-            </div>
-          </ThemeProvider>
-        </BrowserRouter>
+        <AppWithRouter />
       </TooltipProvider>
     </QueryClientProvider>
   </AuthProvider>
