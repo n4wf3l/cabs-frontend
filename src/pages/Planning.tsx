@@ -260,7 +260,7 @@ function App() {
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 p-4 md:p-8 md:ml-64">
+      <main className="flex-1 p-4 md:p-8">
         <PlanningHeader weekStart={weekStart} weekEnd={weekEnd} />
         <hr className="hr-light-effect mt-10 mb-10" />
         {/* Week Navigation - supprimé car déplacé dans PlanningSchema */}

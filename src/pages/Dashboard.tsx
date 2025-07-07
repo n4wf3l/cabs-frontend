@@ -69,7 +69,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
 
-      <main className="flex-1 p-4 md:p-8 md:ml-64">
+      <main className="flex-1 p-4 md:p-8">
         {/* Remplacer l'ancien header par le composant DashboardHeader */}
         <DashboardHeader onRefresh={handleRefresh} />
 

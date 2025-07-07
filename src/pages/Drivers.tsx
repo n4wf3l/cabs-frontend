@@ -17,7 +17,7 @@ export const Drivers = () => {
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar />
-      <main className="ml-64 p-8 w-full">
+      <main className="flex-1 p-4 md:p-8">
         {isAddingDriver ? (
           // Afficher le formulaire d'ajout
           <div>

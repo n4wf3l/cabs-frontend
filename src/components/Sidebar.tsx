@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 
 // Modifie la constante menuItems pour respecter le nouvel ordre
-
 const menuItems = [
   { title: "Tableau de bord", icon: LayoutDashboard, href: "/dashboard" },
   { title: "Véhicules", icon: Car, href: "/vehicles" },
@@ -58,6 +57,12 @@ export const Sidebar = () => {
 
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsed));
+
+    // Définir une variable CSS personnalisée pour la largeur de la sidebar
+    document.documentElement.style.setProperty(
+      "--sidebar-width",
+      collapsed ? "5rem" : "16rem"
+    );
   }, [collapsed]);
 
   const toggleSidebar = () => {
@@ -118,13 +123,8 @@ export const Sidebar = () => {
               </div>
             </div>
           ) : (
-            <div className="h-10 w-10 mx-auto">
-              <img
-                src="/tlogo.png"
-                alt="Cabs Logo"
-                className="object-contain h-full"
-              />
-            </div>
+            // Ne rien afficher quand la sidebar est réduite
+            <div></div>
           )}
 
           <Button

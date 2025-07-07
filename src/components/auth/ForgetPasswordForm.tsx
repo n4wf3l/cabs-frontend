@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, ArrowLeft } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface ForgetPasswordFormProps {
   onCancel?: () => void;
@@ -57,38 +57,57 @@ export const ForgetPasswordForm = ({
   };
 
   return (
-    <div className="w-full">
-      <img src="/cabslogo.png" alt="Cabs" className="h-10 mb-6 mx-auto" />
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        Mot de passe oublié
-      </h2>
-      <p className="text-sm text-center text-gray-400 mb-6">
-        Contactez-nous via WhatsApp pour réinitialiser votre mot de passe.
-      </p>
+    <div className="w-full p-6 md:p-8">
+      <div className="mb-8 text-center">
+        <img src="/tlogo.png" alt="Cabs" className="h-12 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold mb-2 text-white">
+          Mot de passe oublié
+        </h2>
+        <p className="text-gray-400 text-sm">
+          Contactez-nous via WhatsApp pour réinitialiser votre mot de passe.
+        </p>
+      </div>
 
-      <form onSubmit={handleWhatsAppMessage} className="space-y-4">
+      <motion.form
+        onSubmit={handleWhatsAppMessage}
+        className="space-y-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
         <Button
           type="submit"
-          className="bg-yellow-600 hover:bg-yellow-500 text-white w-full"
+          className="bg-yellow-600 hover:bg-yellow-500 text-white w-full h-12"
           disabled={isSending}
         >
           {isSending ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Préparation...</span>
+            </div>
           ) : (
-            <Phone className="mr-2 h-4 w-4" />
+            <div className="flex items-center justify-center gap-2">
+              <Phone className="h-4 w-4" />
+              <span>Contacter via WhatsApp</span>
+            </div>
           )}
-          {isSending ? "Préparation..." : "Contacter via WhatsApp"}
         </Button>
-      </form>
+      </motion.form>
 
       <Button
         variant="link"
         onClick={handleGoBack}
-        className="text-yellow-400 mt-4 mx-auto block"
+        className="text-yellow-500 hover:text-yellow-400 text-sm mt-6 mx-auto block"
       >
         <ArrowLeft className="mr-1 h-3 w-3" />
         Retour à la connexion
       </Button>
+
+      <div className="mt-8 text-center">
+        <p className="text-xs text-gray-500">
+          En cas de problème, contactez notre support technique.
+        </p>
+      </div>
     </div>
   );
 };
