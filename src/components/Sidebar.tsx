@@ -100,15 +100,33 @@ export const Sidebar = () => {
         )}
       >
         <div className="bg-background flex items-center justify-between p-4">
-          {!collapsed && (
-            <div className="w-64 h-20 transition-all duration-300">
+          {!collapsed ? (
+            <div className="flex items-center gap-2">
+              {/* Logo rétréci */}
+              <div className="h-12 w-12 flex-shrink-0">
+                <img
+                  src="/tlogo.png"
+                  alt="Cabs Logo"
+                  className="object-contain h-full"
+                />
+              </div>
+
+              {/* Nom de l'entreprise */}
+              <div className="flex flex-col">
+                <span className="font-semibold text-lg">YourCompany</span>
+                <span className="text-xs text-gray-400">Fleet Management</span>
+              </div>
+            </div>
+          ) : (
+            <div className="h-10 w-10 mx-auto">
               <img
-                src="/cabslogo.png"
+                src="/tlogo.png"
                 alt="Cabs Logo"
-                className="object-contain h-full ml-12"
+                className="object-contain h-full"
               />
             </div>
           )}
+
           <Button
             variant="ghost"
             size="icon"

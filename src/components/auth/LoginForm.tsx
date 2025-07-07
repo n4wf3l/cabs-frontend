@@ -72,7 +72,7 @@ export const LoginForm = ({ onSuccess, onForgetPassword }: LoginFormProps) => {
 
   return (
     <div className="w-full">
-      <img src="/cabslogo.png" alt="Cabs" className="h-10 mb-6 mx-auto" />
+      <img src="/tlogo.png" alt="Cabs" className="h-10 mb-6 mx-auto" />
       <h2 className="text-2xl font-bold mb-4 text-center">Se connecter</h2>
 
       <form onSubmit={handleLogin} className="space-y-4">
