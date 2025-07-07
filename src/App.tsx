@@ -26,8 +26,15 @@ const queryClient = new QueryClient();
 // Ajout d'un style global pour supporter la transition responsive de la sidebar
 const AppContent = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
-    // Initialiser la variable CSS au chargement
-    document.documentElement.style.setProperty("--sidebar-width", "16rem");
+    // Récupérer l'état de la sidebar depuis le localStorage AVANT de définir la variable CSS
+    const sidebarCollapsed = localStorage.getItem("sidebarCollapsed");
+    const isCollapsed = sidebarCollapsed ? JSON.parse(sidebarCollapsed) : false;
+
+    // Initialiser la variable CSS avec la bonne valeur en fonction de l'état sauvegardé
+    document.documentElement.style.setProperty(
+      "--sidebar-width",
+      isCollapsed ? "5rem" : "16rem"
+    );
 
     // Ajouter un style global pour le contenu principal
     const style = document.createElement("style");
@@ -55,6 +62,16 @@ const AppContent = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return <>{children}</>;
+};
+
+// Composant qui encapsule les pages protégées avec la sidebar
+const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <>
+      <Sidebar />
+      <div className="main-content">{children}</div>
+    </>
+  );
 };
 
 const App = () => (
@@ -86,89 +103,65 @@ const App = () => (
                     <Route
                       path="/dashboard"
                       element={
-                        <>
-                          <Sidebar />
-                          <div className="main-content">
-                            <Dashboard />
-                          </div>
-                        </>
+                        <ProtectedLayout>
+                          <Dashboard />
+                        </ProtectedLayout>
                       }
                     />
                     <Route
                       path="/history-shifts"
                       element={
-                        <>
-                          <Sidebar />
-                          <div className="main-content">
-                            <HistoryShifts />
-                          </div>
-                        </>
+                        <ProtectedLayout>
+                          <HistoryShifts />
+                        </ProtectedLayout>
                       }
                     />
                     <Route
                       path="/shifts"
                       element={
-                        <>
-                          <Sidebar />
-                          <div className="main-content">
-                            <Shifts />
-                          </div>
-                        </>
+                        <ProtectedLayout>
+                          <Shifts />
+                        </ProtectedLayout>
                       }
                     />
                     <Route
                       path="/drivers"
                       element={
-                        <>
-                          <Sidebar />
-                          <div className="main-content">
-                            <Drivers />
-                          </div>
-                        </>
+                        <ProtectedLayout>
+                          <Drivers />
+                        </ProtectedLayout>
                       }
                     />
                     <Route
                       path="/settings"
                       element={
-                        <>
-                          <Sidebar />
-                          <div className="main-content">
-                            <Settings />
-                          </div>
-                        </>
+                        <ProtectedLayout>
+                          <Settings />
+                        </ProtectedLayout>
                       }
                     />
                     <Route
                       path="/planning"
                       element={
-                        <>
-                          <Sidebar />
-                          <div className="main-content">
-                            <Planning />
-                          </div>
-                        </>
+                        <ProtectedLayout>
+                          <Planning />
+                        </ProtectedLayout>
                       }
                     />
                     <Route
                       path="/map"
                       element={
-                        <>
-                          <Sidebar />
-                          <div className="main-content">
-                            <Maps />
-                          </div>
-                        </>
+                        <ProtectedLayout>
+                          <Maps />
+                        </ProtectedLayout>
                       }
                     />
                     <Route
                       path="/vehicles"
                       element={
-                        <>
-                          <Sidebar />
-                          <div className="main-content">
-                            <Vehicles />
-                          </div>
-                        </>
+                        <ProtectedLayout>
+                          <Vehicles />
+                        </ProtectedLayout>
                       }
                     />
                   </Route>

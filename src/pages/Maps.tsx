@@ -125,7 +125,6 @@ const Index = () => {
           isLoading ? "opacity-0" : "opacity-100"
         }`}
       >
-        <Sidebar />
         <Map
           taxis={taxis}
           selectedTaxi={selectedTaxi}

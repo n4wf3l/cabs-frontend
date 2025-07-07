@@ -58,11 +58,17 @@ export const Sidebar = () => {
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsed));
 
-    // Définir une variable CSS personnalisée pour la largeur de la sidebar
+    // Mettre à jour la variable CSS en fonction de l'état actuel
     document.documentElement.style.setProperty(
       "--sidebar-width",
       collapsed ? "5rem" : "16rem"
     );
+
+    // Forcer une relecture des styles si nécessaire
+    document.body.style.marginLeft = "0";
+    setTimeout(() => {
+      document.body.style.marginLeft = "";
+    }, 0);
   }, [collapsed]);
 
   const toggleSidebar = () => {

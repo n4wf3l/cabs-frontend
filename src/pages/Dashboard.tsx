@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Sidebar } from "@/components/Sidebar";
 import { motion } from "framer-motion";
 import { DayShift } from "@/components/dashboard/DayShift";
 import { NightShift } from "@/components/dashboard/NightShift";
@@ -66,9 +65,7 @@ const Dashboard = () => {
   const chartDataNight = drivers.filter((d) => d.isNightShift);
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <Sidebar />
-
+    <div className="min-h-screen bg-background">
       <main className="flex-1 p-4 md:p-8">
         {/* Remplacer l'ancien header par le composant DashboardHeader */}
         <DashboardHeader onRefresh={handleRefresh} />

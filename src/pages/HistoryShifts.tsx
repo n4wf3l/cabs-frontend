@@ -86,10 +86,6 @@ function formatDate(dateString: string): string {
 function HistoryShifts() {
   return (
     <div className="min-h-screen bg-background flex">
-      <div className="fixed z-50 md:relative md:translate-x-0 transition-transform duration-300">
-        <Sidebar />
-      </div>
-
       <main className="flex-1 p-4 md:p-8 md:ml-64">
         <motion.div
           className="flex flex-col md:flex-row items-center justify-between mb-8 mt-10"

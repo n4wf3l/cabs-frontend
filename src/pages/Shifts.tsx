@@ -287,8 +287,6 @@ const Shifts = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar />
-
       <main className="flex-1 p-4 md:p-8">
         <motion.div
           className="flex flex-col md:flex-row items-center justify-between mb-8 mt-10"
