@@ -11,13 +11,11 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Maps from "./pages/Maps";
 import Planning from "./pages/Planning";
-import AddDriver from "./pages/AddDriver";
-import DriverProfile from "./pages/DriverProfile";
-import ForgetPassword from "./pages/ForgetPassword";
 import HistoryShifts from "./pages/HistoryShifts";
 import PrivateRoute from "./PrivateRoute";
 import { AuthProvider } from "./AuthContext";
 import Unauthorized from "./pages/Unauthorized";
+import Vehicles from "./pages/Vehicles";
 
 const queryClient = new QueryClient();
 
@@ -31,19 +29,21 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
+            <Route
+              path="/forget-password"
+              element={<Navigate to="/login" replace />}
+            />
             <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/history-shifts" element={<HistoryShifts />} />
               <Route path="/shifts" element={<Shifts />} />
               <Route path="/drivers" element={<Drivers />} />
-              <Route path="/drivers/add" element={<AddDriver />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/drivers/:id" element={<DriverProfile />} />
               <Route path="/planning" element={<Planning />} />
               <Route path="/map" element={<Maps />} />
+              <Route path="/vehicles" element={<Vehicles />} />
             </Route>
             <Route path="/unauthorized" element={<Unauthorized />} />
-            <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

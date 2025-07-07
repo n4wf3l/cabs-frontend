@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { Sidebar } from "@/components/Sidebar";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,9 +19,11 @@ import {
 } from "lucide-react";
 import { format, addWeeks, startOfWeek, endOfWeek, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
-import { motion } from "framer-motion";
-import Essence from "@/components/dashboard/Essence";
-import InteractiveResults from "@/components/dashboard/InteractiveResults";
+import { PlanningHeader } from "@/components/planning/PlanningHeader";
+import { PlanningSchema } from "@/components/planning/PlanningSchema";
+import { PlanningRequests } from "@/components/planning/PlanningRequests";
+import { PlanningAssignDriverModal } from "@/components/planning/PlanningAssignDriverModal";
+import { PlanningHistoryModal } from "@/components/planning/PlanningHistoryModal";
 
 const daysOfWeek = [
   "Lundi",
@@ -259,234 +261,40 @@ function App() {
     <div className="min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 p-4 md:p-8 md:ml-64">
-        <motion.div
-          className="flex flex-col md:flex-row items-center justify-between mb-8 mt-10"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h1 className="text-2xl font-bold text-center md:text-left">
-            Planning
-          </h1>
-          <InteractiveResults />
-        </motion.div>
+        <PlanningHeader weekStart={weekStart} weekEnd={weekEnd} />
         <hr className="hr-light-effect mt-10 mb-10" />
-        {/* Week Navigation */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex justify-between items-center mb-6"
-        >
-          <div className="flex items-center gap-4">
-            <Calendar className="text-blue-400" />
-            <h2 className="text-xl font-medium">
-              Semaine du {format(weekStart, "dd/MM/yyyy", { locale: fr })} au{" "}
-              {format(weekEnd, "dd/MM/yyyy", { locale: fr })}
-            </h2>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex gap-2">
-              <button
-                onClick={handlePreviousWeek}
-                className="p-2 rounded-lg hover:bg-gray-800"
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <button
-                onClick={handleNextWeek}
-                className="p-2 rounded-lg hover:bg-gray-800"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
-            <div className="flex items-center gap-2 pl-4 border-l border-gray-700">
-              <button
-                onClick={() => setShowHistoryModal(true)}
-                className="p-2 rounded-lg hover:bg-gray-800"
-              >
-                <History size={20} />
-              </button>
-              <button className="p-2 rounded-lg hover:bg-gray-800 relative">
-                <Bell size={20} />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-            </div>
-          </div>
-        </motion.div>
-
+        {/* Week Navigation - supprimé car déplacé dans PlanningSchema */}
         {/* Calendar Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-7 gap-4"
-        >
-          {daysOfWeek.map((day, index) => {
-            const date = addDays(weekStart, index);
-            return (
-              <div key={day} className="space-y-2">
-                <div className="text-center py-2 bg-gray-800 rounded-lg">
-                  <div className="font-medium">{day}</div>
-                  <div className="text-sm text-gray-400">
-                    {format(date, "dd/MM", { locale: fr })}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <ShiftCard type="Jour" day={day} />
-                  <ShiftCard type="Nuit" day={day} />
-                </div>
-              </div>
-            );
-          })}
-        </motion.div>
+        <PlanningSchema
+          weekStart={weekStart}
+          weekEnd={weekEnd}
+          daysOfWeek={daysOfWeek}
+          ShiftCard={ShiftCard}
+          handlePreviousWeek={handlePreviousWeek}
+          handleNextWeek={handleNextWeek}
+          setShowHistoryModal={setShowHistoryModal}
+          setShowAssignModal={setShowAssignModal}
+          setSelectedShift={setSelectedShift}
+        />
 
         {/* Requests Section */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-8 bg-gray-900 rounded-lg p-4"
-        >
-          <h3 className="text-lg font-medium mb-4">Demandes</h3>
-          <div className="space-y-3">
-            {requests
-              .filter((request) => request.status === "pending")
-              .map((request) => (
-                <div
-                  key={request.id}
-                  className="flex items-center justify-between p-3 bg-gray-800 rounded-lg"
-                >
-                  <div>
-                    <span className="block font-medium">
-                      {request.chauffeurName}
-                    </span>
-                    <span className="text-sm text-gray-400">
-                      {request.type === "work" && "Demande de Travail"}
-                      {request.type === "holiday" && "Demande de Jour Libre"}
-                      {request.type === "sick" && "Demande de Congé Maladie"}
-                      {" - "}
-                      {format(request.date, "dd/MM/yyyy")} ({request.shift})
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleRequestAction(request.id, true)}
-                      className="p-2 bg-blue-600 hover:bg-blue-700 rounded-md"
-                    >
-                      <Check size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleRequestAction(request.id, false)}
-                      className="p-2 bg-gray-700 hover:bg-gray-600 rounded-md"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </motion.div>
+        <PlanningRequests
+          requests={requests}
+          handleRequestAction={handleRequestAction}
+        />
       </main>
-
-      {/* Assign Driver Modal */}
-      {showAssignModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-gray-900 rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">
-                Assigner un Chauffeur - {selectedShift?.day} (
-                {selectedShift?.type})
-              </h3>
-              <button
-                onClick={() => setShowAssignModal(false)}
-                className="p-1.5 hover:bg-gray-800 rounded-full"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <div className="max-h-96 overflow-y-auto space-y-2 mb-4">
-              {mockChauffeurs.map((driver) => (
-                <button
-                  key={driver.id}
-                  onClick={() => {
-                    handleAssignChauffeur(driver);
-                    setShowAssignModal(false);
-                  }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors"
-                >
-                  {driver.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* History Modal */}
-      {showHistoryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-gray-900 rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">Historique des Demandes</h3>
-              <button
-                onClick={() => setShowHistoryModal(false)}
-                className="p-1.5 hover:bg-gray-800 rounded-full"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <div className="flex gap-4 mb-4">
-              <button className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700">
-                Demandes Approuvées
-              </button>
-              <button className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700">
-                Demandes Refusées
-              </button>
-            </div>
-            <div className="overflow-y-auto flex-1 space-y-3">
-              {requests
-                .filter((request) => request.status !== "pending")
-                .map((request) => (
-                  <div
-                    key={request.id}
-                    className={`p-3 rounded-lg ${
-                      request.status === "approved"
-                        ? "bg-green-900/20"
-                        : "bg-red-900/20"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="block font-medium">
-                          {request.chauffeurName}
-                        </span>
-                        <span className="text-sm text-gray-400">
-                          {request.type === "work" && "Demande de Travail"}
-                          {request.type === "holiday" &&
-                            "Demande de Jour Libre"}
-                          {request.type === "sick" &&
-                            "Demande de Congé Maladie"}
-                          {" - "}
-                          {format(request.date, "dd/MM/yyyy")} ({request.shift})
-                        </span>
-                      </div>
-                      <span
-                        className={`text-sm px-2 py-1 rounded ${
-                          request.status === "approved"
-                            ? "bg-green-900/40 text-green-400"
-                            : "bg-red-900/40 text-red-400"
-                        }`}
-                      >
-                        {request.status === "approved" ? "Approuvé" : "Refusé"}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        </div>
-      )}
+      <PlanningAssignDriverModal
+        show={showAssignModal}
+        onClose={() => setShowAssignModal(false)}
+        selectedShift={selectedShift}
+        chauffeurs={mockChauffeurs}
+        onAssign={handleAssignChauffeur}
+      />
+      <PlanningHistoryModal
+        show={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        requests={requests}
+      />
     </div>
   );
 }

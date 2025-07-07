@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Sidebar } from "@/components/dashboard/Sidebar";
-import Essence from "@/components/dashboard/Essence";
-import InteractiveResults from "@/components/dashboard/InteractiveResults";
+import { Sidebar } from "@/components/Sidebar";
+import Essence from "@/components/header/Essence";
+import ThreeBoxes from "@/components/header/ThreeBoxes";
 import { ShiftSearch } from "@/components/shifts/ShiftSearch";
 import { ShiftPagination } from "@/components/shifts/ShiftPagination";
 import { Menu, Search, Calendar } from "lucide-react";
@@ -299,7 +299,7 @@ const Shifts = () => {
           <h1 className="text-2xl font-bold text-center md:text-left">
             Gestion des Shifts
           </h1>
-          <InteractiveResults />
+          <ThreeBoxes />
         </motion.div>
 
         <hr className="hr-light-effect mb-10" />

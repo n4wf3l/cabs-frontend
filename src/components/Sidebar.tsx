@@ -18,21 +18,23 @@ import {
   Map,
 } from "lucide-react";
 
+// Modifie la constante menuItems pour respecter le nouvel ordre
+
 const menuItems = [
   { title: "Tableau de bord", icon: LayoutDashboard, href: "/dashboard" },
-  { title: "Map", icon: Map, href: "/map" },
-  { title: "Shifts", icon: Clock, href: "/shifts" },
+  { title: "Véhicules", icon: Car, href: "/vehicles" },
   { title: "Chauffeurs", icon: User, href: "/drivers" },
-  { title: "Planning", icon: Calendar, href: "/planning" },
-  { title: "Paramètres", icon: Settings, href: "/settings" },
-  { title: "Véhicules (v2)", icon: Car, href: "#", disabled: true },
+  { title: "Shifts", icon: Clock, href: "/shifts" },
   {
     title: "Feuilles de route (v2)",
     icon: FileText,
     href: "#",
     disabled: true,
   },
+  { title: "Map", icon: Map, href: "/map" },
   { title: "Bilan (v3)", icon: BarChart2, href: "#", disabled: true },
+  { title: "Planning", icon: Calendar, href: "/planning" },
+  { title: "Paramètres", icon: Settings, href: "/settings" },
 ];
 
 export const Sidebar = () => {
