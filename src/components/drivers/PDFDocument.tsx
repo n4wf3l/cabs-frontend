@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
+import { DriverResponse } from "@/api/driver";
 
 // Obtenir la date actuelle au format DD-MM-YYYY
 const getCurrentDate = () => {
@@ -84,23 +85,23 @@ const PDFDocument = ({ drivers }) => (
           <Text style={styles.cellHeader}>Nom</Text>
           <Text style={styles.cellHeader}>Email</Text>
           <Text style={styles.cellHeader}>Téléphone</Text>
-          <Text style={styles.cellHeader}>Type de Shift</Text>
+          <Text style={styles.cellHeader}>Adresse</Text>
+          <Text style={styles.cellHeader}>Statut</Text>
         </View>
 
         {/* Données des chauffeurs */}
-        {drivers.map((driver, index) => (
+        {drivers.map((driver: DriverResponse, index) => (
           <View key={index} style={styles.row}>
             <Text style={styles.cell}>
-              {driver.first_name} {driver.last_name}
+              {driver.firstName} {driver.lastName}
             </Text>
             <Text style={styles.cell}>{driver.email}</Text>
-            <Text style={styles.cell}>{driver.phone}</Text>
+            <Text style={styles.cell}>{driver.phoneNumber}</Text>
             <Text style={styles.cell}>
-              {driver.shift_type === "Day"
-                ? "Jour"
-                : driver.shift_type === "Night"
-                ? "Nuit"
-                : "Long"}
+              {driver.address}, {driver.postalCode}
+            </Text>
+            <Text style={styles.cell}>
+              {driver.onLeave ? "En congé" : "Actif"}
             </Text>
           </View>
         ))}

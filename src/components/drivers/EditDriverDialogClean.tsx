@@ -62,11 +62,14 @@ export const EditDriverDialog = ({
 
   const onSubmit = async (data: DriverResponse) => {
     try {
-      await onEdit(data);  // Attendre que la mise à jour soit terminée
-      onOpenChange(false); // Fermer la dialog seulement après succès
+      // Simuler un délai réseau
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      toast.success("Chauffeur mis à jour avec succès!");
+      onEdit(data);
+      onOpenChange(false);
     } catch (error) {
-      // Les erreurs sont déjà gérées dans le composant parent
-      console.error("❌ Erreur dans EditDriverDialog:", error);
+      toast.error("Erreur lors de la mise à jour du chauffeur.");
     }
   };
 

@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { DriversHeader } from "@/components/drivers/DriversHeader";
 import { DriversSearch } from "@/components/drivers/DriversSearch";
 import { DriverList } from "@/components/drivers/DriverList";
-import { AddDriverForm } from "@/components/drivers/AddDriver";
+import { AddDriverForm } from "@/components/drivers/AddDriver/SimpleAddDriver";
 
 export const Drivers = () => {
   const [filter, setFilter] = useState("");
