@@ -8,13 +8,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react"; // Icône de chargement
+import { Loader2 } from "lucide-react";
+import { DriverResponse } from "@/api/driver";
 
 interface DeleteDriverDialogProps {
-  driver: any;
+  driver: DriverResponse | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onDelete: (driverId: string) => Promise<void>; // Modification pour gérer une promesse
+  onDelete: (driverId: number) => Promise<void>;
 }
 
 export const DeleteDriverDialog = ({
@@ -53,7 +54,7 @@ export const DeleteDriverDialog = ({
           <DialogDescription>
             Êtes-vous sûr de vouloir supprimer{" "}
             <b>
-              {driver.first_name} {driver.last_name}
+              {driver.firstName} {driver.lastName}
             </b>{" "}
             ? Cette action est irréversible.
           </DialogDescription>

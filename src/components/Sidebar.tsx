@@ -112,22 +112,44 @@ export const Sidebar = () => {
       >
         <div className="bg-background flex items-center justify-between p-4">
           {!collapsed ? (
-            <div className="flex items-center gap-2">
-              {/* Logo rétréci */}
-              <div className="h-12 w-12 flex-shrink-0">
-                <img
-                  src="/tlogo.png"
-                  alt="Cabs Logo"
-                  className="object-contain h-full"
-                />
+            isOpening && !collapsed ? (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.1 }}
+                className="flex items-center gap-2"
+              >
+                {/* Logo rétréci */}
+                <div className="h-12 w-12 flex-shrink-0">
+                  <img
+                    src="/tlogo.png"
+                    alt="Cabs Logo"
+                    className="object-contain h-full"
+                  />
+                </div>
+                {/* Nom de l'entreprise */}
+                <div className="flex flex-col">
+                  <span className="font-semibold text-lg">YourCompany</span>
+                  <span className="text-xs text-gray-400">Fleet Management</span>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="flex items-center gap-2">
+                {/* Logo rétréci */}
+                <div className="h-12 w-12 flex-shrink-0">
+                  <img
+                    src="/tlogo.png"
+                    alt="Cabs Logo"
+                    className="object-contain h-full"
+                  />
+                </div>
+                {/* Nom de l'entreprise */}
+                <div className="flex flex-col">
+                  <span className="font-semibold text-lg">YourCompany</span>
+                  <span className="text-xs text-gray-400">Fleet Management</span>
+                </div>
               </div>
-
-              {/* Nom de l'entreprise */}
-              <div className="flex flex-col">
-                <span className="font-semibold text-lg">YourCompany</span>
-                <span className="text-xs text-gray-400">Fleet Management</span>
-              </div>
-            </div>
+            )
           ) : (
             // Ne rien afficher quand la sidebar est réduite
             <div></div>
