@@ -5,9 +5,6 @@ import { Form } from "@/components/ui/form";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import PersonalData from "./PersonalData";
-import WorkData from "./WorkData";
-import UploadingData from "./UploadingData";
 import FullScreenLoader from "../FullScreenLoader";
 
 // Ajoute ces props
@@ -65,13 +62,7 @@ export const AddDriverForm = ({ onCancel, onSuccess }: AddDriverFormProps) => {
             <FullScreenLoader isLoading={isLoading} />
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <PersonalData form={form} />
-                <WorkData form={form} />
-              </div>
-              <div className="mt-6">
-                <UploadingData form={form} />
-              </div>
+   
               <div className="flex justify-end mt-6">
                 <button
                   type="submit"

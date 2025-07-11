@@ -19,10 +19,10 @@ export const VehicleHeader: React.FC<VehicleHeaderProps> = ({
 }) => {
   return (
     <motion.div
-      className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-10"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-10"
     >
       <h1 className="text-2xl font-bold flex items-center gap-2">
         <Car className="text-blue-400" /> Gestion des Véhicules
