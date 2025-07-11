@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Home, Car as LucideCar, Users } from "lucide-react"; // exemple d'icônes
+import React from "react";
 
 // Types de mode pour le sidebar
 type SidebarMode = "expanded" | "collapsed" | "hover";
@@ -43,7 +46,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { title: "Tableau de bord", icon: LayoutDashboard, href: "/dashboard" },
-  { title: "Véhicules", icon: Car, href: "/vehicles" },
+  { title: "Véhicules", icon: LucideCar, href: "/vehicles" },
   { title: "Chauffeurs", icon: User, href: "/drivers" },
   { title: "Shifts", icon: Clock, href: "/shifts" },
   {
@@ -205,45 +208,47 @@ export const Sidebar = () => {
         </div>
 
         <nav className="flex-1 p-4 bg-background">
-          <ul className="space-y-2">
-            {menuItems.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <li key={item.title} className="relative group">
-                  <button
-                    onClick={() =>
-                      !item.disabled && handleNavigation(item.href)
-                    }
-                    className={cn(
-                      "w-full h-10 flex items-center p-2 hover:bg-secondary/50 rounded-lg transition-all duration-300 text-left relative",
-                      item.disabled && "opacity-50 cursor-not-allowed",
-                      isActive && "bg-primary/20 text-primary"
-                    )}
-                  >
-                    <div className="flex items-center w-full">
-                      <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
-                        {React.createElement(
-                          item.icon as React.ComponentType<{ className?: string }>,
-                          {
-                            className: cn(
-                              "w-5 h-5", // Tailwind size for 20px
-                              isActive ? "text-primary" : ""
-                            ),
-                          }
+          <TooltipProvider key={collapsed ? "collapsed" : "expanded"}>
+            <ul className="flex flex-col gap-2 mt-4">
+              {menuItems.map((item, idx) => (
+                <li key={item.title}>
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          !item.disabled && handleNavigation(item.href)
+                        }
+                        className={cn(
+                          "flex items-center w-full px-3 py-2 rounded hover:bg-muted transition-colors",
+                          collapsed ? "justify-center" : ""
                         )}
-                      </div>
-                      <div className={cn(
-                        "overflow-hidden transition-all duration-300",
-                        collapsed ? "w-0 opacity-0" : "w-auto ml-2 opacity-100"
-                      )}>
-                        <span className="whitespace-nowrap">{item.title}</span>
-                      </div>
-                    </div>
-                  </button>
+                        aria-label={item.title}
+                      >
+                        <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                          {React.createElement(
+                            item.icon as React.ComponentType<{ className?: string }>,
+                            {
+                              className: cn(
+                                "w-5 h-5", // Tailwind size for 20px
+                                location.pathname === item.href ? "text-primary" : ""
+                            ),
+                            }
+                          )}
+                        </div>
+                        {!collapsed && <span className="ml-3 text-sm">{item.title}</span>}
+                      </button>
+                    </TooltipTrigger>
+                    {collapsed && (
+                      <TooltipContent side="right" align="center" className="text-sm">
+                        {item.title}
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
                 </li>
-              );
-            })}
-          </ul>
+              ))}
+            </ul>
+          </TooltipProvider>
         </nav>
 
         <div className="p-4 bg-background space-y-2">
@@ -312,3 +317,42 @@ export const Sidebar = () => {
     </>
   );
 };
+
+// SidebarItem.tsx
+// import React from "react";
+
+interface SidebarItemProps {
+  icon: React.ElementType;
+  label: string;
+  isCollapsed: boolean;
+  onClick?: () => void;
+  active?: boolean;
+}
+
+export function SidebarItem({ icon: Icon, label, isCollapsed, onClick, active }: SidebarItemProps) {
+  return (
+    <TooltipProvider>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            onClick={onClick}
+            className={cn(
+              "sidebar-btn flex items-center w-10 h-10 justify-center rounded transition-colors",
+              active && "bg-primary/10 text-primary"
+            )}
+            aria-label={label}
+          >
+            <Icon className="w-5 h-5" />
+            {!isCollapsed && <span className="ml-3 text-sm">{label}</span>}
+          </button>
+        </TooltipTrigger>
+        {isCollapsed && (
+          <TooltipContent side="right" align="center" className="text-sm">
+            {label}
+          </TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
