@@ -28,6 +28,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTheme } from "@/hooks/use-theme";
 
 const Forms = () => {
   const [adminFirstName, setAdminFirstName] = useState("");
@@ -45,6 +46,8 @@ const Forms = () => {
     password: "",
   });
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
 
   // Simuler le chargement de l'ID de société
   useEffect(() => {
@@ -521,6 +524,58 @@ const Forms = () => {
                   </div>
                 )}
               </motion.div>
+
+              {/* Section avancée : toggle darkmode/whitemode */}
+              <div className="flex flex-col items-center justify-center mt-8">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/40 border w-fit">
+                  <span className="inline-block rounded-full bg-muted p-2">
+                    {isDark ? (
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-moon text-blue-500"
+                      >
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79"></path>
+                      </svg>
+                    ) : (
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-sun text-yellow-500"
+                      >
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.54 6.54-1.42-1.42M6.88 6.88 5.46 5.46m12.02 0-1.42 1.42M6.88 17.12l-1.42 1.42"></path>
+                      </svg>
+                    )}
+                  </span>
+                  <span className="text-sm font-medium">Mode sombre</span>
+                  <input
+                    type="checkbox"
+                    checked={isDark}
+                    onChange={() => setTheme(isDark ? "light" : "dark")}
+                    className="toggle toggle-primary"
+                    id="theme-toggle"
+                  />
+                  <label
+                    htmlFor="theme-toggle"
+                    className="text-xs text-muted-foreground cursor-pointer"
+                  >
+                    {isDark ? "Dark mode" : "Light mode"}
+                  </label>
+                </div>
+              </div>
             </motion.form>
           </ScrollArea>
         </div>

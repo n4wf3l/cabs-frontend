@@ -26,6 +26,7 @@ import { TopRevealBar } from "./components/TopRevealBar";
 import { ThemeProvider } from "./hooks/use-theme";
 import { Sidebar } from "./components/Sidebar";
 import { useEffect } from "react";
+import CashReport from "./pages/CashReport";
 
 const queryClient = new QueryClient();
 
@@ -184,6 +185,14 @@ const AppWithTopRevealBar = () => {
                 element={
                   <ProtectedLayout>
                     <Vehicles />
+                  </ProtectedLayout>
+                }
+              />
+              <Route
+                path="/cash-report"
+                element={
+                  <ProtectedLayout>
+                    <CashReport />
                   </ProtectedLayout>
                 }
               />

@@ -91,7 +91,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="h-screen w-screen overflow-hidden bg-background relative">
       {/* ✅ Loader en plein écran (empêche l'affichage des carrés) */}
       {isLoading && (
         <motion.div
@@ -121,7 +121,7 @@ const Index = () => {
 
       {/* ✅ La carte est déjà chargée mais invisible, évite les carrés graphiques */}
       <div
-        className={`transition-opacity duration-700 ${
+        className={`w-full h-full transition-opacity duration-700 ${
           isLoading ? "opacity-0" : "opacity-100"
         }`}
       >
