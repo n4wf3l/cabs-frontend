@@ -102,8 +102,8 @@ export default function RouteSheet() {
 	};
 
 	return (
-		<div className="min-h-screen bg-background">
-			<main className={`flex-1 p-4 md:p-8 transition-all duration-300 ${sidebarState === "expanded" ? "md:ml-64" : "md:ml-20"}`}>
+		<div className="h-full w-full bg-background">
+			<main className="flex-1 p-4 md:p-8">
 				<RouteSheetHeader onCreateNew={handleCreateNew} onExport={handleExport} />
 				<hr className="hr-light-effect mt-10 mb-10" />
 				<RouteSheetStats />
