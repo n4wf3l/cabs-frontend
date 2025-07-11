@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Car, Wrench, CheckCircle, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { VehicleDTO } from "@/api/vehicle";
+import { VehicleDTO } from "@/api/models/VehicleDTO";
 import { motion } from "framer-motion";
 
 interface ViewVehicleProps {

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { VehicleDTO, fetchVehicles, deleteVehicle } from "@/api/vehicle";
-
+import { fetchVehicles, deleteVehicle } from "@/api/vehicle";
+import { VehicleDTO } from "@/api/models/VehicleDTO";
 // Composants pour la gestion des véhicules
 import { AddVehicleDialog } from "@/components/vehicles/AddVehicleDialog";
 import EditVehicle from "@/components/vehicles/EditVehicle";

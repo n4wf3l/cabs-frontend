@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { VehicleDTO } from "@/api/vehicle";
+import { VehicleDTO } from "@/api/models/VehicleDTO";
+
 
 interface DeleteVehicleDialogProps {
   vehicle: VehicleDTO | null;

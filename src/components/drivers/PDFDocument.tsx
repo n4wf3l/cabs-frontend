@@ -7,7 +7,10 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
-import { DriverResponseDTO } from "@/api/driver";
+import {
+  DriverResponseDTO,
+} from "@/api/models/DriverDTO";
+
 
 // Obtenir la date actuelle au format DD-MM-YYYY
 const getCurrentDate = () => {

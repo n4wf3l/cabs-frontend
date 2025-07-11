@@ -1,16 +1,8 @@
 import api from "./api";
-
-export interface ShiftAssignmentResponseDTO {
-  id: number;
-  shiftId: number;
-  driverId: number;
-  assignedAt: string;
-}
-
-export interface ShiftAssignmentRequestDTO {
-  shiftId: number;
-  driverId: number;
-}
+import {
+  ShiftAssignmentResponseDTO,
+  ShiftAssignmentRequestDTO,
+} from "./models/ShiftAssignementDTO";
 
 // Fetch all shift assignments
 export const fetchShiftAssignments = async (): Promise<

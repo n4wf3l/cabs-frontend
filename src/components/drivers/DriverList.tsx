@@ -18,6 +18,8 @@ import { DeleteDriverDialog } from "./DeleteDriverDialog";
 import { ViewDriverDialog } from "./ViewDriverDialog";
 import {
   DriverResponseDTO,
+} from "@/api/models/DriverDTO";
+import {
   fetchDrivers,
   deleteDriver,
   updateDriver,

@@ -18,7 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { VehicleDTO, VehicleUpdateDTO, updateVehicle, Transmission } from "@/api/vehicle";
+import { updateVehicle } from "@/api/vehicle";
+import { VehicleDTO, VehicleUpdateDTO, Transmission } from "@/api/models/VehicleDTO";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface EditVehicleProps {

@@ -1,50 +1,11 @@
 import api from "./api";
+import {
+  DriverResponseDTO,
+  DriverSignupRequestDTO,
+  DriverUpdateDTO,
+} from "./models/DriverDTO";
 
-export interface DriverResponseDTO {
-  firstName: string;
-  lastName: string;
-  email: string;
-  id: number;
-  phoneNumber: string;
-  address: string;
-  postalCode: string;
-  cityOfBirth: string;
-  dateOfBirth: string;
-  paymentsEnabled: boolean;
-  availableForReplacement: boolean;
-  onLeave: boolean;
-}
-
-export interface DriverSignupRequestDTO {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  role?: string;
-  phoneNumber: string;
-  address: string;
-  postalCode: string;
-  cityOfBirth: string;
-  dateOfBirth: string;
-  paymentsEnabled: boolean;
-  availableForReplacement: boolean;
-  onLeave: boolean;
-}
-
-export interface DriverUpdateDTO {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phoneNumber?: string;
-  address?: string;
-  postalCode?: string;
-  cityOfBirth?: string;
-  dateOfBirth?: string;
-  paymentsEnabled?: boolean;
-  availableForReplacement?: boolean;
-  onLeave?: boolean;
-}
-
+// Récupérer la liste des chauffeurs
 export const fetchDrivers = async (): Promise<DriverResponseDTO[]> => {
   try {
     const response = await api.get("/get-drivers");
@@ -55,6 +16,7 @@ export const fetchDrivers = async (): Promise<DriverResponseDTO[]> => {
   }
 };
 
+// Récupérer un chauffeur par son ID
 export const fetchDriverById = async (id: number): Promise<DriverResponseDTO> => {
   try {
     const response = await api.get(`/get-driver/${id}`);
@@ -65,6 +27,7 @@ export const fetchDriverById = async (id: number): Promise<DriverResponseDTO> =>
   }
 };
 
+// Créer un nouveau chauffeur
 export const createDriver = async (driverData: DriverSignupRequestDTO): Promise<string> => {
   try {
     const response = await api.post("/create-driver", driverData);
@@ -75,6 +38,7 @@ export const createDriver = async (driverData: DriverSignupRequestDTO): Promise<
   }
 };
 
+// Mettre à jour un chauffeur existant
 export const updateDriver = async (id: number, driverData: DriverUpdateDTO): Promise<DriverResponseDTO> => {
   try {
     const response = await api.put(`/edit-driver/${id}`, driverData);
@@ -85,6 +49,7 @@ export const updateDriver = async (id: number, driverData: DriverUpdateDTO): Pro
   }
 };
 
+// Supprimer un chauffeur
 export const deleteDriver = async (id: number): Promise<void> => {
   try {
     await api.delete(`/delete-driver/${id}`);

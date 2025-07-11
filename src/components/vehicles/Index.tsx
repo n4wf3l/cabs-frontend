@@ -1,6 +1,6 @@
 import React from "react";
 import { Car, Wrench, MoreVertical, Check, Hammer, Trash2 } from "lucide-react";
-import { VehicleDTO } from "@/api/vehicle";
+import { VehicleDTO } from "@/api/models/VehicleDTO";
 import LegendVehicle from "./LegendVehicle";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";

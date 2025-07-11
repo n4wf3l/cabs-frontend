@@ -1,23 +1,8 @@
 import api from "./api";
-
-export interface RideResponseDTO {
-  id: number;
-  shiftId: number;
-  startAddress: string;
-  endAddress: string;
-  duration: string;
-  distanceKm: number;
-  remarks?: string;
-}
-
-export interface RideRequestDTO {
-  shiftId: number;
-  startAddress: string;
-  endAddress: string;
-  duration: string;
-  distanceKm: number;
-  remarks?: string;
-}
+import {
+  RideResponseDTO,
+  RideRequestDTO,
+} from "./models/RideDTO";
 
 // Helper function to convert minutes to ISO 8601 duration
 export const minutesToDuration = (minutes: number): string => {

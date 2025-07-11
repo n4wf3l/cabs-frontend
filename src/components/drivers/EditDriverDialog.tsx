@@ -20,7 +20,10 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { DriverResponseDTO } from "@/api/driver";
+import {
+  DriverResponseDTO,
+} from "@/api/models/DriverDTO";
+
 
 interface EditDriverDialogProps {
   driver: DriverResponseDTO | null;

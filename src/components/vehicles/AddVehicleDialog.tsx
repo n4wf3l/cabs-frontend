@@ -24,7 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { VehicleRequestDTO, Transmission, createVehicle } from "@/api/vehicle";
+import { createVehicle } from "@/api/vehicle";
+import { VehicleRequestDTO, Transmission } from "@/api/models/VehicleDTO";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 

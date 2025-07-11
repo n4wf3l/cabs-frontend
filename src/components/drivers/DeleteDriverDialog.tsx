@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { DriverResponseDTO } from "@/api/driver";
+import { DriverResponseDTO } from "@/api/models/DriverDTO";
 
 interface DeleteDriverDialogProps {
   driver: DriverResponseDTO | null;

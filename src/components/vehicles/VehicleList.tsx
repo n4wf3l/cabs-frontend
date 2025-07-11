@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { VehicleDTO, fetchVehicles, deleteVehicle } from "@/api/vehicle";
+import { fetchVehicles, deleteVehicle } from "@/api/vehicle";
+import { updateVehicle } from "@/api/vehicle";
+import { VehicleDTO } from "@/api/models/VehicleDTO";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Eye, Pencil, Trash2, Car } from "lucide-react";
 import { toast } from "sonner";

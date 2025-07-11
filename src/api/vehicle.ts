@@ -1,44 +1,12 @@
 import api from "./api";
+import {
+  VehicleDTO,
+  VehicleRequestDTO,
+  VehicleUpdateDTO,
+  Transmission,
+} from "./models/VehicleDTO";
 
-export enum Transmission {
-  MANUAL = "MANUAL",
-  AUTOMATIC = "AUTOMATIC",
-}
-
-export interface VehicleDTO {
-  id: number;
-  licensePlate: string;
-  brand: string;
-  model: string;
-  transmission: Transmission;
-  odometerKm: number;
-  available: boolean;
-  activeInShift: boolean;
-  condition: string;
-}
-
-export interface VehicleRequestDTO {
-  licensePlate: string;
-  brand: string;
-  model: string;
-  transmission: Transmission;
-  odometerKm: number;
-  available: boolean;
-  activeInShift: boolean;
-  condition: string;
-}
-
-export interface VehicleUpdateDTO {
-  licensePlate?: string;
-  brand?: string;
-  model?: string;
-  transmission?: Transmission;
-  odometerKm?: number;
-  available?: boolean;
-  activeInShift?: boolean;
-  condition?: string;
-}
-
+// Récupérer la liste des véhicules
 export const fetchVehicles = async (): Promise<VehicleDTO[]> => {
   try {
     const response = await api.get("/get-vehicles");
@@ -49,7 +17,7 @@ export const fetchVehicles = async (): Promise<VehicleDTO[]> => {
   }
 };
 
-// Fetch a single vehicle by ID
+// Récupérer un véhicule par ID
 export const fetchVehicleById = async (id: number): Promise<VehicleDTO> => {
   try {
     const response = await api.get(`/get-vehicle/${id}`);
@@ -60,7 +28,7 @@ export const fetchVehicleById = async (id: number): Promise<VehicleDTO> => {
   }
 };
 
-// Create a new vehicle
+// Créer un nouveau véhicule
 export const createVehicle = async (
   vehicleData: VehicleRequestDTO
 ): Promise<string> => {
@@ -73,7 +41,7 @@ export const createVehicle = async (
   }
 };
 
-// Update an existing vehicle
+// Mettre à jour un véhicule existant
 export const updateVehicle = async (
   id: number,
   vehicleData: VehicleUpdateDTO
@@ -87,7 +55,7 @@ export const updateVehicle = async (
   }
 };
 
-// Delete a vehicle
+// Supprimer un véhicule
 export const deleteVehicle = async (id: number): Promise<void> => {
   try {
     await api.delete(`/delete-vehicle/${id}`);

@@ -7,7 +7,15 @@ import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
-import { DriverSignupRequestDTO, DriverResponseDTO, createDriver } from "@/api/driver";
+import {
+  DriverResponseDTO, DriverSignupRequestDTO
+} from "@/api/models/DriverDTO";
+import {
+  fetchDrivers,
+  createDriver,
+  deleteDriver,
+  updateDriver,
+} from "@/api/driver";
 import FullScreenLoader from "@/components/drivers/FullScreenLoader";
 import { cn } from "@/lib/utils";
 import { User, Mail, Lock, Phone, MapPin, Calendar, CreditCard, UserCog, Clock } from "lucide-react";

@@ -24,7 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { VehicleDTO, VehicleUpdateDTO, Transmission, updateVehicle } from "@/api/vehicle";
+import { updateVehicle } from "@/api/vehicle";
+import { VehicleDTO, VehicleUpdateDTO, Transmission } from "@/api/models/VehicleDTO";
 import { toast } from "sonner";
 
 interface EditVehicleDialogProps {

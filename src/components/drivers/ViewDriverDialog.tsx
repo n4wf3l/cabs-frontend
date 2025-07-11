@@ -19,7 +19,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { DriverResponseDTO } from "@/api/driver";
+import {
+  DriverResponseDTO,
+} from "@/api/models/DriverDTO";
+
 
 interface ViewDriverDialogProps {
   driver: DriverResponseDTO | null;
