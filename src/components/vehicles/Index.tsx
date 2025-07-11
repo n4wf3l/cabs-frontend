@@ -1,293 +1,239 @@
 import React from "react";
-import {
-  Car,
-  AlertTriangle,
-  Wrench,
-  CheckCircle,
-  Battery,
-  Fuel,
-  MoreVertical,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { Car, Wrench, MoreVertical, Check, Hammer, Trash2 } from "lucide-react";
 import { VehicleDTO } from "@/api/vehicle";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import LegendVehicle from "./LegendVehicle";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 interface VehicleIndexProps {
   vehicles: VehicleDTO[];
   statusCounts: Record<string, number>;
   activeFilter: string;
-  setActiveFilter: (value: string) => void;
+  setActiveFilter: React.Dispatch<React.SetStateAction<string>>;
   filteredVehicles: VehicleDTO[];
   handleViewVehicle: (vehicle: VehicleDTO) => void;
-  onEdit: (vehicle: VehicleDTO) => void;
-  onDelete: (vehicle: VehicleDTO) => void;
+  setSelectedVehicle: (vehicle: VehicleDTO) => void; // AJOUTE
+  setIsDeleteDialogOpen: (open: boolean) => void;    // AJOUTE
 }
 
-const VehicleIndex: React.FC<VehicleIndexProps> = ({
+export const VehicleIndex: React.FC<VehicleIndexProps> = ({
   vehicles,
   statusCounts,
   activeFilter,
   setActiveFilter,
   filteredVehicles,
   handleViewVehicle,
-  onEdit,
-  onDelete,
+  setSelectedVehicle,
+  setIsDeleteDialogOpen,
 }) => {
-  const getStatusColor = (available: boolean, condition: string) => {
-    if (!available) return "destructive";
-    if (condition === "MAINTENANCE") return "secondary";
-    return "default";
-  };
-
-  const getConditionBadge = (condition: string) => {
-    switch (condition) {
-      case "MAINTENANCE":
-        return <Badge variant="warning">Maintenance</Badge>;
-      case "REPAIR":
-        return <Badge variant="destructive">Réparation</Badge>;
-      default:
-        return <Badge variant="success">Bon état</Badge>;
-    }
-  };
-
   return (
-    <>
-      {/* Statistiques de la flotte */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.1 }}
+      className="space-y-6"
+    >
+      {/* Statistiques */}
+      <div className="grid grid-cols-4 gap-4">
+        <div className="bg-[#1a1f2c] rounded-lg p-4 flex items-center justify-between">
           <div>
             <p className="text-gray-400 text-sm">Total Véhicules</p>
-            <p className="text-2xl font-bold text-white">{vehicles.length}</p>
+            <p className="text-xl font-semibold text-white">{vehicles.length}</p>
           </div>
-          <Car className="text-blue-400" size={28} />
+          <Car className="text-blue-400" />
         </div>
-
-        <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-[#1a1f2c] rounded-lg p-4 flex items-center justify-between">
           <div>
-            <p className="text-gray-400 text-sm">Disponibles</p>
-            <p className="text-2xl font-bold text-white">
-              {vehicles.filter((v) => v.available).length}
+            <p className="text-gray-400 text-sm">En service</p>
+            <p className="text-xl font-semibold text-white">
+              {vehicles.filter(
+                (v) => v.available && v.condition === "GOOD"
+              ).length}
             </p>
           </div>
-          <CheckCircle className="text-green-400" size={28} />
+          <div className="text-green-400">
+            <Car className="h-5 w-5" />
+          </div>
         </div>
-
-        <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-[#1a1f2c] rounded-lg p-4 flex items-center justify-between">
           <div>
-            <p className="text-gray-400 text-sm">Maintenance</p>
-            <p className="text-2xl font-bold text-white">
+            <p className="text-gray-400 text-sm">En maintenance</p>
+            <p className="text-xl font-semibold text-white">
               {vehicles.filter((v) => v.condition === "MAINTENANCE").length}
             </p>
           </div>
-          <Wrench className="text-yellow-400" size={28} />
+          <Wrench className="text-yellow-400 h-5 w-5" />
         </div>
-
-        <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-[#1a1f2c] rounded-lg p-4 flex items-center justify-between">
           <div>
-            <p className="text-gray-400 text-sm">Réparation</p>
-            <p className="text-2xl font-bold text-white">
+            <p className="text-gray-400 text-sm">En réparation</p>
+            <p className="text-xl font-semibold text-white">
               {vehicles.filter((v) => v.condition === "REPAIR").length}
             </p>
           </div>
-          <AlertTriangle className="text-red-400" size={28} />
+          <Wrench className="text-red-400 h-5 w-5" />
         </div>
       </div>
 
-      {/* Filtres par statut */}
-      <Tabs value={activeFilter} className="mb-6">
-        <TabsList className="bg-gray-900">
-          <TabsTrigger value="all" onClick={() => setActiveFilter("all")}>
-            Tous
-          </TabsTrigger>
-          <TabsTrigger
-            value="available"
-            onClick={() => setActiveFilter("available")}
-          >
-            Disponibles
-          </TabsTrigger>
-          <TabsTrigger
-            value="maintenance"
-            onClick={() => setActiveFilter("maintenance")}
-          >
-            Maintenance
-          </TabsTrigger>
-          <TabsTrigger
-            value="repair"
-            onClick={() => setActiveFilter("repair")}
-          >
-            Réparation
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      {/* Filtres */}
+      <div className="flex space-x-2 text-sm">
+        <button
+          className={`px-3 py-1 rounded ${
+            activeFilter === "all"
+              ? "bg-blue-600 text-white"
+              : "text-gray-400 hover:bg-[#1a1f2c]"
+          }`}
+          onClick={() => setActiveFilter("all")}
+        >
+          Tous
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            activeFilter === "available"
+              ? "bg-blue-600 text-white"
+              : "text-gray-400 hover:bg-[#1a1f2c]"
+          }`}
+          onClick={() => setActiveFilter("available")}
+        >
+          Disponibles
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            activeFilter === "maintenance"
+              ? "bg-blue-600 text-white"
+              : "text-gray-400 hover:bg-[#1a1f2c]"
+          }`}
+          onClick={() => setActiveFilter("maintenance")}
+        >
+          Maintenance
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            activeFilter === "repair"
+              ? "bg-blue-600 text-white"
+              : "text-gray-400 hover:bg-[#1a1f2c]"
+          }`}
+          onClick={() => setActiveFilter("repair")}
+        >
+          Réparation
+        </button>
+      </div>
 
-      {/* Liste des véhicules */}
-      <div className="bg-gray-900 rounded-lg shadow-md overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-gray-800">
-              <TableHead className="text-gray-400">Plaque</TableHead>
-              <TableHead className="text-gray-400">Modèle</TableHead>
-              <TableHead className="text-gray-400">Kilométrage</TableHead>
-              <TableHead className="text-gray-400">État</TableHead>
-              <TableHead className="text-gray-400">Spécifications</TableHead>
-              <TableHead className="text-gray-400">Statut</TableHead>
-              <TableHead className="text-gray-400 text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      {/* Tableau */}
+      <div className="bg-[#1a1f2c] rounded-lg overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-[#151a27] text-gray-400 text-sm">
+              <th className="px-4 py-3 text-left">Plaque</th>
+              <th className="px-4 py-3 text-left">Modèle</th>
+              <th className="px-4 py-3 text-left">Chauffeur (Jour)</th>
+              <th className="px-4 py-3 text-left">Chauffeur (Nuit)</th>
+              <th className="px-4 py-3 text-left">Statut</th>
+              <th className="px-4 py-3 text-left">Spécifications</th>
+              <th className="px-4 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
             {filteredVehicles.map((vehicle) => (
-              <TableRow
+              <tr
                 key={vehicle.id}
-                className="border-t border-gray-800 hover:bg-gray-800/50 transition"
+                className="border-t border-[#2a2f3c] hover:bg-[#151a27] cursor-pointer"
               >
-                <TableCell className="font-medium text-white">
+                <td className="px-4 py-3 font-medium text-white">
                   {vehicle.licensePlate}
-                </TableCell>
-                <TableCell className="text-gray-300">
+                </td>
+                <td className="px-4 py-3 text-gray-300">
                   {vehicle.brand} {vehicle.model}
-                </TableCell>
-                <TableCell className="text-gray-300">
-                  {vehicle.odometerKm} km
-                </TableCell>
-                <TableCell>
-                  {getConditionBadge(vehicle.condition)}
-                </TableCell>
-                <TableCell>
+                </td>
+                <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <Badge
-                      variant="outline"
-                      className="bg-gray-800 flex items-center gap-1 px-1.5"
+                    <span className="bg-yellow-950 text-yellow-500 rounded-full w-2 h-2" />
+                    <span className="text-gray-300">-</span>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-purple-950 text-purple-500 rounded-full w-2 h-2" />
+                    <span className="text-gray-300">-</span>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex gap-2">
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        vehicle.condition === "GOOD"
+                          ? "bg-green-900/30 text-green-400"
+                          : vehicle.condition === "MAINTENANCE"
+                          ? "bg-yellow-900/30 text-yellow-400"
+                          : "bg-red-900/30 text-red-400"
+                      }`}
+                    >
+                      {vehicle.condition === "GOOD"
+                        ? "Bon état"
+                        : vehicle.condition === "MAINTENANCE"
+                        ? "En maintenance"
+                        : "En réparation"}
+                    </span>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        vehicle.available
+                          ? "bg-emerald-900/30 text-emerald-400"
+                          : "bg-slate-900/30 text-slate-400"
+                      }`}
+                    >
+                      {vehicle.available ? "En service" : "Hors service"}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-6 h-6 flex items-center justify-center rounded bg-[#2a2f3c] text-gray-300"
+                      title={
+                        vehicle.transmission === "AUTOMATIC"
+                          ? "Transmission automatique"
+                          : "Transmission manuelle"
+                      }
                     >
                       {vehicle.transmission === "AUTOMATIC" ? "A" : "M"}
-                    </Badge>
+                    </span>
                   </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={getStatusColor(vehicle.available, vehicle.condition)}
-                    className={`${
-                      vehicle.available
-                        ? "bg-green-900/30 text-green-400"
-                        : "bg-red-900/30 text-red-400"
-                    }`}
-                  >
-                    {vehicle.available ? "Disponible" : "Indisponible"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="h-8 w-8 p-0 text-gray-400 hover:text-white"
-                      >
-                        <span className="sr-only">Menu actions</span>
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="bg-gray-800 border-gray-700"
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => handleViewVehicle(vehicle)}
+                      className="p-1 hover:bg-[#2a2f3c] rounded"
                     >
-                      <DropdownMenuLabel className="text-gray-400">
-                        Actions
-                      </DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => handleViewVehicle(vehicle)}
-                        className="text-gray-300 focus:bg-gray-700 focus:text-white"
-                      >
-                        Voir les détails
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onEdit(vehicle)}
-                        className="text-gray-300 focus:bg-gray-700 focus:text-white"
-                      >
-                        Modifier
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onDelete(vehicle)}
-                        className="text-red-400 focus:bg-red-900/30 focus:text-red-400"
-                      >
-                        Supprimer
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
+                      <MoreVertical className="w-4 h-4 text-gray-400" />
+                    </button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-500 hover:text-red-600"
+                      onClick={() => {
+                        setSelectedVehicle(vehicle);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-
+          </tbody>
+        </table>
         {filteredVehicles.length === 0 && (
-          <div className="text-center text-gray-400 py-12">
+          <div className="text-center py-8 text-gray-400">
             Aucun véhicule ne correspond à vos critères
           </div>
         )}
       </div>
 
-      {/* Notes et légende */}
-      <div className="mt-6 bg-gray-900 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-gray-400 mb-2">Légende</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="flex items-center gap-2 mb-1">
-              <Badge
-                variant="outline"
-                className="bg-gray-800 flex items-center gap-1 px-1.5"
-              >
-                <span className="w-3 h-3">A</span>
-              </Badge>
-              <span className="text-gray-300">Transmission automatique</span>
-            </p>
-            <p className="flex items-center gap-2 mb-1">
-              <Badge
-                variant="outline"
-                className="bg-gray-800 flex items-center gap-1 px-1.5"
-              >
-                <span className="w-3 h-3">M</span>
-              </Badge>
-              <span className="text-gray-300">Transmission manuelle</span>
-            </p>
-          </div>
-          <div>
-            <p className="flex items-center gap-2 mb-1">
-              <Badge className="bg-green-900/30 text-green-400">
-                Bon état
-              </Badge>
-              <span className="text-gray-300">Véhicule en bon état</span>
-            </p>
-            <p className="flex items-center gap-2 mb-1">
-              <Badge className="bg-yellow-900/30 text-yellow-400">
-                Maintenance
-              </Badge>
-              <span className="text-gray-300">En maintenance programmée</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <Badge className="bg-red-900/30 text-red-400">
-                Réparation
-              </Badge>
-              <span className="text-gray-300">En réparation</span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </>
+      {/* Légende */}
+      <LegendVehicle />
+    </motion.div>
   );
 };
 

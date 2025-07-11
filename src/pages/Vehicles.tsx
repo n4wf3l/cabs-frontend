@@ -1,22 +1,15 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { VehicleDTO, fetchVehicles, deleteVehicle } from "@/api/vehicle";
-import AddVehicle from "@/components/vehicles/AddVehicle";
+
+// Composants pour la gestion des véhicules
+import { AddVehicleDialog } from "@/components/vehicles/AddVehicleDialog";
 import EditVehicle from "@/components/vehicles/EditVehicle";
 import ViewVehicle from "@/components/vehicles/ViewVehicle";
 import { VehicleHeader } from "@/components/vehicles/VehicleHeader";
 import VehicleIndex from "@/components/vehicles/Index";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteVehicleDialog } from "@/components/vehicles/DeleteVehicleDialog";
 
 export default function Vehicles() {
   const [activeFilter, setActiveFilter] = useState<string>("all");
@@ -29,19 +22,22 @@ export default function Vehicles() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleDTO | null>(null);
 
-  // Récupération des véhicules depuis le backend
-  const { data: vehicles = [], isLoading, error } = useQuery({
+  // Supposons que tu as :
+  const [vehicles, setVehicles] = useState<VehicleDTO[]>([]);
+
+  // Récupération des véhicules depuis l'API
+  const { data: vehiclesData = [], isLoading, error } = useQuery({
     queryKey: ["vehicles"],
     queryFn: fetchVehicles
   });
 
   // Filtrage des véhicules
-  const filteredVehicles = vehicles.filter((vehicle) => {
+  const filteredVehicles = vehiclesData.filter((vehicle) => {
     if (activeFilter !== "all") {
       if (activeFilter === "available" && !vehicle.available) return false;
-      if (activeFilter === "unavailable" && vehicle.available) return false;
       if (activeFilter === "maintenance" && vehicle.condition !== "MAINTENANCE") return false;
       if (activeFilter === "repair" && vehicle.condition !== "REPAIR") return false;
+      if (activeFilter === "good" && vehicle.condition !== "GOOD") return false;
     }
 
     if (searchQuery) {
@@ -56,22 +52,24 @@ export default function Vehicles() {
     return true;
   });
 
-  // Comptage des statuts pour les badges et statistiques
-  const statusCounts = vehicles.reduce((acc, vehicle) => {
-    if (vehicle.available) acc["available"] = (acc["available"] || 0) + 1;
-    if (vehicle.condition === "MAINTENANCE") acc["maintenance"] = (acc["maintenance"] || 0) + 1;
-    if (vehicle.condition === "REPAIR") acc["repair"] = (acc["repair"] || 0) + 1;
+  // Comptage des statuts
+  const statusCounts = vehiclesData.reduce((acc, vehicle) => {
+    if (vehicle.available) {
+      acc.available = (acc.available || 0) + 1;
+    }
+    if (vehicle.condition === 'MAINTENANCE') {
+      acc.maintenance = (acc.maintenance || 0) + 1;
+    }
+    if (vehicle.condition === 'REPAIR') {
+      acc.repair = (acc.repair || 0) + 1;
+    }
     return acc;
   }, {} as Record<string, number>);
 
   // Gérer l'ajout d'un véhicule
   const handleAddVehicle = (newVehicleData: Partial<VehicleDTO>) => {
     setIsAddModalOpen(false);
-  };
-
-  // Gérer la modification d'un véhicule
-  const handleEditVehicle = (vehicleData: VehicleDTO) => {
-    setIsEditModalOpen(false);
+    toast.success("Véhicule ajouté avec succès");
   };
 
   // Ouvrir le modal de détails
@@ -90,6 +88,11 @@ export default function Vehicles() {
   const handleEdit = (vehicle: VehicleDTO) => {
     setSelectedVehicle(vehicle);
     setIsEditModalOpen(true);
+  };
+
+  // Gérer le filtre avancé
+  const handleFilterClick = () => {
+    // Logique pour ouvrir les filtres avancés
   };
 
   // Ouvrir la boîte de dialogue de suppression
@@ -112,9 +115,11 @@ export default function Vehicles() {
     setIsDeleteDialogOpen(false);
   };
 
+  const queryClient = useQueryClient();
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         Chargement...
       </div>
     );
@@ -122,43 +127,50 @@ export default function Vehicles() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         Erreur de chargement des véhicules
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-background">
       <main className="flex-1 p-4 md:p-8">
         <VehicleHeader
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onAddClick={() => setIsAddModalOpen(true)}
+          onFilterClick={handleFilterClick}
         />
 
+        {/* Ajout de la ligne séparatrice avec effet lumineux */}
+        <hr className="hr-light-effect mb-10" />
+
         <VehicleIndex
-          vehicles={vehicles}
+          vehicles={vehiclesData}
           statusCounts={statusCounts}
           activeFilter={activeFilter}
           setActiveFilter={setActiveFilter}
           filteredVehicles={filteredVehicles}
           handleViewVehicle={handleViewVehicle}
-          onEdit={handleEdit}
-          onDelete={handleDeleteClick}
+          setSelectedVehicle={setSelectedVehicle} // AJOUTE
+          setIsDeleteDialogOpen={setIsDeleteDialogOpen} // AJOUTE
         />
       </main>
 
-      <AddVehicle
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleAddVehicle}
+      {/* Modals */}
+      <AddVehicleDialog
+        open={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
+        onSuccess={() => {
+          // Tu peux éventuellement faire un refetch ici si besoin
+          toast.success("Véhicule ajouté avec succès");
+        }}
       />
 
       <EditVehicle
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onSave={handleEditVehicle}
         vehicle={selectedVehicle}
       />
 
@@ -169,27 +181,20 @@ export default function Vehicles() {
         onEdit={handleEditFromView}
       />
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent className="bg-gray-900 border-gray-800 text-white">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
-              Êtes-vous sûr de vouloir supprimer ce véhicule ? Cette action est irréversible.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-700 text-white hover:bg-gray-800">
-              Annuler
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700 text-white"
-              onClick={handleConfirmDelete}
-            >
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteVehicleDialog
+        vehicle={selectedVehicle}
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onDelete={async (vehicleId) => {
+          try {
+            await deleteVehicle(vehicleId);
+            await queryClient.invalidateQueries({ queryKey: ["vehicles"] }); // <-- MAJ immédiate
+            toast.success("Véhicule supprimé avec succès");
+          } catch (error) {
+            toast.error("Erreur lors de la suppression du véhicule");
+          }
+        }}
+      />
     </div>
   );
 }

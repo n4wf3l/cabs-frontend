@@ -123,7 +123,7 @@ export function VehicleList() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Plaque</TableHead>
+                  <TableHead>Plaqueeee</TableHead>
                   <TableHead>Modèle</TableHead>
                   <TableHead>Transmission</TableHead>
                   <TableHead>État</TableHead>

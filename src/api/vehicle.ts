@@ -79,7 +79,7 @@ export const updateVehicle = async (
   vehicleData: VehicleUpdateDTO
 ): Promise<VehicleDTO> => {
   try {
-    const response = await api.put(`/edit-vehicle/${id}`, vehicleData);
+    const response = await api.put(`/update-vehicle/${id}`, vehicleData);
     return response.data;
   } catch (error) {
     console.error("Error updating vehicle:", error);

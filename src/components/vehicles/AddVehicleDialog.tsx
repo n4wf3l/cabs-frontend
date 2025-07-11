@@ -26,6 +26,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { VehicleRequestDTO, Transmission, createVehicle } from "@/api/vehicle";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 interface AddVehicleDialogProps {
   open: boolean;
@@ -42,14 +43,14 @@ export function AddVehicleDialog({
 
   const form = useForm<VehicleRequestDTO>({
     defaultValues: {
-      licensePlate: "",
+      licensePlate: "T-",
       brand: "",
       model: "",
       transmission: Transmission.MANUAL,
       odometerKm: 0,
       available: true,
       activeInShift: false,
-      condition: "GOOD"
+      condition: "GOOD",
     },
   });
 
@@ -75,61 +76,107 @@ export function AddVehicleDialog({
           <DialogTitle>Ajouter un véhicule</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <motion.form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-3"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Plaque d'immatriculation */}
             <FormField
               control={form.control}
               name="licensePlate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Plaque d'immatriculation</FormLabel>
+                  <FormLabel className="text-sm text-gray-400">Plaque d'immatriculation</FormLabel>
                   <FormControl>
-                    <Input required {...field} />
+                    <Input
+                      required
+                      placeholder="T-ABC-123"
+                      maxLength={10}
+                      {...field}
+                      className="rounded-lg"
+                      onChange={e => {
+                        let value = e.target.value.toUpperCase();
+                        if (!value.startsWith("T-")) value = "T-";
+                        value = value.replace(/^T-/, "");
+                        const letters = value.replace(/[^A-Z]/g, "").slice(0, 3);
+                        const numbers = value.replace(/[^0-9]/g, "").slice(0, 3);
+                        let formatted = "T-";
+                        formatted += letters;
+                        if (letters.length === 3) formatted += "-";
+                        formatted += numbers;
+                        field.onChange(formatted);
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Marque */}
             <FormField
               control={form.control}
               name="brand"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Marque</FormLabel>
+                  <FormLabel className="text-sm text-gray-400">Marque</FormLabel>
                   <FormControl>
-                    <Input required {...field} />
+                    <Input
+                      required
+                      placeholder="Skoda"
+                      className="rounded-lg"
+                      {...field}
+                      onChange={e => {
+                        const val = e.target.value;
+                        const formatted =
+                          val.length > 0
+                            ? val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()
+                            : "";
+                        field.onChange(formatted);
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Modèle */}
             <FormField
               control={form.control}
               name="model"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Modèle</FormLabel>
+                  <FormLabel className="text-sm text-gray-400">Modèle</FormLabel>
                   <FormControl>
-                    <Input required {...field} />
+                    <Input
+                      required
+                      placeholder="Octavia"
+                      className="rounded-lg"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Transmission */}
             <FormField
               control={form.control}
               name="transmission"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Transmission</FormLabel>
+                  <FormLabel className="text-sm text-gray-400">Transmission</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="rounded-lg">
                         <SelectValue placeholder="Sélectionnez un type" />
                       </SelectTrigger>
                     </FormControl>
@@ -143,18 +190,31 @@ export function AddVehicleDialog({
               )}
             />
 
+            {/* Kilométrage */}
             <FormField
               control={form.control}
               name="odometerKm"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kilométrage</FormLabel>
+                  <FormLabel className="text-sm text-gray-400">Kilométrage</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       required
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      placeholder="30000"
+                      min={0}
+                      className="rounded-lg"
+                      value={field.value === 0 ? "" : field.value}
+                      onFocus={e => {
+                        if (e.target.value === "0") e.target.value = "";
+                      }}
+                      onBlur={e => {
+                        if (e.target.value === "") field.onChange(0);
+                      }}
+                      onChange={e => {
+                        const val = e.target.value.replace(/^0+/, "");
+                        field.onChange(val === "" ? 0 : Number(val));
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -162,45 +222,46 @@ export function AddVehicleDialog({
               )}
             />
 
+            {/* Disponible */}
             <FormField
               control={form.control}
               name="available"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Disponible
-                    </FormLabel>
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-sm text-gray-400">Disponible</FormLabel>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
                   </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* État */}
             <FormField
               control={form.control}
               name="condition"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>État</FormLabel>
+                  <FormLabel className="text-sm text-gray-400">État</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="rounded-lg">
                         <SelectValue placeholder="Sélectionnez l'état" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="GOOD">Bon</SelectItem>
-                      <SelectItem value="FAIR">Moyen</SelectItem>
-                      <SelectItem value="POOR">Mauvais</SelectItem>
+                      <SelectItem value="GOOD">Bon état</SelectItem>
+                      <SelectItem value="MAINTENANCE">En maintenance</SelectItem>
+                      <SelectItem value="REPAIR">En réparation</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -208,7 +269,7 @@ export function AddVehicleDialog({
               )}
             />
 
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end space-x-2 pt-2">
               <Button
                 type="button"
                 variant="outline"
@@ -220,7 +281,7 @@ export function AddVehicleDialog({
                 {isLoading ? "Ajout en cours..." : "Ajouter"}
               </Button>
             </div>
-          </form>
+          </motion.form>
         </Form>
       </DialogContent>
     </Dialog>

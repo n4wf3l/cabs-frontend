@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Car, Wrench, CheckCircle, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VehicleDTO } from "@/api/vehicle";
+import { motion } from "framer-motion";
 
 interface ViewVehicleProps {
   isOpen: boolean;
@@ -36,7 +37,12 @@ export default function ViewVehicle({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 my-4">
+        <motion.form
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-6 my-4"
+        >
           {/* Statut du véhicule */}
           <div className="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
             <span className="font-medium">Statut</span>
@@ -104,7 +110,7 @@ export default function ViewVehicle({
               </div>
             </div>
           </div>
-        </div>
+        </motion.form>
 
         <DialogFooter>
           <Button
