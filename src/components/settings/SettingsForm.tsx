@@ -14,7 +14,6 @@ import {
   X,
   Info,
 } from "lucide-react";
-import { createAdmin } from "@/api/admin";
 import { useToast } from "../ui/use-toast";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -1,7 +1,7 @@
-import { DriverResponse } from "@/api/driver";
+import { DriverResponseDTO } from "@/api/driver";
 
 // Mock data pour les chauffeurs - Correspond exactement au backend DriverResponseDTO
-export const mockDrivers: DriverResponse[] = [
+export const mockDrivers: DriverResponseDTO[] = [
   {
     id: 1,
     firstName: "Jean",
@@ -75,7 +75,7 @@ export const mockExportPDF = async (): Promise<void> => {
   });
 };
 
-export const mockFetchDriverById = async (id: number): Promise<DriverResponse> => {
+export const mockFetchDriverById = async (id: number): Promise<DriverResponseDTO> => {
   // Simuler un délai réseau
   return new Promise((resolve, reject) => {
     setTimeout(() => {

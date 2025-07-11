@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { EditDriverDialog } from "./EditDriverDialog";
 import { DeleteDriverDialog } from "./DeleteDriverDialog";
 import { ViewDriverDialog } from "./ViewDriverDialog";
-import { DriverResponse, fetchDrivers, deleteDriver, updateDriver } from "@/api/driver";
+import { DriverResponseDTO, fetchDrivers, deleteDriver, updateDriver } from "@/api/driver";
 import FullScreenLoader from "./FullScreenLoader";
 
 // Interface pour les props
@@ -25,11 +25,11 @@ interface DriverListProps {
 }
 
 export const DriverList = ({ filter }: DriverListProps) => {
-  const [drivers, setDrivers] = useState<DriverResponse[]>([]);
+  const [drivers, setDrivers] = useState<DriverResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingDriver, setEditingDriver] = useState<DriverResponse | null>(null);
-  const [deletingDriver, setDeletingDriver] = useState<DriverResponse | null>(null);
-  const [viewingDriver, setViewingDriver] = useState<DriverResponse | null>(null);
+  const [editingDriver, setEditingDriver] = useState<DriverResponseDTO | null>(null);
+  const [deletingDriver, setDeletingDriver] = useState<DriverResponseDTO | null>(null);
+  const [viewingDriver, setViewingDriver] = useState<DriverResponseDTO | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export const DriverList = ({ filter }: DriverListProps) => {
   };
 
   // Fonction de mise à jour
-  const handleEditDriver = async (updatedDriver: DriverResponse & { password?: string }) => {
+  const handleEditDriver = async (updatedDriver: DriverResponseDTO & { password?: string }) => {
     try {
       // On crée un objet UpdateDriverRequest en ajoutant un mot de passe temporaire si nécessaire
       const updateData = {

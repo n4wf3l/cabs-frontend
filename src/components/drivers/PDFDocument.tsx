@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
-import { DriverResponse } from "@/api/driver";
+import { DriverResponseDTO } from "@/api/driver";
 
 // Obtenir la date actuelle au format DD-MM-YYYY
 const getCurrentDate = () => {
@@ -90,7 +90,7 @@ const PDFDocument = ({ drivers }) => (
         </View>
 
         {/* Données des chauffeurs */}
-        {drivers.map((driver: DriverResponse, index) => (
+        {drivers.map((driver: DriverResponseDTO, index) => (
           <View key={index} style={styles.row}>
             <Text style={styles.cell}>
               {driver.firstName} {driver.lastName}

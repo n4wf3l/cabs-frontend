@@ -19,10 +19,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { DriverResponse } from "@/api/driver";
+import { DriverResponseDTO } from "@/api/driver";
 
 interface ViewDriverDialogProps {
-  driver: DriverResponse | null;
+  driver: DriverResponseDTO | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

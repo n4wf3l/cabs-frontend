@@ -20,13 +20,13 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { DriverResponse } from "@/api/driver";
+import { DriverResponseDTO } from "@/api/driver";
 
 interface EditDriverDialogProps {
-  driver: DriverResponse | null;
+  driver: DriverResponseDTO | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onEdit: (updatedDriver: DriverResponse) => void;
+  onEdit: (updatedDriver: DriverResponseDTO) => void;
 }
 
 export const EditDriverDialog = ({
@@ -35,7 +35,7 @@ export const EditDriverDialog = ({
   onOpenChange,
   onEdit,
 }: EditDriverDialogProps) => {
-  const form = useForm<DriverResponse>({ 
+  const form = useForm<DriverResponseDTO>({ 
     defaultValues: driver || {
       id: 0,
       firstName: "",
@@ -60,7 +60,7 @@ export const EditDriverDialog = ({
     }
   }, [driver, reset]);
 
-  const onSubmit = async (data: DriverResponse) => {
+  const onSubmit = async (data: DriverResponseDTO) => {
     try {
       await onEdit(data);  // Attendre que la mise à jour soit terminée
       onOpenChange(false); // Fermer la dialog seulement après succès

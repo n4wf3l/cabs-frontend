@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
-import { CreateDriverRequest, DriverResponse, createDriver } from "@/api/driver";
+import { DriverSignupRequestDTO, DriverResponseDTO, createDriver } from "@/api/driver";
 import FullScreenLoader from "@/components/drivers/FullScreenLoader";
 import { cn } from "@/lib/utils";
 import { User, Mail, Lock, Phone, MapPin, Calendar, CreditCard, UserCog, Clock } from "lucide-react";
@@ -32,7 +32,7 @@ const getStrengthColor = (strength: number): string => {
 
 interface AddDriverFormProps {
   onCancel?: () => void;
-  onSuccess?: (data: DriverResponse) => void;
+  onSuccess?: (data: DriverResponseDTO) => void;
 }
 
 // Style global pour tous les champs du formulaire
@@ -43,7 +43,7 @@ export const AddDriverForm = ({ onCancel, onSuccess }: AddDriverFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
 
-  const form = useForm<CreateDriverRequest>({
+  const form = useForm<DriverSignupRequestDTO>({
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -54,9 +54,6 @@ export const AddDriverForm = ({ onCancel, onSuccess }: AddDriverFormProps) => {
       postalCode: "",
       cityOfBirth: "",
       dateOfBirth: "",
-      paymentsEnabled: true,
-      availableForReplacement: true,
-      onLeave: false,
     }
   });
 
@@ -70,7 +67,7 @@ export const AddDriverForm = ({ onCancel, onSuccess }: AddDriverFormProps) => {
     return () => subscription.unsubscribe();
   }, [form.watch]);
 
-  const formatData = (data: CreateDriverRequest): CreateDriverRequest => {
+  const formatData = (data: DriverSignupRequestDTO): DriverSignupRequestDTO => {
     return {
       ...data,
       firstName: data.firstName.trim().charAt(0).toUpperCase() + data.firstName.slice(1).toLowerCase(),
@@ -84,7 +81,7 @@ export const AddDriverForm = ({ onCancel, onSuccess }: AddDriverFormProps) => {
     };
   };
 
-  const onSubmit = async (data: CreateDriverRequest) => {
+  const onSubmit = async (data: DriverSignupRequestDTO) => {
     if (passwordStrength < 60) {
       toast.error("Le mot de passe n'est pas assez sécurisé");
       return;
@@ -371,6 +368,7 @@ export const AddDriverForm = ({ onCancel, onSuccess }: AddDriverFormProps) => {
             </h2>
             
             <div className="grid grid-cols-1 gap-6">
+            
               <FormField
                 control={form.control}
                 name="paymentsEnabled"
@@ -382,7 +380,7 @@ export const AddDriverForm = ({ onCancel, onSuccess }: AddDriverFormProps) => {
                         Paiements activés
                       </FormLabel>
                       <FormDescription className="text-gray-400">
-                        Permet au chauffeur de recevoir des paiements
+                        Indique si le chauffeur peut recevoir des paiements
                       </FormDescription>
                     </div>
                     <FormControl>
@@ -432,7 +430,7 @@ export const AddDriverForm = ({ onCancel, onSuccess }: AddDriverFormProps) => {
                         En congé
                       </FormLabel>
                       <FormDescription className="text-gray-400">
-                        Le chauffeur est actuellement en congé
+                        Indique si le chauffeur est actuellement en congé
                       </FormDescription>
                     </div>
                     <FormControl>

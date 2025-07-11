@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { DriverResponse } from "@/api/driver";
+import { DriverResponseDTO } from "@/api/driver";
 
 interface DeleteDriverDialogProps {
-  driver: DriverResponse | null;
+  driver: DriverResponseDTO | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onDelete: (driverId: number) => Promise<void>;
