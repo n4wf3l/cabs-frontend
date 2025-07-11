@@ -31,19 +31,14 @@ const menuItems = [
     disabled: true,
   },
   { title: "Map", icon: Map, href: "/map" },
-  { title: "Bilan (v3)", icon: BarChart2, href: "#", disabled: true },
+  { title: "Bilan de caisse", icon: BarChart2, href: "/cash-report" },
   { title: "Planning", icon: Calendar, href: "/planning" },
   { title: "Paramètres", icon: Settings, href: "/settings" },
 ];
 
 export const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(() => {
-    const storedState = localStorage.getItem("sidebarCollapsed");
-    return storedState ? JSON.parse(storedState) : false;
-  });
-
+  const [collapsed, setCollapsed] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isOpening, setIsOpening] = useState(false); // Détection de l'ouverture manuelle
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -56,8 +51,6 @@ export const Sidebar = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsed));
-
     // Mettre à jour la variable CSS en fonction de l'état actuel
     document.documentElement.style.setProperty(
       "--sidebar-width",
@@ -71,34 +64,19 @@ export const Sidebar = () => {
     }, 0);
   }, [collapsed]);
 
-  const toggleSidebar = () => {
-    if (collapsed) {
-      setIsOpening(true); // Animation activée uniquement lors d'une ouverture
-    }
-    setCollapsed((prev) => !prev);
-  };
-
   const handleNavigation = (href: string) => {
-    if (collapsed) {
-      setCollapsed(true);
-    }
     navigate(href);
   };
 
   return (
     <>
-      {isMobile && collapsed && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleSidebar}
-          className="fixed top-4 left-4 z-50 md:hidden"
-        >
-          <Menu size={20} />
-        </Button>
-      )}
-
       <div
+        onMouseEnter={() => {
+          if (!isMobile && collapsed) setCollapsed(false);
+        }}
+        onMouseLeave={() => {
+          if (!isMobile && !collapsed) setCollapsed(true);
+        }}
         className={cn(
           "h-screen fixed left-0 top-0 z-40 flex flex-col glass-card transition-all duration-300",
           isMobile
@@ -110,119 +88,61 @@ export const Sidebar = () => {
             : "w-64"
         )}
       >
-        <div className="bg-background flex items-center justify-between p-4">
-          {!collapsed ? (
-            isOpening && !collapsed ? (
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: 0.1 }}
-                className="flex items-center gap-2"
-              >
-                {/* Logo rétréci */}
-                <div className="h-12 w-12 flex-shrink-0">
-                  <img
-                    src="/tlogo.png"
-                    alt="Cabs Logo"
-                    className="object-contain h-full"
-                  />
-                </div>
-                {/* Nom de l'entreprise */}
-                <div className="flex flex-col">
-                  <span className="font-semibold text-lg">YourCompany</span>
-                  <span className="text-xs text-gray-400">Fleet Management</span>
-                </div>
-              </motion.div>
-            ) : (
-              <div className="flex items-center gap-2">
-                {/* Logo rétréci */}
-                <div className="h-12 w-12 flex-shrink-0">
-                  <img
-                    src="/tlogo.png"
-                    alt="Cabs Logo"
-                    className="object-contain h-full"
-                  />
-                </div>
-                {/* Nom de l'entreprise */}
-                <div className="flex flex-col">
-                  <span className="font-semibold text-lg">YourCompany</span>
-                  <span className="text-xs text-gray-400">Fleet Management</span>
-                </div>
-              </div>
-            )
-          ) : (
-            // Ne rien afficher quand la sidebar est réduite
-            <div></div>
-          )}
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="z-50"
-          >
-            {collapsed ? <Menu size={20} /> : <X size={20} />}
-          </Button>
+        <div className="bg-background relative h-[76px] flex items-center justify-center px-4">
+          <div className={cn(
+            "flex items-center gap-2 transition-all duration-300",
+            collapsed ? "justify-center" : "justify-start w-full"
+          )}>
+            <div className={cn(
+              "flex-shrink-0 transition-all duration-300",
+              collapsed ? "h-10 w-10" : "h-12 w-12"
+            )}>
+              <img
+                src="/tlogo.png"
+                alt="Cabs Logo"
+                className="object-contain h-full"
+              />
+            </div>
+            <div className={cn(
+              "flex flex-col overflow-hidden transition-all duration-300",
+              collapsed ? "w-0" : "w-auto"
+            )}>
+              <span className="font-semibold text-lg whitespace-nowrap">YourCompany</span>
+              <span className="text-xs text-gray-400 whitespace-nowrap">Fleet Management</span>
+            </div>
+          </div>
         </div>
 
         <nav className="flex-1 p-4 bg-background">
           <ul className="space-y-2">
-            {menuItems.map((item, index) => {
+            {menuItems.map((item) => {
               const isActive = location.pathname === item.href;
-              return isOpening && !collapsed ? ( // Appliquer l'animation uniquement lors de l'ouverture
-                <motion.li
-                  key={item.title}
-                  className="relative group"
-                  initial={{ x: -50, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <button
-                    onClick={() =>
-                      !item.disabled && handleNavigation(item.href)
-                    }
-                    className={cn(
-                      "w-full flex p-2 hover:bg-secondary/50 rounded-lg transition-colors text-left relative",
-                      collapsed ? "justify-center" : "items-center space-x-2",
-                      item.disabled && "opacity-50 cursor-not-allowed",
-                      isActive && "bg-primary/20 text-primary"
-                    )}
-                  >
-                    <item.icon
-                      size={20}
-                      className={isActive ? "text-primary" : ""}
-                    />
-                    {!collapsed && <span>{item.title}</span>}
-                    {collapsed && (
-                      <span className="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        {item.title}
-                      </span>
-                    )}
-                  </button>
-                </motion.li>
-              ) : (
+              return (
                 <li key={item.title} className="relative group">
                   <button
                     onClick={() =>
                       !item.disabled && handleNavigation(item.href)
                     }
                     className={cn(
-                      "w-full flex p-2 hover:bg-secondary/50 rounded-lg transition-colors text-left relative",
-                      collapsed ? "justify-center" : "items-center space-x-2",
+                      "w-full h-10 flex items-center p-2 hover:bg-secondary/50 rounded-lg transition-all duration-300 text-left relative",
                       item.disabled && "opacity-50 cursor-not-allowed",
                       isActive && "bg-primary/20 text-primary"
                     )}
                   >
-                    <item.icon
-                      size={20}
-                      className={isActive ? "text-primary" : ""}
-                    />
-                    {!collapsed && <span>{item.title}</span>}
-                    {collapsed && (
-                      <span className="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        {item.title}
-                      </span>
-                    )}
+                    <div className="flex items-center w-full">
+                      <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                        <item.icon
+                          size={20}
+                          className={isActive ? "text-primary" : ""}
+                        />
+                      </div>
+                      <div className={cn(
+                        "overflow-hidden transition-all duration-300",
+                        collapsed ? "w-0 opacity-0" : "w-auto ml-2 opacity-100"
+                      )}>
+                        <span className="whitespace-nowrap">{item.title}</span>
+                      </div>
+                    </div>
                   </button>
                 </li>
               );
@@ -236,7 +156,7 @@ export const Sidebar = () => {
               variant="destructive"
               size="icon"
               className={cn(
-                "w-full flex items-center justify-center space-x-2",
+                "w-full flex items-center justify-center gap-2",
                 collapsed ? "justify-center" : ""
               )}
               onClick={() => {
@@ -245,12 +165,12 @@ export const Sidebar = () => {
               }}
             >
               <LogOut size={20} />
-              {!collapsed && <span>Se déconnecter</span>}
-              {collapsed && (
-                <span className="absolute left-full ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  Se déconnecter
-                </span>
-              )}
+              <div className={cn(
+                "overflow-hidden transition-all duration-300",
+                collapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+              )}>
+                <span className="whitespace-nowrap">Se déconnecter</span>
+              </div>
             </Button>
           </div>
         </div>

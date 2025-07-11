@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { Commune, Taxi } from "../../utils/mapData";
 
 // Import refactored components
@@ -64,21 +64,35 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Bouton pour ouvrir/fermer la barre latérale */}
-      <button
-        onClick={onToggle}
-        className="fixed right-4 top-4 z-[1500] p-2 backdrop-blur-md bg-background/70 rounded-full shadow-lg transition-transform hover:scale-105"
-      >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
+      {/* Bouton pour ouvrir la sidebar (visible quand fermée) */}
+      {!isOpen && (
+        <button
+          onClick={onToggle}
+          className="fixed right-0 top-1/2 -translate-y-1/2 z-50 p-3 backdrop-blur-md bg-background/80 rounded-l-xl shadow-lg transition-all duration-300 hover:bg-accent"
+          aria-label="Ouvrir la barre latérale"
+        >
+          <ArrowLeft size={20} />
+        </button>
+      )}
 
       {/* Barre latérale */}
       <aside
-        className={`bg-background fixed right-0 top-0 h-full z-40 glassmorphism transition-all duration-300 ease-in-out border border-gray-700 ${
-          isOpen ? "translate-x-0 w-80" : "translate-x-full w-0"
+        className={`bg-background fixed right-0 top-0 h-full z-40 glassmorphism transition-all duration-300 ease-in-out border-l border-gray-700 ${
+          isOpen ? "w-80" : "w-0 translate-x-full"
         }`}
       >
         <div className="p-4 h-full flex flex-col">
+          {/* Bouton X pour fermer, en haut à gauche du sidebar */}
+          <div className="flex items-center justify-start mb-2">
+            <button
+              onClick={onToggle}
+              className="p-2 backdrop-blur-md bg-background/70 rounded-full shadow-lg transition-transform hover:scale-105"
+              aria-label="Fermer la barre latérale"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
           {/* Recherche */}
           <SearchInput
             searchQuery={searchQuery}
