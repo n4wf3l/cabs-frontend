@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BellIcon, AlertTriangle, Lightbulb, MessageCircle } from "lucide-react";
+import { BellIcon, AlertTriangle, Lightbulb, MessageCircle, Globe, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -125,6 +125,63 @@ export const TopRevealBar = () => {
           >
             Voir toutes les notifications
           </Button>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+        
+
+      {/* Menu Compte */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-full h-9 w-9 bg-background/90 backdrop-blur hover:bg-secondary/50 border-border/50"
+          >
+            <User size={16} />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="w-[240px] bg-background/95 backdrop-blur border-border/50"
+        >
+          {/* Email connecté */}
+          <DropdownMenuLabel className="text-sm font-medium">
+            YourCompany
+            <br />
+            ajari.nawfel@hotmail.com
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+
+          {/* Choix de langue */}
+          <DropdownMenuLabel className="text-xs text-muted-foreground">
+            Langue
+          </DropdownMenuLabel>
+          <DropdownMenuItem className="cursor-pointer">
+            <Globe className="h-4 w-4 mr-2" /> Français
+          </DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">
+            <Globe className="h-4 w-4 mr-2" /> English
+          </DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">
+            <Globe className="h-4 w-4 mr-2" /> Nederlands
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+
+          {/* Mode d'affichage */}
+          <DropdownMenuLabel className="text-xs text-muted-foreground">
+            Mode d'affichage
+          </DropdownMenuLabel>
+          <DropdownMenuItem className="cursor-pointer">Dark</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">Light</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">Classic Dark</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">System</DropdownMenuItem>
+          <DropdownMenuSeparator />
+
+          {/* Déconnexion */}
+          <DropdownMenuItem className="cursor-pointer text-destructive">
+            Déconnexion
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
