@@ -4,9 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plus, Download } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { mockExportPDF } from "@/components/drivers/DriversMock";
 
-// Ajoute la prop onAddClick
 interface DriversHeaderProps {
   onAddClick: () => void;
 }
@@ -18,17 +16,16 @@ export const DriversHeader = ({ onAddClick }: DriversHeaderProps) => {
   const handleExportPDF = async () => {
     setLoading(true);
     try {
-      // Simulation d'export PDF
-      await mockExportPDF();
+      // TODO: Implémenter l'export PDF réel avec l'API
       toast({
-        title: "PDF généré avec succès !",
-        description: "Votre fichier chauffeurs.pdf a bien été téléchargé.",
+        title: "Fonctionnalité à venir",
+        description: "L'export PDF sera bientôt disponible.",
         duration: 3000,
       });
     } catch (error) {
       toast({
         title: "Erreur",
-        description: "Impossible de générer le PDF. Veuillez réessayer.",
+        description: "Une erreur est survenue. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {
@@ -48,7 +45,7 @@ export const DriversHeader = ({ onAddClick }: DriversHeaderProps) => {
       </h1>
       <div className="flex gap-4">
         <Button
-          onClick={onAddClick} // Utilise le callback
+          onClick={onAddClick}
           className="px-3 py-1 text-xs md:px-4 md:py-2 md:text-sm bg-primary text-white rounded-lg shadow-md hover:bg-primary/80"
         >
           <Plus size={14} className="mr-1" /> Ajouter
@@ -67,3 +64,5 @@ export const DriversHeader = ({ onAddClick }: DriversHeaderProps) => {
     </motion.div>
   );
 };
+
+export default DriversHeader;
