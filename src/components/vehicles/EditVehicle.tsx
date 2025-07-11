@@ -17,33 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-
-// Types
-type DriverInfo = { id: string; name: string } | null;
-type VehicleStatus = "available" | "maintenance" | "repair" | "outOfService";
-type TransmissionType = "automatic" | "manual";
-type FuelType = "gasoline" | "electric" | "hybrid";
-
-interface Vehicle {
-  id: string;
-  plate: string;
-  model: string;
-  dayDriver: DriverInfo;
-  nightDriver: DriverInfo;
-  status: VehicleStatus;
-  transmission: TransmissionType;
-  fuelType: FuelType;
-  lastService?: Date;
-  notes?: string;
-}
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { VehicleDTO, VehicleUpdateDTO, Transmission, updateVehicle } from "@/api/vehicle";
 
 interface EditVehicleProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (vehicle: Vehicle) => void;
-  vehicle: Vehicle | null;
+  onSave: (vehicle: VehicleDTO) => void;
+  vehicle: VehicleDTO | null;
 }
 
 export default function EditVehicle({
@@ -52,48 +34,60 @@ export default function EditVehicle({
   onSave,
   vehicle,
 }: EditVehicleProps) {
-  const [editedVehicle, setEditedVehicle] = useState<Vehicle | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState<VehicleUpdateDTO>({
+    licensePlate: "",
+    brand: "",
+    model: "",
+    transmission: Transmission.AUTOMATIC,
+    odometerKm: 0,
+    available: true,
+    activeInShift: false,
+    condition: "GOOD",
+  });
 
-  // Mettre à jour l'état local lorsque le véhicule change
   useEffect(() => {
     if (vehicle) {
-      setEditedVehicle({ ...vehicle });
+      setFormData({
+        licensePlate: vehicle.licensePlate,
+        brand: vehicle.brand,
+        model: vehicle.model,
+        transmission: vehicle.transmission,
+        odometerKm: vehicle.odometerKm,
+        available: vehicle.available,
+        activeInShift: vehicle.activeInShift,
+        condition: vehicle.condition,
+      });
     }
   }, [vehicle]);
 
-  if (!editedVehicle) return null;
-
-  // Fonction pour valider le formulaire
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!editedVehicle.plate) {
-      newErrors.plate = "La plaque d'immatriculation est obligatoire";
-    } else if (!/^T-\d{3}-[A-Z]{3}$/.test(editedVehicle.plate)) {
-      newErrors.plate = "Format invalide (doit être T-XXX-YYY)";
-    }
-
-    if (!editedVehicle.model) {
-      newErrors.model = "Le modèle est obligatoire";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Fonction pour sauvegarder les modifications
-  const handleSave = () => {
-    if (validateForm()) {
-      onSave(editedVehicle);
-      toast.success("Modifications enregistrées");
+  const updateVehicleMutation = useMutation({
+    mutationFn: (data: VehicleUpdateDTO) => {
+      if (!vehicle) throw new Error("No vehicle selected");
+      return updateVehicle(vehicle.id, data);
+    },
+    onSuccess: (updatedVehicle) => {
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success("Véhicule modifié avec succès");
+      onSave(updatedVehicle);
       onClose();
-    }
+    },
+    onError: (error) => {
+      toast.error("Erreur lors de la modification du véhicule");
+      console.error("Error updating vehicle:", error);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateVehicleMutation.mutate(formData);
   };
+
+  if (!vehicle) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-lg font-medium flex items-center gap-2">
             <Wrench className="text-yellow-400" size={18} />
@@ -101,129 +95,147 @@ export default function EditVehicle({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 my-2">
-          <div className="space-y-2">
-            <Label htmlFor="plate">Plaque d'immatriculation</Label>
-            <Input
-              id="plate"
-              className={`bg-gray-800 border-gray-700 ${
-                errors.plate ? "border-red-400" : ""
-              }`}
-              value={editedVehicle.plate}
-              onChange={(e) =>
-                setEditedVehicle({ ...editedVehicle, plate: e.target.value })
-              }
-            />
-            {errors.plate && (
-              <p className="text-red-400 text-sm">{errors.plate}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="model">Modèle</Label>
-            <Input
-              id="model"
-              className={`bg-gray-800 border-gray-700 ${
-                errors.model ? "border-red-400" : ""
-              }`}
-              value={editedVehicle.model}
-              onChange={(e) =>
-                setEditedVehicle({ ...editedVehicle, model: e.target.value })
-              }
-            />
-            {errors.model && (
-              <p className="text-red-400 text-sm">{errors.model}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-4 my-2">
             <div className="space-y-2">
-              <Label htmlFor="transmission">Transmission</Label>
+              <Label htmlFor="licensePlate">Plaque d'immatriculation</Label>
+              <Input
+                id="licensePlate"
+                className="bg-gray-800 border-gray-700 text-white"
+                value={formData.licensePlate}
+                onChange={(e) =>
+                  setFormData({ ...formData, licensePlate: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="brand">Marque</Label>
+              <Input
+                id="brand"
+                className="bg-gray-800 border-gray-700 text-white"
+                value={formData.brand}
+                onChange={(e) =>
+                  setFormData({ ...formData, brand: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="model">Modèle</Label>
+              <Input
+                id="model"
+                className="bg-gray-800 border-gray-700 text-white"
+                value={formData.model}
+                onChange={(e) =>
+                  setFormData({ ...formData, model: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="transmission">Transmission</Label>
+                <Select
+                  value={formData.transmission}
+                  onValueChange={(value: Transmission) =>
+                    setFormData({ ...formData, transmission: value })
+                  }
+                >
+                  <SelectTrigger
+                    id="transmission"
+                    className="bg-gray-800 border-gray-700 text-white"
+                  >
+                    <SelectValue placeholder="Sélectionner" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectItem value={Transmission.AUTOMATIC}>Automatique</SelectItem>
+                    <SelectItem value={Transmission.MANUAL}>Manuelle</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="odometerKm">Kilométrage</Label>
+                <Input
+                  id="odometerKm"
+                  type="number"
+                  className="bg-gray-800 border-gray-700 text-white"
+                  min="0"
+                  value={formData.odometerKm}
+                  onChange={(e) =>
+                    setFormData({ ...formData, odometerKm: Number(e.target.value) || 0 })
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="condition">État</Label>
               <Select
-                value={editedVehicle.transmission}
-                onValueChange={(value: TransmissionType) =>
-                  setEditedVehicle({ ...editedVehicle, transmission: value })
+                value={formData.condition}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, condition: value })
                 }
               >
                 <SelectTrigger
-                  id="transmission"
-                  className="bg-gray-800 border-gray-700"
+                  id="condition"
+                  className="bg-gray-800 border-gray-700 text-white"
                 >
                   <SelectValue placeholder="Sélectionner" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectItem value="automatic">Automatique</SelectItem>
-                  <SelectItem value="manual">Manuelle</SelectItem>
+                  <SelectItem value="GOOD">Bon état</SelectItem>
+                  <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
+                  <SelectItem value="REPAIR">Réparation</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fuelType">Carburant</Label>
+              <Label htmlFor="available">Disponibilité</Label>
               <Select
-                value={editedVehicle.fuelType}
-                onValueChange={(value: FuelType) =>
-                  setEditedVehicle({ ...editedVehicle, fuelType: value })
+                value={formData.available ? "yes" : "no"}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, available: value === "yes" })
                 }
               >
                 <SelectTrigger
-                  id="fuelType"
-                  className="bg-gray-800 border-gray-700"
+                  id="available"
+                  className="bg-gray-800 border-gray-700 text-white"
                 >
                   <SelectValue placeholder="Sélectionner" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectItem value="gasoline">Essence</SelectItem>
-                  <SelectItem value="electric">Électrique</SelectItem>
-                  <SelectItem value="hybrid">Hybride</SelectItem>
+                  <SelectItem value="yes">Disponible</SelectItem>
+                  <SelectItem value="no">Indisponible</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="status">Statut</Label>
-            <Select
-              value={editedVehicle.status}
-              onValueChange={(value: VehicleStatus) =>
-                setEditedVehicle({ ...editedVehicle, status: value })
-              }
+          <DialogFooter className="mt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="border-gray-700 text-white hover:bg-gray-800"
             >
-              <SelectTrigger
-                id="status"
-                className="bg-gray-800 border-gray-700"
-              >
-                <SelectValue placeholder="Sélectionner" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
-                <SelectItem value="available">Disponible</SelectItem>
-                <SelectItem value="maintenance">Maintenance</SelectItem>
-                <SelectItem value="repair">Réparation</SelectItem>
-                <SelectItem value="outOfService">Hors service</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              className="bg-gray-800 border-gray-700"
-              rows={3}
-              value={editedVehicle.notes || ""}
-              onChange={(e) =>
-                setEditedVehicle({ ...editedVehicle, notes: e.target.value })
-              }
-            />
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Annuler
-          </Button>
-          <Button onClick={handleSave}>Enregistrer</Button>
-        </DialogFooter>
+              Annuler
+            </Button>
+            <Button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={updateVehicleMutation.isPending}
+            >
+              {updateVehicleMutation.isPending ? "Modification en cours..." : "Enregistrer"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

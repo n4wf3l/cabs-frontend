@@ -6,39 +6,37 @@ import {
   CheckCircle,
   Battery,
   Fuel,
-  Leaf,
   MoreVertical,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-
-// Types
-type DriverInfo = { id: string; name: string } | null;
-type VehicleStatus = "available" | "maintenance" | "repair" | "outOfService";
-type TransmissionType = "automatic" | "manual";
-type FuelType = "gasoline" | "electric" | "hybrid";
-
-interface Vehicle {
-  id: string;
-  plate: string;
-  model: string;
-  dayDriver: DriverInfo;
-  nightDriver: DriverInfo;
-  status: VehicleStatus;
-  transmission: TransmissionType;
-  fuelType: FuelType;
-  lastService?: Date;
-  notes?: string;
-}
+import { VehicleDTO } from "@/api/vehicle";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface VehicleIndexProps {
-  vehicles: Vehicle[];
-  statusCounts: Record<VehicleStatus, number>;
+  vehicles: VehicleDTO[];
+  statusCounts: Record<string, number>;
   activeFilter: string;
   setActiveFilter: (value: string) => void;
-  filteredVehicles: Vehicle[];
-  handleViewVehicle: (vehicle: Vehicle) => void;
+  filteredVehicles: VehicleDTO[];
+  handleViewVehicle: (vehicle: VehicleDTO) => void;
+  onEdit: (vehicle: VehicleDTO) => void;
+  onDelete: (vehicle: VehicleDTO) => void;
 }
 
 const VehicleIndex: React.FC<VehicleIndexProps> = ({
@@ -48,7 +46,26 @@ const VehicleIndex: React.FC<VehicleIndexProps> = ({
   setActiveFilter,
   filteredVehicles,
   handleViewVehicle,
+  onEdit,
+  onDelete,
 }) => {
+  const getStatusColor = (available: boolean, condition: string) => {
+    if (!available) return "destructive";
+    if (condition === "MAINTENANCE") return "secondary";
+    return "default";
+  };
+
+  const getConditionBadge = (condition: string) => {
+    switch (condition) {
+      case "MAINTENANCE":
+        return <Badge variant="warning">Maintenance</Badge>;
+      case "REPAIR":
+        return <Badge variant="destructive">Réparation</Badge>;
+      default:
+        return <Badge variant="success">Bon état</Badge>;
+    }
+  };
+
   return (
     <>
       {/* Statistiques de la flotte */}
@@ -56,7 +73,7 @@ const VehicleIndex: React.FC<VehicleIndexProps> = ({
         <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
           <div>
             <p className="text-gray-400 text-sm">Total Véhicules</p>
-            <p className="text-2xl font-bold">{vehicles.length}</p>
+            <p className="text-2xl font-bold text-white">{vehicles.length}</p>
           </div>
           <Car className="text-blue-400" size={28} />
         </div>
@@ -64,7 +81,9 @@ const VehicleIndex: React.FC<VehicleIndexProps> = ({
         <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
           <div>
             <p className="text-gray-400 text-sm">Disponibles</p>
-            <p className="text-2xl font-bold">{statusCounts.available || 0}</p>
+            <p className="text-2xl font-bold text-white">
+              {vehicles.filter((v) => v.available).length}
+            </p>
           </div>
           <CheckCircle className="text-green-400" size={28} />
         </div>
@@ -72,8 +91,8 @@ const VehicleIndex: React.FC<VehicleIndexProps> = ({
         <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
           <div>
             <p className="text-gray-400 text-sm">Maintenance</p>
-            <p className="text-2xl font-bold">
-              {statusCounts.maintenance || 0}
+            <p className="text-2xl font-bold text-white">
+              {vehicles.filter((v) => v.condition === "MAINTENANCE").length}
             </p>
           </div>
           <Wrench className="text-yellow-400" size={28} />
@@ -82,166 +101,138 @@ const VehicleIndex: React.FC<VehicleIndexProps> = ({
         <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
           <div>
             <p className="text-gray-400 text-sm">Réparation</p>
-            <p className="text-2xl font-bold">{statusCounts.repair || 0}</p>
+            <p className="text-2xl font-bold text-white">
+              {vehicles.filter((v) => v.condition === "REPAIR").length}
+            </p>
           </div>
           <AlertTriangle className="text-red-400" size={28} />
         </div>
       </div>
 
       {/* Filtres par statut */}
-      <Tabs
-        value={activeFilter}
-        onValueChange={setActiveFilter}
-        className="mb-6"
-      >
+      <Tabs value={activeFilter} className="mb-6">
         <TabsList className="bg-gray-900">
-          <TabsTrigger value="all">Tous</TabsTrigger>
-          <TabsTrigger value="available">Disponibles</TabsTrigger>
-          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-          <TabsTrigger value="repair">Réparation</TabsTrigger>
-          <TabsTrigger value="outOfService">Hors service</TabsTrigger>
+          <TabsTrigger value="all" onClick={() => setActiveFilter("all")}>
+            Tous
+          </TabsTrigger>
+          <TabsTrigger
+            value="available"
+            onClick={() => setActiveFilter("available")}
+          >
+            Disponibles
+          </TabsTrigger>
+          <TabsTrigger
+            value="maintenance"
+            onClick={() => setActiveFilter("maintenance")}
+          >
+            Maintenance
+          </TabsTrigger>
+          <TabsTrigger
+            value="repair"
+            onClick={() => setActiveFilter("repair")}
+          >
+            Réparation
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
       {/* Liste des véhicules */}
       <div className="bg-gray-900 rounded-lg shadow-md overflow-hidden">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="text-gray-400 bg-gray-800/50">
-              <th className="px-4 py-3">Plaque</th>
-              <th className="px-4 py-3">Modèle</th>
-              <th className="px-4 py-3">Chauffeur (Jour)</th>
-              <th className="px-4 py-3">Chauffeur (Nuit)</th>
-              <th className="px-4 py-3">Statut</th>
-              <th className="px-4 py-3">Spécifications</th>
-              <th className="px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow className="border-gray-800">
+              <TableHead className="text-gray-400">Plaque</TableHead>
+              <TableHead className="text-gray-400">Modèle</TableHead>
+              <TableHead className="text-gray-400">Kilométrage</TableHead>
+              <TableHead className="text-gray-400">État</TableHead>
+              <TableHead className="text-gray-400">Spécifications</TableHead>
+              <TableHead className="text-gray-400">Statut</TableHead>
+              <TableHead className="text-gray-400 text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {filteredVehicles.map((vehicle) => (
-              <tr
+              <TableRow
                 key={vehicle.id}
                 className="border-t border-gray-800 hover:bg-gray-800/50 transition"
               >
-                <td className="px-4 py-3 font-medium">{vehicle.plate}</td>
-                <td className="px-4 py-3">{vehicle.model}</td>
-
-                {/* Chauffeur de jour */}
-                <td className="px-4 py-3">
-                  {vehicle.dayDriver ? (
-                    <div className="flex items-center gap-2">
-                      <span className="bg-yellow-950 text-yellow-500 rounded-full w-2 h-2 inline-block"></span>
-                      {vehicle.dayDriver.name}
-                    </div>
-                  ) : (
-                    <Badge
-                      variant="outline"
-                      className="text-gray-400 bg-gray-800"
-                    >
-                      Libre
-                    </Badge>
-                  )}
-                </td>
-
-                {/* Chauffeur de nuit */}
-                <td className="px-4 py-3">
-                  {vehicle.nightDriver ? (
-                    <div className="flex items-center gap-2">
-                      <span className="bg-purple-950 text-purple-500 rounded-full w-2 h-2 inline-block"></span>
-                      {vehicle.nightDriver.name}
-                    </div>
-                  ) : (
-                    <Badge
-                      variant="outline"
-                      className="text-gray-400 bg-gray-800"
-                    >
-                      Libre
-                    </Badge>
-                  )}
-                </td>
-
-                {/* Statut du véhicule */}
-                <td className="px-4 py-3">
-                  {vehicle.status === "available" && (
-                    <Badge className="bg-green-900/30 text-green-400 hover:bg-green-900/50">
-                      Disponible
-                    </Badge>
-                  )}
-                  {vehicle.status === "maintenance" && (
-                    <Badge className="bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50">
-                      Maintenance
-                    </Badge>
-                  )}
-                  {vehicle.status === "repair" && (
-                    <Badge className="bg-red-900/30 text-red-400 hover:bg-red-900/50">
-                      Réparation
-                    </Badge>
-                  )}
-                  {vehicle.status === "outOfService" && (
-                    <Badge variant="outline" className="text-gray-400">
-                      Hors Service
-                    </Badge>
-                  )}
-                </td>
-
-                {/* Spécifications techniques */}
-                <td className="px-4 py-3">
+                <TableCell className="font-medium text-white">
+                  {vehicle.licensePlate}
+                </TableCell>
+                <TableCell className="text-gray-300">
+                  {vehicle.brand} {vehicle.model}
+                </TableCell>
+                <TableCell className="text-gray-300">
+                  {vehicle.odometerKm} km
+                </TableCell>
+                <TableCell>
+                  {getConditionBadge(vehicle.condition)}
+                </TableCell>
+                <TableCell>
                   <div className="flex items-center gap-2">
-                    {/* Type de transmission */}
                     <Badge
                       variant="outline"
-                      className="bg-gray-800 flex items-center gap-1"
+                      className="bg-gray-800 flex items-center gap-1 px-1.5"
                     >
-                      <span className="w-3 h-3">
-                        {vehicle.transmission === "automatic" ? "A" : "M"}
-                      </span>
+                      {vehicle.transmission === "AUTOMATIC" ? "A" : "M"}
                     </Badge>
-
-                    {/* Type de carburant */}
-                    {vehicle.fuelType === "gasoline" && (
-                      <Badge
-                        variant="outline"
-                        className="bg-gray-800 flex items-center gap-1"
-                      >
-                        <Fuel className="w-3 h-3" />
-                      </Badge>
-                    )}
-                    {vehicle.fuelType === "electric" && (
-                      <Badge
-                        variant="outline"
-                        className="bg-gray-800 flex items-center gap-1"
-                      >
-                        <Battery className="w-3 h-3" />
-                      </Badge>
-                    )}
-                    {vehicle.fuelType === "hybrid" && (
-                      <Badge
-                        variant="outline"
-                        className="bg-gray-800 flex items-center gap-1"
-                      >
-                        <Leaf className="w-3 h-3" />
-                      </Badge>
-                    )}
                   </div>
-                </td>
-
-                {/* Actions */}
-                <td className="px-4 py-3">
-                  <div className="flex items-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-full"
-                      onClick={() => handleViewVehicle(vehicle)}
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant={getStatusColor(vehicle.available, vehicle.condition)}
+                    className={`${
+                      vehicle.available
+                        ? "bg-green-900/30 text-green-400"
+                        : "bg-red-900/30 text-red-400"
+                    }`}
+                  >
+                    {vehicle.available ? "Disponible" : "Indisponible"}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+                      >
+                        <span className="sr-only">Menu actions</span>
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="bg-gray-800 border-gray-700"
                     >
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
+                      <DropdownMenuLabel className="text-gray-400">
+                        Actions
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem
+                        onClick={() => handleViewVehicle(vehicle)}
+                        className="text-gray-300 focus:bg-gray-700 focus:text-white"
+                      >
+                        Voir les détails
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onEdit(vehicle)}
+                        className="text-gray-300 focus:bg-gray-700 focus:text-white"
+                      >
+                        Modifier
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onDelete(vehicle)}
+                        className="text-red-400 focus:bg-red-900/30 focus:text-red-400"
+                      >
+                        Supprimer
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
 
         {filteredVehicles.length === 0 && (
           <div className="text-center text-gray-400 py-12">
@@ -253,17 +244,7 @@ const VehicleIndex: React.FC<VehicleIndexProps> = ({
       {/* Notes et légende */}
       <div className="mt-6 bg-gray-900 rounded-lg p-4">
         <h3 className="text-sm font-medium text-gray-400 mb-2">Légende</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div>
-            <p className="flex items-center gap-2 mb-1">
-              <span className="bg-yellow-950 text-yellow-500 rounded-full w-2 h-2 inline-block"></span>
-              <span>Shift de jour</span>
-            </p>
-            <p className="flex items-center gap-2 mb-1">
-              <span className="bg-purple-950 text-purple-500 rounded-full w-2 h-2 inline-block"></span>
-              <span>Shift de nuit</span>
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
             <p className="flex items-center gap-2 mb-1">
               <Badge
@@ -272,7 +253,7 @@ const VehicleIndex: React.FC<VehicleIndexProps> = ({
               >
                 <span className="w-3 h-3">A</span>
               </Badge>
-              <span>Transmission automatique</span>
+              <span className="text-gray-300">Transmission automatique</span>
             </p>
             <p className="flex items-center gap-2 mb-1">
               <Badge
@@ -281,36 +262,27 @@ const VehicleIndex: React.FC<VehicleIndexProps> = ({
               >
                 <span className="w-3 h-3">M</span>
               </Badge>
-              <span>Transmission manuelle</span>
+              <span className="text-gray-300">Transmission manuelle</span>
             </p>
           </div>
           <div>
             <p className="flex items-center gap-2 mb-1">
-              <Badge
-                variant="outline"
-                className="bg-gray-800 flex items-center gap-1 px-1.5"
-              >
-                <Fuel className="w-3 h-3" />
+              <Badge className="bg-green-900/30 text-green-400">
+                Bon état
               </Badge>
-              <span>Essence</span>
+              <span className="text-gray-300">Véhicule en bon état</span>
             </p>
             <p className="flex items-center gap-2 mb-1">
-              <Badge
-                variant="outline"
-                className="bg-gray-800 flex items-center gap-1 px-1.5"
-              >
-                <Battery className="w-3 h-3" />
+              <Badge className="bg-yellow-900/30 text-yellow-400">
+                Maintenance
               </Badge>
-              <span>Électrique</span>
+              <span className="text-gray-300">En maintenance programmée</span>
             </p>
             <p className="flex items-center gap-2">
-              <Badge
-                variant="outline"
-                className="bg-gray-800 flex items-center gap-1 px-1.5"
-              >
-                <Leaf className="w-3 h-3" />
+              <Badge className="bg-red-900/30 text-red-400">
+                Réparation
               </Badge>
-              <span>Hybride</span>
+              <span className="text-gray-300">En réparation</span>
             </p>
           </div>
         </div>

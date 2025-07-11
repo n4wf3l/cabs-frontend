@@ -24,7 +24,7 @@ export const VehicleHeader: React.FC<VehicleHeaderProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h1 className="text-2xl font-bold flex items-center gap-2">
+      <h1 className="text-2xl font-bold flex items-center gap-2 text-white">
         <Car className="text-blue-400" /> Gestion des Véhicules
       </h1>
 
@@ -32,8 +32,8 @@ export const VehicleHeader: React.FC<VehicleHeaderProps> = ({
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Rechercher..."
-            className="pl-9 bg-gray-900 border-gray-700"
+            placeholder="Rechercher un véhicule..."
+            className="pl-9 bg-gray-900 border-gray-700 text-white placeholder:text-gray-400"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -41,13 +41,16 @@ export const VehicleHeader: React.FC<VehicleHeaderProps> = ({
 
         <Button
           variant="outline"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 border-gray-700 text-white hover:bg-gray-800"
           onClick={onFilterClick}
         >
           <Filter size={16} /> Filtres
         </Button>
 
-        <Button className="flex items-center gap-2" onClick={onAddClick}>
+        <Button
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+          onClick={onAddClick}
+        >
           <Plus size={16} /> Nouveau Véhicule
         </Button>
       </div>

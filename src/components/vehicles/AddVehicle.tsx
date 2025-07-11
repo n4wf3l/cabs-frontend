@@ -17,273 +17,196 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-
-// Types
-type DriverInfo = { id: string; name: string } | null;
-type VehicleStatus = "available" | "maintenance" | "repair" | "outOfService";
-type TransmissionType = "automatic" | "manual";
-type FuelType = "gasoline" | "electric" | "hybrid";
-
-interface Vehicle {
-  id: string;
-  plate: string;
-  model: string;
-  dayDriver: DriverInfo;
-  nightDriver: DriverInfo;
-  status: VehicleStatus;
-  transmission: TransmissionType;
-  fuelType: FuelType;
-  lastService?: Date;
-  notes?: string;
-}
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { VehicleDTO, VehicleRequestDTO, Transmission, createVehicle } from "@/api/vehicle";
 
 interface AddVehicleProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (vehicle: Partial<Vehicle>) => void;
+  onAdd: (vehicle: Partial<VehicleDTO>) => void;
 }
 
-export default function AddVehicle({
-  isOpen,
-  onClose,
-  onAdd,
-}: AddVehicleProps) {
-  const [newVehicle, setNewVehicle] = useState<Partial<Vehicle>>({
-    plate: "",
+export default function AddVehicle({ isOpen, onClose, onAdd }: AddVehicleProps) {
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState<VehicleRequestDTO>({
+    licensePlate: "",
+    brand: "",
     model: "",
-    status: "available",
-    transmission: "automatic",
-    fuelType: "gasoline",
-    dayDriver: null,
-    nightDriver: null,
+    transmission: Transmission.AUTOMATIC,
+    odometerKm: 0,
+    available: true,
+    activeInShift: false,
+    condition: "GOOD",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Fonction pour formater automatiquement la plaque d'immatriculation
-  const formatLicensePlate = (input: string) => {
-    // Enlever tous les tirets et espaces existants
-    let cleanInput = input.replace(/[-\s]/g, "").toUpperCase();
-
-    if (cleanInput.length > 0) {
-      // Assurer que ça commence par T
-      if (!/^T/.test(cleanInput)) {
-        cleanInput = "T" + cleanInput;
-      }
-
-      // Ajouter les tirets automatiquement
-      let formatted = cleanInput.substring(0, 1); // Le T initial
-
-      // Ajouter le premier tiret après T
-      if (cleanInput.length > 1) {
-        formatted += "-";
-      }
-
-      // Ajouter les chiffres (position 2 à 4)
-      if (cleanInput.length > 1) {
-        const digits = cleanInput.substring(1, Math.min(4, cleanInput.length));
-        formatted += digits;
-      }
-
-      // Ajouter le deuxième tiret après les chiffres
-      if (cleanInput.length > 4) {
-        formatted += "-";
-      }
-
-      // Ajouter les lettres (position 5 et plus)
-      if (cleanInput.length > 4) {
-        formatted += cleanInput.substring(4);
-      }
-
-      return formatted;
-    }
-
-    return cleanInput;
-  };
-
-  // Fonction pour valider le formulaire
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!newVehicle.plate) {
-      newErrors.plate = "La plaque d'immatriculation est obligatoire";
-    } else if (!/^T-\d{3}-[A-Z]{3}$/.test(newVehicle.plate)) {
-      newErrors.plate = "Format invalide (doit être T-XXX-YYY)";
-    }
-
-    if (!newVehicle.model) {
-      newErrors.model = "Le modèle est obligatoire";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Fonction pour ajouter un véhicule
-  const handleAddVehicle = () => {
-    if (validateForm()) {
-      onAdd(newVehicle);
+  const addVehicleMutation = useMutation({
+    mutationFn: createVehicle,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       toast.success("Véhicule ajouté avec succès");
-
-      // Reset form
-      setNewVehicle({
-        plate: "",
-        model: "",
-        status: "available",
-        transmission: "automatic",
-        fuelType: "gasoline",
-        dayDriver: null,
-        nightDriver: null,
-      });
-
       onClose();
-    }
+      // Reset form
+      setFormData({
+        licensePlate: "",
+        brand: "",
+        model: "",
+        transmission: Transmission.AUTOMATIC,
+        odometerKm: 0,
+        available: true,
+        activeInShift: false,
+        condition: "GOOD",
+      });
+    },
+    onError: (error) => {
+      toast.error("Erreur lors de l'ajout du véhicule");
+      console.error("Error adding vehicle:", error);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    addVehicleMutation.mutate({
+      ...formData,
+      odometerKm: Number(formData.odometerKm) || 0,
+    });
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-lg font-medium flex items-center gap-2">
-            <Car className="text-blue-400" size={18} />
+          <DialogTitle className="flex items-center gap-2">
+            <Car className="h-6 w-6" />
             Ajouter un nouveau véhicule
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 my-2">
-          <div className="space-y-2">
-            <Label htmlFor="plate">Plaque d'immatriculation</Label>
-            <Input
-              id="plate"
-              placeholder="T123ABC"
-              className={`bg-gray-800 border-gray-700 ${
-                errors.plate ? "border-red-400" : ""
-              }`}
-              value={newVehicle.plate}
-              onChange={(e) => {
-                // Formater automatiquement la plaque lors de la saisie
-                const formattedPlate = formatLicensePlate(e.target.value);
-                setNewVehicle({ ...newVehicle, plate: formattedPlate });
-              }}
-              maxLength={9} // T-123-ABC = 9 caractères
-            />
-            {errors.plate && (
-              <p className="text-red-400 text-sm">{errors.plate}</p>
-            )}
-            <p className="text-xs text-gray-400">
-              Format: T-123-ABC (les tirets sont ajoutés automatiquement)
-            </p>
-          </div>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="licensePlate">Plaque d'immatriculation</Label>
+              <Input
+                id="licensePlate"
+                value={formData.licensePlate}
+                onChange={(e) =>
+                  setFormData({ ...formData, licensePlate: e.target.value })
+                }
+                required
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="model">Modèle</Label>
-            <Input
-              id="model"
-              placeholder="Toyota Prius"
-              className={`bg-gray-800 border-gray-700 ${
-                errors.model ? "border-red-400" : ""
-              }`}
-              value={newVehicle.model}
-              onChange={(e) =>
-                setNewVehicle({ ...newVehicle, model: e.target.value })
-              }
-            />
-            {errors.model && (
-              <p className="text-red-400 text-sm">{errors.model}</p>
-            )}
-          </div>
+            <div className="grid gap-2">
+              <Label htmlFor="brand">Marque</Label>
+              <Input
+                id="brand"
+                value={formData.brand}
+                onChange={(e) =>
+                  setFormData({ ...formData, brand: e.target.value })
+                }
+                required
+              />
+            </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="grid gap-2">
+              <Label htmlFor="model">Modèle</Label>
+              <Input
+                id="model"
+                value={formData.model}
+                onChange={(e) =>
+                  setFormData({ ...formData, model: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="grid gap-2">
               <Label htmlFor="transmission">Transmission</Label>
               <Select
-                value={newVehicle.transmission}
-                onValueChange={(value: TransmissionType) =>
-                  setNewVehicle({ ...newVehicle, transmission: value })
+                value={formData.transmission}
+                onValueChange={(value: Transmission) =>
+                  setFormData({ ...formData, transmission: value })
                 }
               >
-                <SelectTrigger
-                  id="transmission"
-                  className="bg-gray-800 border-gray-700"
-                >
-                  <SelectValue placeholder="Sélectionner" />
+                <SelectTrigger>
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectItem value="automatic">Automatique</SelectItem>
-                  <SelectItem value="manual">Manuelle</SelectItem>
+                <SelectContent>
+                  <SelectItem value={Transmission.AUTOMATIC}>Automatique</SelectItem>
+                  <SelectItem value={Transmission.MANUAL}>Manuelle</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="fuelType">Carburant</Label>
+            <div className="grid gap-2">
+              <Label htmlFor="odometerKm">Kilométrage</Label>
+              <Input
+                id="odometerKm"
+                type="number"
+                min="0"
+                step="1"
+                value={formData.odometerKm}
+                onChange={(e) =>
+                  setFormData({ ...formData, odometerKm: Number(e.target.value) || 0 })
+                }
+                required
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="condition">État</Label>
               <Select
-                value={newVehicle.fuelType}
-                onValueChange={(value: FuelType) =>
-                  setNewVehicle({ ...newVehicle, fuelType: value })
+                value={formData.condition}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, condition: value })
                 }
               >
-                <SelectTrigger
-                  id="fuelType"
-                  className="bg-gray-800 border-gray-700"
-                >
-                  <SelectValue placeholder="Sélectionner" />
+                <SelectTrigger>
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectItem value="gasoline">Essence</SelectItem>
-                  <SelectItem value="electric">Électrique</SelectItem>
-                  <SelectItem value="hybrid">Hybride</SelectItem>
+                <SelectContent>
+                  <SelectItem value="GOOD">Bon état</SelectItem>
+                  <SelectItem value="MAINTENANCE">En maintenance</SelectItem>
+                  <SelectItem value="REPAIR">En réparation</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="available">Disponibilité</Label>
+              <Select
+                value={formData.available ? "yes" : "no"}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, available: value === "yes" })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="yes">Disponible</SelectItem>
+                  <SelectItem value="no">Indisponible</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="status">Statut initial</Label>
-            <Select
-              value={newVehicle.status}
-              onValueChange={(value: VehicleStatus) =>
-                setNewVehicle({ ...newVehicle, status: value })
-              }
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
             >
-              <SelectTrigger
-                id="status"
-                className="bg-gray-800 border-gray-700"
-              >
-                <SelectValue placeholder="Sélectionner" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
-                <SelectItem value="available">Disponible</SelectItem>
-                <SelectItem value="maintenance">Maintenance</SelectItem>
-                <SelectItem value="repair">Réparation</SelectItem>
-                <SelectItem value="outOfService">Hors service</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes (optionnel)</Label>
-            <Textarea
-              id="notes"
-              placeholder="Informations supplémentaires sur le véhicule..."
-              className="bg-gray-800 border-gray-700"
-              rows={3}
-              value={newVehicle.notes || ""}
-              onChange={(e) =>
-                setNewVehicle({ ...newVehicle, notes: e.target.value })
-              }
-            />
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Annuler
-          </Button>
-          <Button onClick={handleAddVehicle}>Ajouter</Button>
-        </DialogFooter>
+              Annuler
+            </Button>
+            <Button
+              type="submit"
+              disabled={addVehicleMutation.isPending}
+            >
+              {addVehicleMutation.isPending ? "Ajout en cours..." : "Ajouter"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
