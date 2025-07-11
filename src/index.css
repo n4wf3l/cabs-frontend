@@ -13,6 +13,7 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 217.2 91.2% 59.8%;
+    --sidebar-width: 5rem; /* Valeur par défaut */
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -36,6 +37,8 @@
   body {
     @apply bg-background text-foreground antialiased font-inter;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+    margin: 0;
+    padding: 0;
   }
 }
 
@@ -153,4 +156,58 @@
 
 .animate-shake {
   animation: shake 0.4s ease-in-out;
+}
+
+/* Styles pour adapter le contenu principal en fonction de l'état du sidebar */
+body {
+  overflow-x: hidden;
+}
+
+/* Correction finale pour l'espacement entre le sidebar et le contenu principal */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body.sidebar-expanded .main-content {
+  margin-left: var(--sidebar-width, 16rem);
+}
+
+body.sidebar-collapsed .main-content {
+  margin-left: var(--sidebar-width, 5rem);
+}
+
+.main-content {
+  transition: margin-left 0.3s ease;
+  background-color: var(--background);
+  padding-left: 0 !important; 
+  height: 100vh;
+  width: 100%;
+}
+
+/* Pour les pages d'authentification, on ne veut pas d'espace pour le sidebar */
+.auth-page .main-content,
+.auth-page .content-container,
+.auth-page main {
+  margin-left: 0 !important;
+}
+
+@media (min-width: 768px) {
+  body.sidebar-expanded .main-content {
+    margin-left: var(--sidebar-width, 16rem) !important;
+    width: calc(100% - var(--sidebar-width, 16rem));
+  }
+  
+  body.sidebar-collapsed .main-content {
+    margin-left: var(--sidebar-width, 5rem) !important;
+    width: calc(100% - var(--sidebar-width, 5rem));
+  }
+}
+
+/* Assurer que le contenu couvre tout l'espace disponible */
+html, body, #root, .app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
