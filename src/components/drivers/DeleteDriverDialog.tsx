@@ -26,15 +26,12 @@ export const DeleteDriverDialog = ({
 }: DeleteDriverDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!driver) {
-    console.error("Driver is undefined or null"); // Debug log
+  if (!open || !driver) {
     return null;
   }
 
   const handleDelete = async () => {
     setIsLoading(true);
-    console.log("Delete button clicked, calling onDelete..."); // Debug log
-    console.log("Driver ID to delete:", driver.id); // Debug log
 
     try {
       await onDelete(driver.id); // Attend que la suppression soit terminée
