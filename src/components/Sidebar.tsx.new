@@ -78,35 +78,16 @@ export const Sidebar = () => {
 
   useEffect(() => {
     // Mettre à jour la variable CSS en fonction de l'état actuel
-    const newWidth = collapsed ? "5rem" : "16rem";
-    document.documentElement.style.setProperty("--sidebar-width", newWidth);
+    document.documentElement.style.setProperty(
+      "--sidebar-width",
+      collapsed ? "5rem" : "16rem"
+    );
 
-    // Appliquer une classe au body pour ajuster le layout en fonction de l'état du sidebar
-    if (collapsed) {
-      document.body.classList.add("sidebar-collapsed");
-      document.body.classList.remove("sidebar-expanded");
-    } else {
-      document.body.classList.add("sidebar-expanded");
-      document.body.classList.remove("sidebar-collapsed");
-    }
-
-    // Notifier les autres composants du changement via un événement personnalisé
-    const event = new CustomEvent("sidebarStateChange", { 
-      detail: { collapsed, width: newWidth } 
-    });
-    window.dispatchEvent(event);
-    
-    // Forcer le redimensionnement des composants qui pourraient en dépendre
-    window.dispatchEvent(new Event('resize'));
-    
-    // Permettre au CSS de s'appliquer correctement
-    requestAnimationFrame(() => {
-      const currentMarginLeft = document.body.style.marginLeft;
-      document.body.style.marginLeft = "0";
-      requestAnimationFrame(() => {
-        document.body.style.marginLeft = currentMarginLeft;
-      });
-    });
+    // Forcer une relecture des styles si nécessaire
+    document.body.style.marginLeft = "0";
+    setTimeout(() => {
+      document.body.style.marginLeft = "";
+    }, 0);
   }, [collapsed]);
 
   // Mettre à jour le comportement en fonction du mode
@@ -122,45 +103,17 @@ export const Sidebar = () => {
     // Sauvegarder la préférence
     localStorage.setItem("sidebarMode", sidebarMode);
   }, [sidebarMode]);
-  
-  // Effet d'initialisation pour s'assurer que le layout est correctement configuré au chargement de la page
-  useEffect(() => {
-    // Appliquer immédiatement la bonne classe pour éviter le "flash" de mauvais layout au chargement
-    if (sidebarMode === "expanded") {
-      document.body.classList.add("sidebar-expanded");
-      document.body.classList.remove("sidebar-collapsed");
-    } else {
-      document.body.classList.add("sidebar-collapsed");
-      document.body.classList.remove("sidebar-expanded");
-    }
-    
-    // Ajuster le layout du contenu principal
-    document.documentElement.style.setProperty(
-      "--sidebar-width",
-      sidebarMode === "expanded" ? "16rem" : "5rem"
-    );
-  }, []);
 
   const handleNavigation = (href: string) => {
     navigate(href);
   };
 
   const handleMouseEnter = () => {
-    if (!isMobile && sidebarMode === "hover") {
-      setCollapsed(false);
-      // Assurer que les classes sont appliquées de manière cohérente
-      document.body.classList.add("sidebar-expanded");
-      document.body.classList.remove("sidebar-collapsed");
-    }
+    if (!isMobile && sidebarMode === "hover") setCollapsed(false);
   };
 
   const handleMouseLeave = () => {
-    if (!isMobile && sidebarMode === "hover") {
-      setCollapsed(true);
-      // Assurer que les classes sont appliquées de manière cohérente
-      document.body.classList.add("sidebar-collapsed");
-      document.body.classList.remove("sidebar-expanded");
-    }
+    if (!isMobile && sidebarMode === "hover") setCollapsed(true);
   };
 
   return (
@@ -169,7 +122,7 @@ export const Sidebar = () => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className={cn(
-          "h-screen fixed left-0 top-0 z-40 flex flex-col glass-card transition-all duration-300 border-r-0",
+          "h-screen fixed left-0 top-0 z-40 flex flex-col glass-card transition-all duration-300",
           isMobile
             ? collapsed
               ? "-translate-x-full md:translate-x-0"

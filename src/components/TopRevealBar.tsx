@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BellIcon, AlertTriangle, Lightbulb, MessageCircle, Globe, User } from "lucide-react";
+import { BellIcon, AlertTriangle, Lightbulb, MessageCircle, Globe, User, Book, Video, Newspaper, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -62,6 +62,63 @@ export const TopRevealBar = () => {
               <div className="font-medium">Idée</div>
               <p className="text-xs text-muted-foreground">
                 Suggérer une amélioration
+              </p>
+            </div>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Menu Guide */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            className="rounded-full h-10 px-4 bg-background/80 backdrop-blur hover:bg-accent"
+          >
+            Guide
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="w-[280px]"
+        >
+          <DropdownMenuLabel className="text-base font-normal">
+            Guide d'utilisation
+          </DropdownMenuLabel>
+          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+            <Book className="h-4 w-4 text-blue-500" />
+            <div>
+              <div className="font-medium">Documentation</div>
+              <p className="text-xs text-muted-foreground">
+                Guide complet de la plateforme
+              </p>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+            <Video className="h-4 w-4 text-green-500" />
+            <div>
+              <div className="font-medium">Tutoriels vidéo</div>
+              <p className="text-xs text-muted-foreground">
+                Apprenez en vidéo
+              </p>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+            <Newspaper className="h-4 w-4 text-purple-500" />
+            <div>
+              <div className="font-medium">Nouveautés</div>
+              <p className="text-xs text-muted-foreground">
+                Dernières mises à jour
+              </p>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+            <GraduationCap className="h-4 w-4 text-yellow-500" />
+            <div>
+              <div className="font-medium">Formation</div>
+              <p className="text-xs text-muted-foreground">
+                Sessions de formation disponibles
               </p>
             </div>
           </DropdownMenuItem>

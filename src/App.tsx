@@ -27,44 +27,72 @@ import { ThemeProvider } from "./hooks/use-theme";
 import { Sidebar } from "./components/Sidebar";
 import { useEffect } from "react";
 import CashReport from "./pages/CashReport";
+import RouteSheet from "./pages/RouteSheet";
 
 const queryClient = new QueryClient();
 
-// Ajout d'un style global pour supporter la transition responsive de la sidebar
+// Composant pour gérer le comportement responsive de la sidebar
 const AppContent = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
-    // Récupérer l'état de la sidebar depuis le localStorage AVANT de définir la variable CSS
-    const sidebarCollapsed = localStorage.getItem("sidebarCollapsed");
-    const isCollapsed = sidebarCollapsed ? JSON.parse(sidebarCollapsed) : false;
-
-    // Initialiser la variable CSS avec la bonne valeur en fonction de l'état sauvegardé
-    document.documentElement.style.setProperty(
-      "--sidebar-width",
-      isCollapsed ? "5rem" : "16rem"
-    );
-
-    // Ajouter un style global pour le contenu principal
-    const style = document.createElement("style");
-    style.innerHTML = `
-      .main-content {
-        transition: margin-left 0.3s ease;
-        margin-left: 0;
+    // Récupérer l'état de la sidebar depuis le localStorage au chargement
+    const sidebarMode = localStorage.getItem("sidebarMode") || "hover";
+    const isExpanded = sidebarMode === "expanded";
+    
+    // Fonction pour configurer correctement l'état du sidebar et les styles associés
+    const configureSidebarState = () => {
+      // Gérer les classes CSS sur le body
+      if (isExpanded) {
+        document.body.classList.add("sidebar-expanded");
+        document.body.classList.remove("sidebar-collapsed");
+      } else {
+        document.body.classList.add("sidebar-collapsed");
+        document.body.classList.remove("sidebar-expanded");
       }
+
+      // Mettre à jour la variable CSS pour la largeur du sidebar
+      document.documentElement.style.setProperty(
+        "--sidebar-width",
+        isExpanded ? "16rem" : "5rem"
+      );
       
-      @media (min-width: 768px) {
-        .main-content {
-          margin-left: var(--sidebar-width, 16rem);
+      // Forcer un re-rendu du layout si nécessaire
+      window.dispatchEvent(new Event('resize'));
+    };
+    
+    // Configuration initiale au chargement
+    configureSidebarState();
+    
+    // Écouter les changements de mode de la sidebar dans le localStorage
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'sidebarMode') {
+        const newMode = e.newValue || 'hover';
+        const isNowExpanded = newMode === 'expanded';
+        
+        if (isNowExpanded) {
+          document.body.classList.add("sidebar-expanded");
+          document.body.classList.remove("sidebar-collapsed");
+        } else {
+          document.body.classList.add("sidebar-collapsed");
+          document.body.classList.remove("sidebar-expanded");
         }
+        
+        document.documentElement.style.setProperty(
+          "--sidebar-width",
+          isNowExpanded ? "16rem" : "5rem"
+        );
       }
-      
-      .auth-page .main-content {
-        margin-left: 0 !important;
-      }
-    `;
-    document.head.appendChild(style);
-
+    };
+    
+    // Ajouter l'écouteur d'événement pour les changements de localStorage
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Appliquer la configuration immédiatement, puis à nouveau après un court délai
+    // pour s'assurer que le DOM est bien chargé et que les styles sont appliqués
+    configureSidebarState();
+    setTimeout(configureSidebarState, 100);
+    
     return () => {
-      document.head.removeChild(style);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
@@ -73,10 +101,29 @@ const AppContent = ({ children }: { children: React.ReactNode }) => {
 
 // Composant qui encapsule les pages protégées avec la sidebar
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+  useEffect(() => {
+    // Synchroniser l'état du sidebar au chargement initial
+    const sidebarMode = localStorage.getItem("sidebarMode") || "hover";
+    const isExpanded = sidebarMode === "expanded";
+    
+    if (isExpanded) {
+      document.body.classList.add("sidebar-expanded");
+      document.body.classList.remove("sidebar-collapsed");
+    } else {
+      document.body.classList.add("sidebar-collapsed");
+      document.body.classList.remove("sidebar-expanded");
+    }
+    
+    // Forcer une mise à jour du layout après le montage
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 100);
+  }, []);
+
   return (
     <>
       <Sidebar />
-      <div className="main-content">{children}</div>
+      <div className="main-content overflow-auto">{children}</div>
     </>
   );
 };
@@ -193,6 +240,14 @@ const AppWithTopRevealBar = () => {
                 element={
                   <ProtectedLayout>
                     <CashReport />
+                  </ProtectedLayout>
+                }
+              />
+              <Route
+                path="/route-sheet"
+                element={
+                  <ProtectedLayout>
+                    <RouteSheet />
                   </ProtectedLayout>
                 }
               />
