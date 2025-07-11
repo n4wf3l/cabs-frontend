@@ -1,12 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { ForgetPasswordForm } from "@/components/auth/ForgetPasswordForm";
+import Conditions from "@/components/auth/Conditions";
+import Confidentiality from "@/components/auth/Confidentiality";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Login = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
-  const [showForgetPassword, setShowForgetPassword] = useState(false);
+  const [currentView, setCurrentView] = useState<"login" | "forget-password" | "conditions" | "confidentiality">("login");
+
+  // Gérer la navigation entre les vues
+  const handleViewChange = (view: "login" | "forget-password" | "conditions" | "confidentiality") => {
+    console.log('Changing view to:', view);
+    setCurrentView(view);
+  };
 
   const fullText =
     "La plateforme dédiée aux sociétés de taxi pour gérer leurs chauffeurs simplement et efficacement.";
@@ -53,7 +61,7 @@ const Login = () => {
         <div className="w-full max-w-4xl flex flex-col lg:flex-row bg-gray-900 text-white rounded-lg overflow-hidden shadow-xl">
           <div className="w-full lg:w-1/2 p-8 flex flex-col justify-center">
             <AnimatePresence mode="wait">
-              {!showForgetPassword ? (
+              {currentView === "login" && (
                 <motion.div
                   key="login"
                   initial={{ opacity: 0, y: 10 }}
@@ -63,10 +71,14 @@ const Login = () => {
                 >
                   <LoginForm
                     onSuccess={() => {}}
-                    onForgetPassword={() => setShowForgetPassword(true)}
+                    onForgetPassword={() => handleViewChange("forget-password")}
+                    onShowConditions={() => handleViewChange("conditions")}
+                    onShowConfidentiality={() => handleViewChange("confidentiality")}
                   />
                 </motion.div>
-              ) : (
+              )}
+              
+              {currentView === "forget-password" && (
                 <motion.div
                   key="forget"
                   initial={{ opacity: 0, y: 10 }}
@@ -75,8 +87,32 @@ const Login = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <ForgetPasswordForm
-                    onCancel={() => setShowForgetPassword(false)}
+                    onCancel={() => handleViewChange("login")}
                   />
+                </motion.div>
+              )}
+
+              {currentView === "conditions" && (
+                <motion.div
+                  key="conditions"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Conditions onBack={() => handleViewChange("login")} />
+                </motion.div>
+              )}
+
+              {currentView === "confidentiality" && (
+                <motion.div
+                  key="confidentiality"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Confidentiality onBack={() => handleViewChange("login")} />
                 </motion.div>
               )}
             </AnimatePresence>

@@ -43,6 +43,14 @@
   .glass-card {
     @apply bg-secondary/30 backdrop-blur-lg border border-white/10;
   }
+  
+  .form-container {
+    @apply relative overflow-hidden;
+  }
+  
+  .form-container > form {
+    @apply w-full;
+  }
 }
 
 @keyframes light-move {

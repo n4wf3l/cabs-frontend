@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { ForgetPasswordForm } from "@/components/auth/ForgetPasswordForm";
+import Conditions from "@/components/auth/Conditions";
+import Confidentiality from "@/components/auth/Confidentiality";
+import SeeMore from "@/components/auth/SeeMore";
 import { Button } from "@/components/ui/button";
 import {
   Car,
@@ -16,6 +19,9 @@ import { useNavigate } from "react-router-dom";
 export const LandingPage = () => {
   // Gestion des états
   const [showForgetPassword, setShowForgetPassword] = useState(false);
+  const [showConditions, setShowConditions] = useState(false);
+  const [showConfidentiality, setShowConfidentiality] = useState(false);
+  const [showSeeMore, setShowSeeMore] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showContent, setShowContent] = useState(false);
   const navigate = useNavigate();
@@ -50,6 +56,36 @@ export const LandingPage = () => {
 
   const handleCancelForgetPassword = () => {
     setShowForgetPassword(false);
+  };
+
+  // Fonctions pour gérer les conditions et la confidentialité
+  const handleShowConditions = () => {
+    console.log("Show conditions clicked in LandingPage");
+    setShowConditions(true);
+    setShowForgetPassword(false);
+    setShowConfidentiality(false);
+  };
+
+  const handleShowConfidentiality = () => {
+    console.log("Show confidentiality clicked in LandingPage");
+    setShowConditions(false);
+    setShowForgetPassword(false);
+    setShowConfidentiality(true);
+  };
+
+  // Fonction pour afficher "En savoir plus"
+  const handleShowSeeMore = () => {
+    setShowSeeMore(true);
+    setShowConditions(false);
+    setShowForgetPassword(false);
+    setShowConfidentiality(false);
+  };
+
+  const handleBack = () => {
+    setShowConditions(false);
+    setShowConfidentiality(false);
+    setShowForgetPassword(false);
+    setShowSeeMore(false);
   };
 
   return (
@@ -155,6 +191,7 @@ export const LandingPage = () => {
                 size="lg"
                 variant="outline"
                 className="border-white/30 text-white hover:bg-white/10 px-6 py-6"
+                onClick={handleShowSeeMore}
               >
                 En savoir plus
               </Button>
@@ -237,7 +274,7 @@ export const LandingPage = () => {
         <div className="h-full flex items-center justify-center p-8">
           <div className="w-full max-w-md">
             <AnimatePresence mode="wait">
-              {!showForgetPassword ? (
+              {!showForgetPassword && !showConditions && !showConfidentiality && !showSeeMore ? (
                 <motion.div
                   key="login"
                   initial={{ opacity: 0, y: 20 }}
@@ -251,9 +288,11 @@ export const LandingPage = () => {
                   <LoginForm
                     onSuccess={handleLoginSuccess}
                     onForgetPassword={handleShowForgetPassword}
+                    onShowConditions={handleShowConditions}
+                    onShowConfidentiality={handleShowConfidentiality}
                   />
                 </motion.div>
-              ) : (
+              ) : showForgetPassword ? (
                 <motion.div
                   key="forget"
                   initial={{ opacity: 0, y: 20 }}
@@ -265,6 +304,36 @@ export const LandingPage = () => {
                     onCancel={handleCancelForgetPassword}
                     onSuccess={handleLoginSuccess}
                   />
+                </motion.div>
+              ) : showConditions ? (
+                <motion.div
+                  key="conditions"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Conditions onBack={handleBack} />
+                </motion.div>
+              ) : showConfidentiality ? (
+                <motion.div
+                  key="confidentiality"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Confidentiality onBack={handleBack} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="seeMore"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <SeeMore onBack={handleBack} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -286,16 +355,24 @@ export const LandingPage = () => {
           transition={{ duration: 0.5, delay: 0.7 }}
         >
           <AnimatePresence mode="wait">
-            {!showForgetPassword ? (
+            {!showForgetPassword && !showConditions && !showConfidentiality && !showSeeMore ? (
               <LoginForm
                 onSuccess={handleLoginSuccess}
                 onForgetPassword={handleShowForgetPassword}
+                onShowConditions={handleShowConditions}
+                onShowConfidentiality={handleShowConfidentiality}
               />
-            ) : (
+            ) : showForgetPassword ? (
               <ForgetPasswordForm
                 onCancel={handleCancelForgetPassword}
                 onSuccess={handleLoginSuccess}
               />
+            ) : showConditions ? (
+              <Conditions onBack={handleBack} />
+            ) : showConfidentiality ? (
+              <Confidentiality onBack={handleBack} />
+            ) : (
+              <SeeMore onBack={handleBack} />
             )}
           </AnimatePresence>
         </motion.div>

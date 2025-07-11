@@ -94,14 +94,16 @@ export const ForgetPasswordForm = ({
         </Button>
       </motion.form>
 
-      <Button
-        variant="link"
-        onClick={handleGoBack}
-        className="text-yellow-500 hover:text-yellow-400 text-sm mt-6 mx-auto block"
-      >
-        <ArrowLeft className="mr-1 h-3 w-3" />
-        Retour à la connexion
-      </Button>
+      <div className="flex justify-center items-center mt-6">
+        <ArrowLeft className="mr-1 h-3 w-3 text-yellow-500" />
+        <Button
+          variant="link"
+          onClick={handleGoBack}
+          className="text-yellow-500 hover:text-yellow-400 text-sm"
+        >
+          Retour à la connexion
+        </Button>
+      </div>
 
       <div className="mt-8 text-center">
         <p className="text-xs text-gray-500">
